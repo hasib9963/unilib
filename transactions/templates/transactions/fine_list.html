@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block title %}Fines - UniLib{% endblock %}
+
+{% block content %}
+<div class="container py-4 animate__animated animate__fadeIn">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">
+                <i class="fas fa-money-bill-wave me-2 text-primary"></i>Fines
+            </h2>
+            <p class="text-muted mb-0">Outstanding and paid fines</p>
+        </div>
+        <div class="d-flex align-items-center">
+            <span class="badge bg-warning text-dark me-3">
+                <i class="fas fa-exclamation-circle me-1"></i> Pending: ${{ total_pending_fines }}
+            </span>
+            <span class="badge bg-success">
+                <i class="fas fa-check-circle me-1"></i> Paid: ${{ total_paid_fines }}
+            </span>
+        </div>
+    </div>
+    
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Book</th>
+                            <th>Borrower</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th class="pe-4 text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fine in fines %}
+                        <tr class="{% if fine.is_paid %}bg-success-10{% else %}bg-warning-10{% endif %}">
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    {% if fine.borrow.book.cover_image %}
+                                    <img src="{{ fine.borrow.book.cover_image.url }}" 
+                                         class="rounded me-3" 
+                                         alt="{{ fine.borrow.book.title }}"
+                                         style="width: 40px; height: 60px; object-fit: cover;">
+                                    {% else %}
+                                    <div class="rounded bg-light d-flex align-items-center justify-content-center me-3" 
+                                         style="width: 40px; height: 60px;">
+                                        <i class="fas fa-book text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <a href="{% url 'book-detail' fine.borrow.book.pk %}" 
+                                           class="text-primary fw-bold text-decoration-none">
+                                            {{ fine.borrow.book.title|truncatechars:30 }}
+                                        </a>
+                                        <p class="small text-muted mb-0">{{ fine.borrow.book.author }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-sm me-2">
+                                        <i class="fas fa-user text-primary"></i>
+                                    </div>
+                                    {{ fine.borrow.user.get_full_name }}
+                                </div>
+                            </td>
+                            <td class="fw-bold">${{ fine.amount }}</td>
+                            <td>
+                                {% if fine.is_paid %}
+                                <span class="badge bg-success bg-opacity-10 text-success">
+                                    <i class="fas fa-check-circle me-1"></i> Paid
+                                </span>
+                                {% else %}
+                                <span class="badge bg-warning bg-opacity-10 text-dark">
+                                    <i class="fas fa-exclamation-circle me-1"></i> Pending
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>{{ fine.created_at|date:"M d, Y" }}</td>
+                            <td class="pe-4 text-end">
+                                {% if not fine.is_paid %}
+                                <a href="{% url 'pay-fine' fine.pk %}" 
+                                   class="btn btn-sm btn-success"
+                                   data-bs-toggle="tooltip" 
+                                   title="Mark as paid">
+                                    <i class="fas fa-money-bill-wave me-1"></i> Pay
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                                <h5 class="text-muted">No fines found</h5>
+                                <p class="text-muted">All fines are cleared</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    {% if is_paginated %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="First">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<style>
+    .bg-success-10 {
+        background-color: rgba(25, 135, 84, 0.05) !important;
+    }
+    .bg-warning-10 {
+        background-color: rgba(255, 193, 7, 0.05) !important;
+    }
+    .avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(67, 97, 238, 0.1);
+    }
+    .avatar-sm {
+        width: 24px;
+        height: 24px;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(67, 97, 238, 0.03) !important;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}

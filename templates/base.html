@@ -1,0 +1,429 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniLib - {% block title %}University Library Management System{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-gradient-primary">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+                <i class="fas fa-book-open me-2"></i>
+                <span class="brand-text">UniLib</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'book-list' %}">
+                            <i class="fas fa-book me-1"></i> Books
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'borrow-list' %}">
+                            <i class="fas fa-exchange-alt me-1"></i> My Borrows
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard' %}">
+                            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    {% if user.is_admin or user.is_librarian %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-tools me-1"></i> Management
+                        </a>
+                        <ul class="dropdown-menu shadow">
+                            <li><a class="dropdown-item" href="{% url 'book-create' %}">Add Book</a></li>
+                            <li><a class="dropdown-item" href="{% url 'category-list' %}">Category</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'user-list' %}">User Management</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                    {% endif %}
+                </ul>
+
+                <ul class="navbar-nav">
+                {% if user.is_authenticated %}
+                
+                <!-- Profile Dropdown -->
+                <li class="nav-item dropdown me-2">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                        <div class="avatar avatar-sm me-2">
+                            <img src="{{ user.get_profile_picture }}" class="rounded-circle" alt="Profile">
+                        </div>
+                        <span class="d-none d-lg-inline">{{ user.get_full_name|default:user.username }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i> Profile</a></li>
+                        <li><a class="dropdown-item" href="{% url 'fine-list' %}"><i class="fas fa-money-bill-wave me-2"></i> Fines</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Notifications Icon (Right of Profile) -->
+                <li class="nav-item d-flex align-items-center">
+                    <a class="nav-link position-relative" href="{% url 'notification-list' %}">
+                        <i class="fas fa-bell fa-lg"></i>
+                        {% if unread_notification_count %}
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ unread_notification_count }}
+                                <span class="visually-hidden">unread notifications</span>
+                            </span>
+                        {% endif %}
+                    </a>
+                </li>
+
+                {% else %}
+                <!-- Guest links -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">
+                        <i class="fas fa-sign-in-alt me-1"></i> Sign In
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-outline-light ms-2" href="{% url 'register' %}">
+                        <i class="fas fa-user-plus me-1"></i> Register
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1">
+        {% if messages %}
+        <div class="container mt-3">
+            <div class="row">
+                <div class="col-12">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="fas 
+                                {% if message.tags == 'success' %}fa-check-circle
+                                {% elif message.tags == 'error' %}fa-times-circle
+                                {% else %}fa-info-circle{% endif %} 
+                                me-2"></i>
+                            <div>{{ message }}</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Complete University Library Footer with Optimized Spacing -->
+    <footer class="library-footer bg-dark-blue text-white pt-5 pb-4">
+        <div class="container">
+            <div class="row gx-3">  <!-- Added gx-3 for consistent column gutters -->
+                <!-- Quick Links -->
+                <div class="col-lg-3 col-md-6 mb-4 px-2">  <!-- Reduced px-3 to px-2 -->
+                    <h5 class="text-uppercase text-white mb-3 pb-2 section-header">  <!-- Reduced mb-4 to mb-3 -->
+                        <i class="fas fa-external-link-alt me-2"></i>Quick Links
+                    </h5>
+                    <ul class="list-unstyled footer-links">
+                        <li class="mb-1">  <!-- Reduced mb-2 to mb-1 -->
+                            <a href="{% url 'book-list' %}" class="text-light hover-accent">
+                                <i class="fas fa-book me-2"></i>
+                                Book Catalog
+                            </a>
+                        </li>
+                        <li class="mb-1">
+                            <a href="https://www.ru.ac.bd/ier/" class="text-light hover-accent" target='blank'>
+                                <i class="fas fa-search me-2"></i>
+                                Research Databases
+                            </a>
+                        </li>
+                        <li class="mb-1">
+                            <a href="https://www.ru.ac.bd/publications/" class="text-light hover-accent" target='blank'>
+                                <i class="fas fa-user-graduate me-2"></i>
+                                Student Resources
+                            </a>
+                        </li>
+                        <li class="mb-1">
+                            <a href="https://www.ru.ac.bd/faculties/" class="text-light hover-accent" target='blank'>
+                                <i class="fas fa-chalkboard-teacher me-2"></i>
+                                Faculty Services
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.facebook.com/sadrul.sabbir" class="text-light hover-accent" target='blank'>
+                                <i class="fas fa-question-circle me-2"></i>
+                                Ask a Librarian
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Opening Hours -->
+                <div class="col-lg-3 col-md-6 mb-4 px-2">
+                    <h5 class="text-uppercase text-white mb-3 pb-2 section-header">
+                        <i class="far fa-clock me-2"></i>Opening Hours
+                    </h5>
+                    <ul class="list-unstyled text-light footer-hours">
+                        <li class="d-flex justify-content-between mb-1 py-1 hour-item">  <!-- Reduced mb-2 to mb-1 -->
+                            <span>Monday - Thursday</span>
+                            <span>10:00 AM - 03:00 PM</span>
+                        </li>
+                        <li class="d-flex justify-content-between mb-1 py-1 hour-item">
+                            <span>Friday</span>
+                            <span>Only On Online</span>
+                        </li>
+                        <li class="d-flex justify-content-between mb-1 py-1 hour-item">
+                            <span>Saturday</span>
+                            <span>09:00 AM - 2:00 PM</span>
+                        </li>
+                        <li class="d-flex justify-content-between py-1 hour-item">
+                            <span>Sunday</span>
+                            <span>10:00 PM - 03:00 PM</span>
+                        </li>
+                    </ul>
+                    <div class="online-resources-notice mt-2">  <!-- Added mt-2 -->
+                        <i class="fas fa-laptop-house me-2"></i>
+                        24/7 online resources available
+                    </div>
+                </div>
+
+                <!-- Contact Us -->
+                <div class="col-lg-3 col-md-6 mb-4 px-4">
+                    <h5 class="text-uppercase text-white mb-3 pb-2 section-header">
+                        <i class="fas fa-envelope me-2"></i>Contact Us
+                    </h5>
+                    <address class="footer-contact">
+                        <div class="mb-1 contact-item">  <!-- Reduced mb-2 to mb-1 -->
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            RECR Library<br>
+                            <span class="ms-3 d-inline-block">G. L. Roy Road, Campus</span>  <!-- Changed contact-indent to ms-3 -->
+                        </div>
+                        <div class="mb-1 contact-item">
+                            <i class="fas fa-phone me-2"></i>
+                            +88 01622474060
+                        </div>
+                        <div class="mb-1 contact-item">
+                            <i class="fas fa-envelope me-2"></i>
+                            library@recr.edu
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-headset me-2"></i>
+                            Support: help@library.recr.edu
+                        </div>
+                    </address>
+                </div>
+
+                <!-- Newsletter & Social -->
+                <div class="col-lg-3 col-md-6 px-2">
+                    <h5 class="text-uppercase text-white mb-3 pb-2 section-header">
+                        <i class="fas fa-newspaper me-2"></i>Newsletter
+                    </h5>
+                    <p class="text-light mb-2 footer-text">  <!-- Reduced mb-3 to mb-2 -->
+                        Subscribe for updates on new resources and events.
+                    </p>
+                    <form class="mb-3 newsletter-form">  <!-- Reduced mb-4 to mb-3 -->
+                        <div class="input-group">
+                            <input type="email" class="form-control bg-library-dark border-light-10 text-light" placeholder="Your email">
+                            <button class="btn btn-accent" type="submit">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <h5 class="text-uppercase text-white mt-3 mb-2 pb-2 section-header">  <!-- Reduced mt-4 to mt-3 and mb-3 to mb-2 -->
+                        <i class="fas fa-share-alt me-2"></i>Connect
+                    </h5>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon me-2">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-icon me-2">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-icon me-2">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-icon">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Copyright -->
+            <div class="border-top border-light-10 pt-3 mt-3">  <!-- Reduced pt-4 to pt-3 and mt-4 to mt-3 -->
+                <div class="row align-items-center">
+                    <div class="col-md-6 mb-2 mb-md-0">  <!-- Reduced mb-3 to mb-2 -->
+                        <p class="text-light mb-0 copyright-text">
+                            <i class="fas fa-university me-2"></i>
+                            © {% now "Y" %} University Library. All rights reserved.
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <ul class="list-inline mb-0 legal-links">
+                            <li class="list-inline-item">
+                                <a href="#" class="text-light hover-accent">
+                                    Privacy Policy
+                                </a>
+                            </li>
+                            <li class="list-inline-item mx-1">·</li>  <!-- Reduced mx-2 to mx-1 -->
+                            <li class="list-inline-item">
+                                <a href="#" class="text-light hover-accent">
+                                    Terms of Use
+                                </a>
+                            </li>
+                            <li class="list-inline-item mx-1">·</li>
+                            <li class="list-inline-item">
+                                <a href="#" class="text-light hover-accent">
+                                    Accessibility
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <style>
+        /* Footer Base Styles */
+        .library-footer {
+            background-color: #1c2b4a;
+            background-image: linear-gradient(135deg, #1c2b4a 0%, #0f1a30 100%);
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        /* Section Headers */
+        .section-header {
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            letter-spacing: 0.5px;
+        }
+        
+        /* Content Styles */
+        .footer-links,
+        .footer-hours,
+        .footer-contact,
+        .footer-text {
+            font-size: 0.85rem;
+        }
+        
+        /* Spacing and Layout */
+        .hour-item,
+        .contact-item {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        /* Interactive Elements */
+        .hover-accent {
+            transition: all 0.3s ease;
+        }
+        
+        .hover-accent:hover {
+            color: #4a6da7 !important;
+            text-decoration: none;
+        }
+        
+        .social-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;  /* Reduced from 36px */
+            height: 32px;
+            background-color: rgba(255,255,255,0.08);
+            color: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .social-icon:hover {
+            background-color: #4a6da7;
+            transform: translateY(-2px);
+        }
+        
+        .btn-accent {
+            background-color: #4a6da7;
+            border-color: #4a6da7;
+            color: white;
+        }
+        
+        /* Special Components */
+        .online-resources-notice {
+            font-size: 0.75rem;  /* Reduced from 0.8rem */
+            background-color: rgba(255,255,255,0.05);
+            border-left: 3px solid #4a6da7;
+            padding: 0.4rem;  /* Reduced from 0.5rem */
+        }
+        
+        .bg-library-dark {
+            background-color: rgba(0,0,0,0.2);
+        }
+        
+        .border-light-10 {
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+        
+        /* Copyright Section */
+        .copyright-text {
+            font-size: 0.75rem;  /* Reduced from 0.8rem */
+        }
+        
+        .legal-links {
+            font-size: 0.75rem;  /* Reduced from 0.8rem */
+        }
+    </style>
+    <!-- Back to Top Button (Global) -->
+    <a id="back-to-top" href="#" class="btn btn-primary btn-lg back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{% static 'js/script.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,512 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Edit Profile - UniLib{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Page Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="fw-bold mb-2">
+                <i class="fas fa-user-circle text-primary me-2"></i>
+                My Profile
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="fas fa-home me-1"></i> Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page"><i class="fas fa-user me-1"></i> Profile</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="mt-3 mt-md-0">
+            <a href="{% url 'password_change' %}" class="btn btn-outline-primary">
+                <i class="fas fa-key me-2"></i> Change Password
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Profile Summary Card -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="text-center">
+                        <!-- Profile Picture -->
+                        <div class="avatar-upload mb-4 position-relative mx-auto">
+                            <div class="avatar-preview rounded-circle shadow-sm">
+                                <img src="{{ user.get_profile_picture|default:'/static/images/default-avatar.png' }}" 
+                                     class="rounded-circle" 
+                                     alt="Profile Picture" 
+                                     width="150" height="150" id="previewImage">
+                            </div>
+                            <label for="id_profile_picture" class="avatar-edit btn btn-primary btn-sm rounded-circle position-absolute bottom-0 end-0">
+                                <i class="fas fa-camera"></i>
+                                <input type="file" id="id_profile_picture" name="profile_picture" accept="image/*" class="d-none">
+                            </label>
+                        </div>
+
+                        <h3 class="mb-2"><i class="fas fa-user me-2"></i>{{ user.get_full_name }}</h3>
+                        <p class="text-muted mb-1"><i class="fas fa-envelope me-2"></i>{{ user.email }}</p>
+                        <span class="badge bg-primary-light text-primary">
+                            <i class="fas fa-user-tag me-1"></i>{{ user.get_role_display }}
+                        </span>
+
+                        <hr class="my-4">
+
+                        <!-- Stats Cards -->
+                        <div class="row g-3 text-center">
+                            <div class="col-4">
+                                <div class="stat-card p-3 rounded-3 bg-primary-light">
+                                    <h4 class="fw-bold mb-1 text-primary">{{ active_borrows }}</h4>
+                                    <small class="text-muted"><i class="fas fa-book-open me-1"></i>Active Borrows</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-card p-3 rounded-3 bg-success-light">
+                                    <h4 class="fw-bold mb-1 text-success">{{ total_borrows }}</h4>
+                                    <small class="text-muted"><i class="fas fa-book me-1"></i>Total Borrows</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-card p-3 rounded-3 {% if fines_count > 0 %}bg-danger-light{% else %}bg-secondary-light{% endif %}">
+                                    <h4 class="fw-bold mb-1 {% if fines_count > 0 %}text-danger{% else %}text-secondary{% endif %}">{{ fines_count }}</h4>
+                                    <small class="text-muted"><i class="fas fa-exclamation-circle me-1"></i>Fines</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Edit Form -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h4 class="mb-0 fw-bold">
+                        <i class="fas fa-user-edit text-primary me-2"></i> 
+                        Edit Profile Information
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data" id="profileForm">
+                        {% csrf_token %}
+
+                        <!-- Personal Information Section -->
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary section-header">
+                                <i class="fas fa-user-circle me-2"></i> Personal Information
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        {{ form.first_name }}
+                                        <label for="{{ form.first_name.id_for_label }}"><i class="fas fa-user me-1"></i> First Name</label>
+                                        {% if form.first_name.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ form.first_name.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        {{ form.last_name }}
+                                        <label for="{{ form.last_name.id_for_label }}"><i class="fas fa-user me-1"></i> Last Name</label>
+                                        {% if form.last_name.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ form.last_name.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information Section -->
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary section-header">
+                                <i class="fas fa-address-card me-2"></i> Contact Information
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        {{ form.email }}
+                                        <label for="{{ form.email.id_for_label }}"><i class="fas fa-envelope me-1"></i> Email</label>
+                                        {% if form.email.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ form.email.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        {{ form.phone }}
+                                        <label for="{{ form.phone.id_for_label }}"><i class="fas fa-phone me-1"></i> Phone</label>
+                                        {% if form.phone.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ form.phone.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-floating mb-3">
+                                        {{ form.address }}
+                                        <label for="{{ form.address.id_for_label }}"><i class="fas fa-map-marker-alt me-1"></i> Address</label>
+                                        {% if form.address.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ form.address.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- University Information Section -->
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary section-header">
+                                <i class="fas fa-university me-2"></i> University Information
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        {{ form.university_id }}
+                                        <label for="{{ form.university_id.id_for_label }}"><i class="fas fa-id-card me-1"></i> University ID</label>
+                                        {% if form.university_id.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ form.university_id.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.role|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Profile Picture Section -->
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary section-header">
+                                <i class="fas fa-camera me-2"></i> Profile Picture
+                            </h5>
+                            <div class="form-group">
+                                <label for="{{ form.profile_picture.id_for_label }}" class="form-label">
+                                    <i class="fas fa-upload me-1"></i>Update Photo 
+                                </label>
+                                <div class="custom-file">
+                                    <input type="file" 
+                                        class="custom-file-input" 
+                                        id="{{ form.profile_picture.id_for_label }}" 
+                                        name="{{ form.profile_picture.name }}"
+                                        accept="image/*">
+                                    <label class="custom-file-label" for="{{ form.profile_picture.id_for_label }}">
+                                        <i class="fas fa-file-image me-1"></i>Choose file
+                                    </label>
+                                </div>
+                                {% if form.profile_picture.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.profile_picture.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <small class="text-muted"><i class="fas fa-info-circle me-1"></i>JPG, PNG format, max 2MB</small>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3 mt-4">
+                            <a href="{% url 'profile' %}" class="btn btn-outline-secondary px-4">
+                                <i class="fas fa-times me-2"></i> Cancel
+                            </a>
+                            {% comment %} <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-save me-2"></i> Save Changes
+                            </button> {% endcomment %}
+
+                            <button type="submit" class="btn btn-primary px-4" id="submit-button">
+                                <i class="fas fa-save me-2"></i> <span id="button-text">Save Changes</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+
+    .fa-spinner {
+    animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Custom file input styling */
+    .custom-file {
+        position: relative;
+        display: block;
+        width: 100%;
+        height: calc(3.5rem + 2px);
+        margin-bottom: 0.5rem;
+    }
+
+    .custom-file-input {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        height: calc(3.5rem + 2px);
+        margin: 0;
+        opacity: 0;
+    }
+
+    .custom-file-label {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        z-index: 1;
+        height: calc(3.5rem + 2px);
+        padding: 1rem 0.75rem;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        border: 1px solid #ced4da;
+        border-radius: 0.5rem;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+    }
+
+    .custom-file-label::after {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 3;
+        display: block;
+        height: calc(3.5rem + 2px);
+        padding: 1rem 0.75rem;
+        line-height: 1.5;
+        color: #495057;
+        content: "Browse";
+        background-color: #e9ecef;
+        border-left: 1px solid #ced4da;
+        border-radius: 0 0.5rem 0.5rem 0;
+        transition: all 0.3s;
+    }
+
+    .custom-file-label i {
+        margin-right: 0.5rem;
+    }
+
+
+
+    :root {
+        --primary-light: rgba(67, 97, 238, 0.1);
+        --success-light: rgba(40, 167, 69, 0.1);
+        --danger-light: rgba(220, 53, 69, 0.1);
+        --secondary-light: rgba(108, 117, 125, 0.1);
+    }
+    
+    .avatar-upload {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .avatar-preview {
+        width: 100%;
+        height: 100%;
+        border: 3px solid white;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+    
+    .avatar-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .avatar-edit {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-card {
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+    }
+    
+    .bg-primary-light {
+        background-color: var(--primary-light);
+    }
+    
+    .bg-success-light {
+        background-color: var(--success-light);
+    }
+    
+    .bg-danger-light {
+        background-color: var(--danger-light);
+    }
+    
+    .bg-secondary-light {
+        background-color: var(--secondary-light);
+    }
+    
+    /* Section Header Styling */
+    .section-header {
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid rgba(67, 97, 238, 0.2);
+        display: flex;
+        align-items: center;
+    }
+    
+    /* Form floating label adjustments */
+    .form-floating > label {
+        padding: 1rem 0.75rem;
+    }
+    
+    .form-floating > .form-control {
+        height: calc(3.5rem + 2px);
+        padding: 1rem 0.75rem;
+    }
+    
+    /* Error message styling */
+    .invalid-feedback.d-block {
+        display: flex;
+        align-items: center;
+        margin-top: 0.25rem;
+    }
+    
+    /* Breadcrumb icon spacing */
+    .breadcrumb-item i {
+        width: 16px;
+        text-align: center;
+    }
+    
+    /* Custom file input styling */
+    .form-group .input-group {
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    // File upload display for both forms
+    const fileInput = document.querySelector('.custom-file-input');
+    if (fileInput) {
+        fileInput.addEventListener('change', function() {
+            const label = this.nextElementSibling;
+            const fileName = this.files[0] ? this.files[0].name : "Choose file";
+            
+            // Update label text while keeping the icon
+            label.innerHTML = `<i class="fas fa-file-image me-1"></i>${fileName}`;
+            
+            // Visual feedback
+            if (this.files[0]) {
+                label.classList.add('file-selected');
+            } else {
+                label.classList.remove('file-selected');
+            }
+        });
+    }
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Profile picture preview
+    const profilePicInput = document.getElementById('id_profile_picture');
+    const previewImage = document.getElementById('previewImage');
+
+    if (profilePicInput && previewImage) {
+        profilePicInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Form validation
+    const form = document.getElementById('profileForm');
+    if (form) {
+        form.addEventListener('submit', function() {
+            const requiredFields = form.querySelectorAll('[required]');
+            requiredFields.forEach(field => {
+                if (!field.value) {
+                    field.classList.add('is-invalid');
+                }
+            });
+        });
+
+        // Clear validation when typing
+        form.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', function() {
+                if (this.classList.contains('is-invalid')) {
+                    this.classList.remove('is-invalid');
+                }
+            });
+        });
+    }
+    
+    // Add Bootstrap classes to form fields
+    const inputs = document.querySelectorAll('input:not(.custom-file-input), textarea');
+    inputs.forEach(input => {
+        input.classList.add('form-control');
+        
+        if (input.nextElementSibling && input.nextElementSibling.classList.contains('invalid-feedback')) {
+            input.classList.add('is-invalid');
+        }
+    });
+});
+
+
+{% comment %} spinner reload animation {% endcomment %}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('profileForm');
+    const submitButton = document.getElementById('submit-button');
+    const buttonText = document.getElementById('button-text');
+
+    if (form && submitButton && buttonText) {
+        form.addEventListener('submit', function () {
+            // Prevent multiple submits
+            if (submitButton.disabled) return;
+
+            // Show spinner and disable button
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Updating...';
+            submitButton.disabled = true;
+
+            // Optional: Add a small delay to ensure the UI updates before form submission
+            setTimeout(() => {
+                form.submit();
+            }, 2000);
+        });
+    }
+});
+
+</script>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Borrow {{ book.title }} - UniLib{% endblock %}
+
+{% block content %}
+<div class="container py-4 animate__animated animate__fadeIn">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0" style="border-top: 4px solid #4361ee;">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">
+                            <i class="fas fa-book-open me-2"></i>Borrow "{{ book.title|truncatechars:25 }}"
+                        </h3>
+                        <a href="{% url 'book-detail' book.pk %}" class="btn btn-sm btn-light">
+                            <i class="fas fa-times text-primary"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <form method="POST" class="needs-validation" novalidate id="borrow-form">
+                        {% csrf_token %}
+                        
+                        {% if book.cover_image %}
+                        <div class="text-center mb-4">
+                            <img src="{{ book.cover_image.url }}" class="img-thumbnail shadow-sm" alt="{{ book.title }}" style="max-height: 200px; border-color: #e1e7fc;">
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-4 p-3 rounded" style="background-color: #f8f9fe;">
+                            {{ form|crispy }}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between border-top pt-4">
+                            <a href="{% url 'book-detail' book.pk %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success px-4" id="submit-button" style="background-color: #4cc9f0; border-color: #4cc9f0;">
+                                <i class="fas fa-book-open me-2"></i> <span id="button-text">Confirm Borrow</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        overflow: hidden;
+    }
+    .form-control:focus {
+        border-color: #4361ee;
+        box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+    }
+    .btn-success:hover {
+        background-color: #3aa8d8 !important;
+        border-color: #3aa8d8 !important;
+    }
+    /* Loading spinner */
+    .fa-spinner {
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default return date (14 days from now)
+    const returnDateField = document.getElementById('id_return_date');
+    if (returnDateField && !returnDateField.value) {
+        const today = new Date();
+        const returnDate = new Date(today.setDate(today.getDate() + 14));
+        returnDateField.valueAsDate = returnDate;
+    }
+    
+    // Add nice date picker styling
+    returnDateField?.classList.add('form-control', 'bg-white');
+
+    // Form submission handling
+    const form = document.getElementById('borrow-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitButton = document.getElementById('submit-button');
+            const buttonText = document.getElementById('button-text');
+            
+            if (submitButton && buttonText) {
+                // Change button content to spinner and disable
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing...';
+                submitButton.disabled = true;
+                
+                // Optional: Add a small delay to ensure the UI updates before form submission
+                {% comment %} setTimeout(() => {
+                    form.submit();
+                }, 100); {% endcomment %}
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

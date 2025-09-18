@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservation Confirmed: {{ book.title }}</title>
+    <style type="text/css">
+        /* Base styles */
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            font-size: 16px;
+        }
+        
+        /* Email container */
+        .email-container {
+            max-width: 600px;
+            margin: 30px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .header-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+        
+        /* Content */
+        .content {
+            padding: 30px;
+        }
+        
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 25px;
+            color: #2c3e50;
+        }
+        
+        .book-info {
+            background-color: #f8f9ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #6a11cb;
+        }
+        
+        .book-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .status {
+            display: inline-block;
+            background-color: #e3f2fd;
+            color: #1976d2;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        /* Button */
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white !important;
+            padding: 16px 32px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            display: inline-block;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 12px rgba(106, 17, 203, 0.3);
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(106, 17, 203, 0.4);
+        }
+        
+        /* Footer */
+        .footer {
+            padding: 25px 30px;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .footer a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .content, .header {
+                padding: 25px 20px;
+            }
+            
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .book-title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="header-icon">📚</div>
+            <h1>Your Reservation Is Confirmed</h1>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                <h3>Hello {{ user.first_name }},</h3>
+            </div>
+            
+            <p>Thank you for reserving a book with us. Here's what happens next:</p>
+            
+            <div class="book-info">
+                <div class="book-title">{{ book.title }}</div>
+                <div class="status">Reservation Pending</div>
+            </div>
+            
+            <p>We've placed you in the queue for this book. You'll receive another email when it becomes available for pickup.</p>
+            
+            <p><strong>What to expect:</strong></p>
+            <ul style="margin-top: 5px; padding-left: 20px;">
+                <li>You'll have <strong>7 days</strong> to pick up the book once notified</li>
+                <li>We'll hold the book for you at the circulation desk</li>
+                <li>Average wait time: 2-3 weeks (varies by demand)</li>
+            </ul>
+            
+            <div class="button-container">
+                <a href="{{ url }}" class="button">View Book Details</a>
+            </div>
+            
+            <p style="text-align: center; color: #7f8c8d; font-size: 14px;">
+                Changed your mind? <a href="{{ cancel_url }}" style="color: #e74c3c;">Cancel this reservation</a>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated message. Please do not reply to this email.</p>
+            <p>Need help? Contact us at <a href="unilib:help@library.org">help@library.org</a> or 01622474060</p>
+            <p style="margin-top: 15px;">&copy; {% now "Y" %} {{ library_name|default:"RECR Library" }}</p>
+        </div>
+    </div>
+</body>
+</html>

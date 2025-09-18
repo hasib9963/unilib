@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Profile Card -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="position-relative mx-auto" style="width: 150px;">
+                        <img class="rounded-circle img-thumbnail mb-3" 
+                             src="{{ user.get_profile_picture }}" 
+                             width="150" 
+                             height="150"
+                             alt="Profile picture">
+                        <span class="position-absolute bottom-0 end-0 p-2 bg-{% if user.is_active %}success{% else %}danger{% endif %} rounded-circle border border-3 border-white">
+                            <i class="fas fa-circle text-white" style="font-size: 0.5rem;"></i>
+                        </span>
+                    </div>
+                    <h3 class="mb-2">{{ user.get_full_name }}</h3>
+                    <p class="text-muted mb-3">{{ user.get_role_display }}</p>
+                    
+                    <div class="d-flex justify-content-center gap-2 mb-3">
+                        <a href="{% url 'user-update' user.pk %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-edit me-1"></i> Edit Profile
+                        </a>
+                        <a href="{% url 'user-list' %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Card -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-id-card me-3"></i>
+                        <h4 class="mb-0">User Details</h4>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="row g-4">
+                        <!-- Personal Information -->
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded">
+                                <h5 class="d-flex align-items-center mb-3">
+                                    <i class="fas fa-user-circle text-primary me-2"></i>
+                                    Personal Information
+                                </h5>
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-4">Email</dt>
+                                    <dd class="col-sm-8">{{ user.email }}</dd>
+                                    
+                                    <dt class="col-sm-4">University ID</dt>
+                                    <dd class="col-sm-8">{{ user.university_id }}</dd>
+                                    
+                                    <dt class="col-sm-4">Phone</dt>
+                                    <dd class="col-sm-8">{{ user.phone|default:"Not provided" }}</dd>
+                                </dl>
+                            </div>
+                        </div>
+                        
+                        <!-- Account Information -->
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded">
+                                <h5 class="d-flex align-items-center mb-3">
+                                    <i class="fas fa-cog text-primary me-2"></i>
+                                    Account Information
+                                </h5>
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-4">Joined</dt>
+                                    <dd class="col-sm-8">{{ user.date_joined|date:"M d, Y" }}</dd>
+                                    
+                                    <dt class="col-sm-4">Last Login</dt>
+                                    <dd class="col-sm-8">{{ user.last_login|date:"M d, Y"|default:"Never" }}</dd>
+                                    
+                                    <dt class="col-sm-4">Status</dt>
+                                    <dd class="col-sm-8">
+                                        <span class="badge bg-{% if user.is_active %}success{% else %}danger{% endif %}">
+                                            {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                                        </span>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                        
+                        <!-- Additional Sections -->
+                        <div class="col-12">
+                            <div class="p-3 bg-light rounded">
+                                <h5 class="d-flex align-items-center mb-3">
+                                    <i class="fas fa-book text-primary me-2"></i>
+                                    Library Activity
+                                </h5>
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="p-2">
+                                            <h4 class="text-primary mb-0">{{ active_borrows }}</h4>
+                                            <small class="text-muted">Current Borrows</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="p-2">
+                                            <h4 class="text-primary mb-0">{{ total_borrows }}</h4>
+                                            <small class="text-muted">Total Borrows</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="p-2">
+                                            <h4 class="text-primary mb-0">{{ overdue }}</h4>
+                                            <small class="text-muted">Overdue</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-transparent border-top-0 py-3">
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'user-delete' user.pk %}" class="btn btn-outline-danger">
+                            <i class="fas fa-trash-alt me-1"></i> Delete Account
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border: none;
+        border-radius: 0.5rem;
+    }
+    
+    .img-thumbnail {
+        border: 1px solid #dee2e6;
+        padding: 0.25rem;
+    }
+    
+    dl.row dt {
+        font-weight: 500;
+        color: #6c757d;
+    }
+    
+    dl.row dd {
+        margin-bottom: 0.75rem;
+    }
+    
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+    
+    .card-footer {
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+</style>
+{% endblock %}

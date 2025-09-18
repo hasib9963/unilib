@@ -1,0 +1,608 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - UniLib{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section */
+    .hero-section {
+        position: relative;
+        height: 90vh;
+        min-height: 600px;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+    }
+    
+    .hero-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('https://images.unsplash.com/photo-1589998059171-988d887df646?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1776&q=80');
+        background-size: cover;
+        background-position: center;
+        z-index: 1;
+    }
+    
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 3;
+        color: white;
+    }
+    
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        font-family: 'Playfair Display', serif;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        max-width: 700px;
+    }
+    
+    /* Features Section */
+    .features-section {
+        padding: 5rem 0;
+        background: #f8f9fa;
+    }
+    
+    .feature-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        height: 100%;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        color: #4361ee;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Quick Access Section */
+    .quick-access-section {
+        padding: 5rem 0;
+        background: white;
+    }
+    
+    .access-card {
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .access-card:hover {
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .access-card img {
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    /* Books Sections */
+    .books-section {
+        padding: 5rem 0;
+        background: #f8f9fa;
+    }
+    
+    .section-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        font-family: 'Playfair Display', serif;
+        color: #2b2d42;
+    }
+    
+    .section-subtitle {
+        font-size: 1.1rem;
+        color: #6c757d;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    
+    .book-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        height: 100%;
+        position: relative;
+    }
+    
+    .book-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    
+    .book-cover {
+        height: 300px;
+        width: 100%;
+        object-fit: cover;
+        transition: all 0.3s ease;
+    }
+    
+    .book-card:hover .book-cover {
+        opacity: 0.9;
+    }
+    
+    .book-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 0.8rem;
+        padding: 0.35rem 0.75rem;
+        z-index: 2;
+    }
+    
+    .book-body {
+        padding: 1.5rem;
+    }
+    
+    .book-title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #2b2d42;
+        font-size: 1.1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .book-author {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    
+    .book-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+    }
+    
+    .book-status {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+    }
+    
+    .book-btn {
+        font-size: 0.85rem;
+        padding: 0.35rem 0.75rem;
+    }
+    
+    /* Popular Books Section */
+    .popular-books-section {
+        padding: 5rem 0;
+        background: white;
+    }
+    
+    .popular-book-card {
+        display: flex;
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .popular-book-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .popular-book-cover {
+        width: 120px;
+        height: 180px;
+        object-fit: cover;
+    }
+    
+    .popular-book-body {
+        padding: 1.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .popular-book-title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #2b2d42;
+    }
+    
+    .popular-book-author {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .popular-book-stats {
+        display: flex;
+        align-items: center;
+        color: #6c757d;
+        font-size: 0.8rem;
+        margin-bottom: 1rem;
+    }
+    
+    .popular-book-stats i {
+        margin-right: 0.5rem;
+        color: #4361ee;
+    }
+    
+    .popular-book-meta {
+        margin-top: auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    /* Call to Action */
+    .cta-section {
+        padding: 5rem 0;
+        background: #4361ee;
+        color: white;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 992px) {
+        .hero-title {
+            font-size: 2.8rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.3rem;
+        }
+        
+        .section-title {
+            font-size: 2.2rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .hero-section {
+            height: auto;
+            padding: 7rem 0;
+        }
+        
+        .hero-title {
+            font-size: 2.2rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.1rem;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+        }
+        
+        .popular-book-card {
+            flex-direction: column;
+        }
+        
+        .popular-book-cover {
+            width: 100%;
+            height: 200px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="hero-title animate__animated animate__fadeInDown">Discover Your Next Great Read</h1>
+            <p class="hero-subtitle animate__animated animate__fadeIn animate__delay-1s">
+                Access thousands of academic resources, research materials, and literary works from our comprehensive digital library.
+            </p>
+            <div class="d-flex gap-3 animate__animated animate__fadeIn animate__delay-2s">
+                {% if user.is_authenticated %}
+                <a href="{% url 'book-list' %}" class="btn btn-primary btn-lg px-4">
+                    <i class="fas fa-book-open me-2"></i> Browse Collection
+                </a>
+                {% else %}
+                <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-4">
+                    <i class="fas fa-user-plus me-2"></i> Join Now
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-4">
+                    <i class="fas fa-sign-in-alt me-2"></i> Sign In
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose UniLib Section -->
+<section class="features-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Why Choose UniLib?</h2>
+            <p class="text-muted lead">Our platform offers everything you need for academic success</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h3>Extensive Collection</h3>
+                    <p class="text-muted">
+                        Access over 50,000 books, journals, and research papers across all academic disciplines.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-laptop"></i>
+                    </div>
+                    <h3>Digital Resources</h3>
+                    <p class="text-muted">
+                        Enjoy 24/7 access to our digital collection from anywhere, on any device.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3>Expert Support</h3>
+                    <p class="text-muted">
+                        Get personalized recommendations and research assistance from our librarians.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Books Section -->
+<section class="books-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Featured Books</h2>
+            <p class="section-subtitle">Handpicked selections from our collection</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for book in featured_books %}
+            <div class="col-md-6 col-lg-3">
+                <div class="book-card">
+                    {% if book.cover_image %}
+                    <img src="{{ book.cover_image.url }}" class="book-cover" alt="{{ book.title }}">
+                    {% else %}
+                    <div class="book-cover bg-light d-flex align-items-center justify-content-center">
+                        <i class="fas fa-book-open fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <span class="book-badge bg-danger">Featured</span>
+                    
+                    <div class="book-body">
+                        <h3 class="book-title">{{ book.title }}</h3>
+                        <p class="book-author">By {{ book.author }}</p>
+                        
+                        <div class="book-meta">
+                            <span class="book-status bg-{% if book.available_copies > 0 %}success{% else %}danger{% endif %}">
+                                {{ book.available_copies }} available
+                            </span>
+                            <a href="{% url 'book-detail' book.pk %}" class="btn btn-sm btn-primary book-btn">
+                                Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{% url 'book-list' %}" class="btn btn-outline-primary btn-lg px-4">
+                <i class="fas fa-book me-2"></i> View All Books
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Most Popular Books Section -->
+<section class="popular-books-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Most Popular Books</h2>
+            <p class="section-subtitle">What others are reading right now</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for book in popular_books %}
+            <div class="col-md-6">
+                <div class="popular-book-card">
+                    {% if book.cover_image %}
+                    <img src="{{ book.cover_image.url }}" class="popular-book-cover" alt="{{ book.title }}">
+                    {% else %}
+                    <div class="popular-book-cover bg-light d-flex align-items-center justify-content-center">
+                        <i class="fas fa-book-open fa-2x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="popular-book-body">
+                        <h3 class="popular-book-title">{{ book.title }}</h3>
+                        <p class="popular-book-author">By {{ book.author }}</p>
+                        
+                        <div class="popular-book-stats">
+                            <i class="fas fa-book-reader"></i>
+                            Borrowed {{ book.borrow_count }} times
+                        </div>
+                        
+                        <div class="popular-book-meta">
+                            <span class="book-status bg-{% if book.available_copies > 0 %}success{% else %}danger{% endif %}">
+                                {{ book.available_copies }} available
+                            </span>
+                            <a href="{% url 'book-detail' book.pk %}" class="btn btn-sm btn-primary book-btn">
+                                <i class="fas fa-info-circle me-1"></i> Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{% url 'book-list' %}?sort=popular" class="btn btn-outline-primary btn-lg px-4">
+                <i class="fas fa-fire me-2"></i> View All Popular
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Access Section -->
+<section class="quick-access-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Quick Access</h2>
+            <p class="text-muted lead">Find what you need quickly and easily</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card access-card h-100">
+                    <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" class="card-img-top" alt="Books Collection">
+                    <div class="card-body">
+                        <h5 class="card-title">Browse Collection</h5>
+                        <p class="card-text">Explore our vast collection of books and resources.</p>
+                        <a href="{% url 'book-list' %}" class="btn btn-outline-primary">View All Books</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card access-card h-100">
+                    <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" class="card-img-top" alt="Research Materials">
+                    <div class="card-body">
+                        <h5 class="card-title">Research Hub</h5>
+                        <p class="card-text">Access academic journals and research materials.</p>
+                        <a href="https://www.ru.ac.bd/publications/ru-journals/" class="btn btn-outline-primary">Explore Research</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card access-card h-100">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" class="card-img-top" alt="Study Spaces">
+                    <div class="card-body">
+                        <h5 class="card-title">Study Resources</h5>
+                        <p class="card-text">Find study guides and academic support materials.</p>
+                        <a href="https://drive.google.com/drive/folders/14bPrdaWl-4kygMP3kZXeL91plVdFxM3Y?usp=drive_link" class="btn btn-outline-primary">View Resources</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="cta-section">
+    <div class="container text-center py-4">
+        <h2 class="display-6 fw-bold mb-4 text-white">Ready to start your learning journey?</h2>
+        <div class="d-flex justify-content-center gap-3">
+            {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}" class="btn btn-light btn-lg px-4">
+                <i class="fas fa-tachometer-alt me-2"></i> Go to Dashboard
+            </a>
+            {% else %}
+            <a href="{% url 'register' %}" class="btn btn-light btn-lg px-4">
+                <i class="fas fa-user-plus me-2"></i> Create Account
+            </a>
+            <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-4">
+                <i class="fas fa-sign-in-alt me-2"></i> Sign In
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+    
+    // Parallax effect for hero section
+    window.addEventListener('scroll', function() {
+        const scrollPosition = window.pageYOffset;
+        const heroBg = document.querySelector('.hero-bg');
+        if (heroBg) {
+            heroBg.style.transform = 'translateY(' + scrollPosition * 0.5 + 'px)';
+        }
+    });
+    
+    // Animation for book cards on scroll
+    const bookCards = document.querySelectorAll('.book-card, .popular-book-card');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = 1;
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.1 });
+    
+    bookCards.forEach(card => {
+        card.style.opacity = 0;
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'all 0.5s ease';
+        observer.observe(card);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row g-4">
+        <!-- Book Cover Column -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100">
+                {% if book.cover_image %}
+                <img src="{{ book.cover_image.url }}" 
+                     class="card-img-top p-3" 
+                     alt="{{ book.title }}"
+                     style="object-fit: contain; height: 350px;">
+                {% else %}
+                <div class="text-center py-5 bg-light">
+                    <i class="fas fa-book-open fa-5x text-muted py-5"></i>
+                </div>
+                {% endif %}
+                
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge bg-primary bg-opacity-10 text-primary py-2">
+                            {{ book.category }}
+                        </span>
+                        <span class="badge bg-{% if book.available_copies > 0 %}success{% else %}danger{% endif %} bg-opacity-10 text-{% if book.available_copies > 0 %}success{% else %}danger{% endif %} py-2">
+                            {{ book.available_copies }} available
+                        </span>
+                    </div>
+                    
+                    {% if user.is_authenticated %}
+                    <div class="d-grid gap-2">
+                        {% if book.available_copies > 0 %}
+                        <a href="{% url 'book-issue' book.pk %}" class="btn btn-success btn-lg">
+                            <i class="fas fa-book-open me-2"></i> Borrow Book
+                        </a>
+                        {% else %}
+                        <a href="{% url 'book-reserve' book.pk %}" class="btn btn-warning btn-lg">
+                            <i class="fas fa-bookmark me-2"></i> Reserve Book
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Book Details Column -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary bg-opacity-10 border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-1">{{ book.title }}</h2>
+                            <h4 class="text-muted mb-0">by {{ book.author }}</h4>
+                        </div>
+                        {% if user.is_admin or user.is_librarian %}
+                        <div class="btn-group">
+                            <a href="{% url 'book-update' book.pk %}" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'book-delete' book.pk %}" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Book Description -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2 mb-3">Description</h5>
+                        <p class="lead">{{ book.description }}</p>
+                    </div>
+                    
+                    <div class="row g-4">
+                        <!-- Book Metadata -->
+                        <div class="col-md-6">
+                            <div class="bg-light p-3 rounded">
+                                <h5 class="border-bottom pb-2 mb-3">Details</h5>
+                                <dl class="row">
+                                    <dt class="col-sm-4">ISBN</dt>
+                                    <dd class="col-sm-8">{{ book.isbn }}</dd>
+                                    
+                                    <dt class="col-sm-4">Publisher</dt>
+                                    <dd class="col-sm-8">{{ book.publisher }}</dd>
+                                    
+                                    <dt class="col-sm-4">Published</dt>
+                                    <dd class="col-sm-8">{{ book.publication_date|date:"F Y" }}</dd>
+                                    
+                                    <dt class="col-sm-4">Pages</dt>
+                                    <dd class="col-sm-8">{{ book.pages|default:"-" }}</dd>
+                                    
+                                    <dt class="col-sm-4">Language</dt>
+                                    <dd class="col-sm-8">{{ book.language|default:"English" }}</dd>
+                                </dl>
+                            </div>
+                        </div>
+                        
+                        <!-- Availability -->
+                        <div class="col-md-6">
+                            <div class="bg-light p-3 rounded h-100">
+                                <h5 class="border-bottom pb-2 mb-3">Availability</h5>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Copies Available</span>
+                                        <span>{{ book.available_copies }} of {{ book.total_copies }}</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-success" 
+                                             role="progressbar" 
+                                             style="width: {% widthratio book.available_copies book.total_copies 100 %}%" 
+                                             aria-valuenow="{{ book.available_copies }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="{{ book.total_copies }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {% if book.available_copies == 0 %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    All copies are currently checked out
+                                </div>
+                                {% endif %}
+                                
+                                <div class="mt-4">
+                                    <h6 class="mb-2">Average Rating</h6>
+                                    <div class="d-flex align-items-center">
+                                        <div class="rating-display me-3">
+                                            <span class="text-warning">★★★★★</span>
+                                            <span class="text-muted">★★★★★</span>
+                                            <span class="rating-overlay" style="width: 70%"></span>
+                                        </div>
+                                        <small class="text-muted">(3.5 from 12 reviews)</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border-radius: 0.5rem;
+        border: none;
+    }
+    
+    .rating-display {
+        position: relative;
+        display: inline-block;
+        font-size: 1.25rem;
+        line-height: 1;
+    }
+    
+    .rating-display .rating-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        color: #ffc107;
+    }
+    
+    .rating-display .text-warning {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .rating-display .text-muted {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+    }
+    
+    .bg-opacity-10 {
+        background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
+    }
+    
+    dl.row dt {
+        font-weight: 500;
+        color: #6c757d;
+    }
+    
+    dl.row dd {
+        margin-bottom: 0.75rem;
+    }
+    
+    .progress {
+        border-radius: 0.25rem;
+    }
+</style>
+{% endblock %}

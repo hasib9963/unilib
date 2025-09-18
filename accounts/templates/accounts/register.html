@@ -1,0 +1,601 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Registration{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="text-center font-weight-light my-2">
+                        <i class="fas fa-user-plus me-2"></i> Create Your Library Account
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger mb-4">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <div>
+                                    <strong>Please correct these errors:</strong>
+                                    <ul class="mb-0 ps-3">
+                                        {% for error in form.non_field_errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Personal Information Section -->
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary"><i class="fas fa-user-circle me-2"></i> Personal Information</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        {{ form.first_name }}
+                                        <label for="{{ form.first_name.id_for_label }}"><i class="fas fa-user me-1"></i> First Name</label>
+                                        {% if form.first_name.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ form.first_name.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        {{ form.last_name }}
+                                        <label for="{{ form.last_name.id_for_label }}"><i class="fas fa-user me-1"></i> Last Name</label>
+                                        {% if form.last_name.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ form.last_name.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- University Information Section -->
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary"><i class="fas fa-university me-2"></i> University Information</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        {{ form.university_id }}
+                                        <label for="{{ form.university_id.id_for_label }}"><i class="fas fa-id-card me-1"></i> University ID</label>
+                                        {% if form.university_id.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ form.university_id.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        {{ form.role }}
+                                        <label for="{{ form.role.id_for_label }}"><i class="fas fa-user-tag me-1"></i> Role</label>
+                                        {% if form.role.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ form.role.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information Section -->
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary"><i class="fas fa-address-card me-2"></i> Contact Information</h5>
+                            <div class="form-floating mb-3">
+                                {{ form.email }}
+                                <label for="{{ form.email.id_for_label }}"><i class="fas fa-envelope me-1"></i> Email Address</label>
+                                {% if form.email.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.email.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-floating mb-3">
+                                {{ form.phone }}
+                                <label for="{{ form.phone.id_for_label }}"><i class="fas fa-phone me-1"></i> Phone Number</label>
+                                {% if form.phone.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.phone.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-floating">
+                                {{ form.address }}
+                                <label for="{{ form.address.id_for_label }}"><i class="fas fa-map-marker-alt me-1"></i> Address</label>
+                                {% if form.address.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.address.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Account Information Section -->
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary"><i class="fas fa-key me-2"></i> Account Information</h5>
+                            <div class="form-floating mb-3">
+                                {{ form.username }}
+                                <label for="{{ form.username.id_for_label }}"><i class="fas fa-user me-1"></i> Username</label>
+                                {% if form.username.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.username.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <small class="text-muted"><i class="fas fa-info-circle me-1"></i>Choose a unique username</small>
+                            </div>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3 position-relative password-toggle-container">
+                                        {{ form.password1 }}
+                                        <label for="{{ form.password1.id_for_label }}" class="fw-normal"><i class="fas fa-lock me-1"></i> Password</label>
+                                        <span class="validity-icon">
+                                            <i class="fas fa-check-circle d-none" id="password1-valid"></i>
+                                            <i class="fas fa-info-circle d-none" id="password1-info"></i>
+                                        </span>
+                                        <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y pe-3 toggle-password" aria-label="Toggle password visibility" aria-pressed="false">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        {% if form.password1.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ form.password1.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating position-relative password-toggle-container">
+                                        {{ form.password2 }}
+                                        <label for="{{ form.password2.id_for_label }}" class="fw-normal"><i class="fas fa-lock me-1"></i> Confirm Password</label>
+                                        <span class="validity-icon">
+                                            <i class="fas fa-check-circle d-none" id="password2-valid"></i>
+                                            <i class="fas fa-info-circle d-none" id="password2-info"></i>
+                                        </span>
+                                        <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y pe-3 toggle-password" aria-label="Toggle password visibility" aria-pressed="false">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        {% if form.password2.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ form.password2.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="password-requirements mt-3 p-3 bg-light rounded">
+                                <small class="text-muted d-block mb-2"><i class="fas fa-info-circle me-1"></i>Password requirements:</small>
+                                <ul class="list-unstyled mb-0">
+                                    <li class="req-item" data-requirement="length">
+                                        <i class="fas fa-circle me-2"></i> At least 8 characters
+                                    </li>
+                                    <li class="req-item" data-requirement="uppercase">
+                                        <i class="fas fa-circle me-2"></i> One uppercase letter
+                                    </li>
+                                    <li class="req-item" data-requirement="number">
+                                        <i class="fas fa-circle me-2"></i> One number
+                                    </li>
+                                    <li class="req-item" data-requirement="special">
+                                        <i class="fas fa-circle me-2"></i> One special character
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Profile Picture -->
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary"><i class="fas fa-camera me-2"></i> Profile Picture</h5>
+                            <div class="form-group">
+                                <label for="{{ form.profile_picture.id_for_label }}" class="form-label"><i class="fas fa-upload me-1"></i>Upload Photo (Optional)</label>
+                                <div class="custom-file">
+                                    <input type="file" 
+                                        class="custom-file-input" 
+                                        id="{{ form.profile_picture.id_for_label }}" 
+                                        name="{{ form.profile_picture.name }}"
+                                        accept="image/*">
+                                    <label class="custom-file-label" for="{{ form.profile_picture.id_for_label }}"><i class="fas fa-file-image me-1"></i>Choose file</label>
+                                </div>
+                                {% if form.profile_picture.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.profile_picture.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <small class="text-muted"><i class="fas fa-info-circle me-1"></i>JPG, PNG format, max 2MB</small>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
+                            <a href="{% url 'login' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Back to Login
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="submit-button">
+                                <i class="fas fa-save me-1"></i> Create Account
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Form floating label adjustments */
+    .form-floating {
+        position: relative;
+    }
+
+    .form-floating > .form-control {
+        padding-right: 4.5rem; /* Increased to accommodate both icons */
+        height: calc(3.5rem + 2px);
+        line-height: 1.25;
+    }
+
+    .form-floating > label {
+        padding: 1rem 0.75rem;
+        font-weight: 400;
+        transform-origin: 0 0;
+        transition: all 0.2s ease;
+    }
+
+    /* Password field container */
+    .password-toggle-container {
+        position: relative;
+    }
+
+    /* Eye toggle button */
+    .toggle-password {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        z-index: 3;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .toggle-password:hover {
+        color: #4361ee;
+        text-decoration: none;
+    }
+
+    .toggle-password i {
+        font-size: 1.1rem;
+    }
+
+    /* Validation icon container - only one shows at a time */
+    .validity-icon {
+        position: absolute;
+        right: 42px; /* 30px from eye icon (12+30=42) */
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 2;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .validity-icon i {
+        font-size: 1rem;
+    }
+
+    .fa-check-circle {
+        color: #28a745;
+    }
+
+    .fa-info-circle {
+        color: #ffc107;
+    }
+
+    /* Password requirements styling */
+    .password-requirements {
+        background-color: rgba(248, 249, 250, 0.8);
+        border-left: 3px solid #4361ee;
+        margin-top: 0.5rem;
+    }
+
+    .req-item {
+        margin-bottom: 0.25rem;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+    }
+
+    .req-item.valid {
+        color: #28a745;
+    }
+
+    .req-item i {
+        font-size: 0.6rem;
+        margin-right: 0.5rem;
+        width: 12px;
+    }
+
+    .req-item.valid i {
+        color: #28a745;
+    }
+
+    /* Section headers */
+    h5 {
+        font-weight: 600;
+        color: #4361ee;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid rgba(67, 97, 238, 0.1);
+        margin-bottom: 1rem;
+    }
+
+    /* Custom file input styles */
+    .custom-file {
+        position: relative;
+        display: block;
+        width: 100%;
+        height: calc(3.5rem + 2px);
+        margin-bottom: 1rem;
+    }
+
+    .custom-file-input {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        height: calc(3.5rem + 2px);
+        margin: 0;
+        opacity: 0;
+    }
+
+    .custom-file-label {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        z-index: 1;
+        height: calc(3.5rem + 2px);
+        padding: 1rem 0.75rem;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        border: 1px solid #ced4da;
+        border-radius: 0.5rem;
+        transition: all 0.3s;
+    }
+
+    .custom-file-label::after {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 3;
+        display: block;
+        height: calc(3.5rem + 2px);
+        padding: 1rem 0.75rem;
+        line-height: 1.5;
+        color: #495057;
+        content: "Browse";
+        background-color: #e9ecef;
+        border-left: 1px solid #ced4da;
+        border-radius: 0 0.5rem 0.5rem 0;
+        transition: all 0.3s;
+    }
+
+    .custom-file-label.file-selected {
+        border-color: #4361ee;
+        box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+    }
+
+    /* Loading spinner */
+    .fa-spinner {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Icon spacing in labels */
+    .form-floating label i,
+    .form-label i,
+    .custom-file-label i {
+        width: 16px;
+        text-align: center;
+        margin-right: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password fields
+    const password1 = document.getElementById('id_password1');
+    const password2 = document.getElementById('id_password2');
+    const reqItems = document.querySelectorAll('.req-item');
+    
+    // 1. Password visibility toggle
+    const toggleButtons = document.querySelectorAll('.toggle-password');
+    
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.parentElement.querySelector('input');
+            const icon = this.querySelector('i');
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            
+            input.setAttribute('type', type);
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+            this.setAttribute('aria-pressed', type === 'text');
+            this.style.color = type === 'text' ? '#4361ee' : '#6c757d';
+        });
+    });
+
+    // 2. Password validation
+    if (password1) {
+        password1.addEventListener('input', function() {
+            validatePassword(this.value);
+            checkPasswordMatch();
+            updateValidityIcons();
+        });
+    }
+    
+    if (password2) {
+        password2.addEventListener('input', function() {
+            checkPasswordMatch();
+            updateValidityIcons();
+        });
+    }
+    
+    function validatePassword(password) {
+        const requirements = {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            number: /[0-9]/.test(password),
+            special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+        };
+        
+        let allValid = true;
+        reqItems.forEach(item => {
+            const requirement = item.getAttribute('data-requirement');
+            if (requirements[requirement]) {
+                item.classList.add('valid');
+                item.querySelector('i').className = 'fas fa-check-circle me-2 text-success';
+            } else {
+                item.classList.remove('valid');
+                item.querySelector('i').className = 'fas fa-circle me-2 text-muted';
+                allValid = false;
+            }
+        });
+        
+        return allValid;
+    }
+    
+    function checkPasswordMatch() {
+        if (password1 && password2) {
+            const passwordsMatch = password1.value && password2.value && password1.value === password2.value;
+            password2.classList.toggle('is-valid', passwordsMatch);
+            password2.classList.toggle('is-invalid', !passwordsMatch && password2.value.length > 0);
+        }
+    }
+    
+    function updateValidityIcons() {
+        // Password1 validation
+        if (password1) {
+            const validIcon1 = document.getElementById('password1-valid');
+            const infoIcon1 = document.getElementById('password1-info');
+            
+            if (password1.value.length > 0) {
+                const isValid = validatePassword(password1.value);
+                if (isValid) {
+                    validIcon1.classList.remove('d-none');
+                    infoIcon1.classList.add('d-none');
+                    password1.classList.add('is-valid');
+                    password1.classList.remove('is-invalid');
+                } else {
+                    validIcon1.classList.add('d-none');
+                    infoIcon1.classList.remove('d-none');
+                    password1.classList.remove('is-valid');
+                    password1.classList.add('is-invalid');
+                }
+            } else {
+                validIcon1.classList.add('d-none');
+                infoIcon1.classList.add('d-none');
+                password1.classList.remove('is-valid', 'is-invalid');
+            }
+        }
+        
+        // Password2 validation
+        if (password2) {
+            const validIcon2 = document.getElementById('password2-valid');
+            const infoIcon2 = document.getElementById('password2-info');
+            
+            if (password2.value.length > 0) {
+                const passwordsMatch = password1.value && password2.value && password1.value === password2.value;
+                if (passwordsMatch) {
+                    validIcon2.classList.remove('d-none');
+                    infoIcon2.classList.add('d-none');
+                    password2.classList.add('is-valid');
+                    password2.classList.remove('is-invalid');
+                } else {
+                    validIcon2.classList.add('d-none');
+                    infoIcon2.classList.remove('d-none');
+                    password2.classList.remove('is-valid');
+                    password2.classList.add('is-invalid');
+                }
+            } else {
+                validIcon2.classList.add('d-none');
+                infoIcon2.classList.add('d-none');
+                password2.classList.remove('is-valid', 'is-invalid');
+            }
+        }
+    }
+
+    // 3. File upload display
+    const fileInput = document.querySelector('.custom-file-input');
+    if (fileInput) {
+        fileInput.addEventListener('change', function() {
+            const label = this.nextElementSibling;
+            label.textContent = this.files[0] ? this.files[0].name : "Choose file";
+            label.classList.toggle('file-selected', !!this.files[0]);
+        });
+    }
+
+    // 4. Add Bootstrap classes to form fields
+    document.querySelectorAll('input:not(.custom-file-input), textarea').forEach(input => {
+        input.classList.add('form-control');
+        if (input.nextElementSibling?.classList.contains('invalid-feedback')) {
+            input.classList.add('is-invalid');
+        }
+    });
+    
+    document.querySelectorAll('select').forEach(select => {
+        select.classList.add('form-select');
+    });
+    
+    document.querySelectorAll('textarea').forEach(textarea => {
+        textarea.style.minHeight = '100px';
+    });
+
+    // 5. Auto-focus first field
+    const firstField = document.querySelector('input:not([type="hidden"]):not([type="file"])');
+    if (firstField) firstField.focus();
+
+    // 6. Form submission handling
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            const submitButton = this.querySelector('#submit-button');
+            if (submitButton) {
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Creating...';
+                submitButton.disabled = true;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

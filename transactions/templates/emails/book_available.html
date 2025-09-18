@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ book.title }} is now available</title>
+    <style type="text/css">
+        /* Base styles */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            font-size: 16px;
+        }
+        
+        /* Email container */
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #eeeeee;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        /* Content */
+        .content {
+            padding: 20px 0;
+        }
+        
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        
+        .book-title {
+            font-weight: bold;
+            color: #2980b9;
+            font-size: 18px;
+        }
+        
+        /* Button */
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .button {
+            background-color: #27ae60;
+            color: white !important;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        /* Footer */
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eeeeee;
+            font-size: 14px;
+            color: #777777;
+            text-align: center;
+        }
+        
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100%;
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>Your Reserved Book Is Available</h1>
+        </div>
+        
+        <div class="content">
+            <p class="greeting">Hello {{ user.get_full_name }},</p>
+            
+            <p>We're pleased to inform you that the book you reserved:</p>
+            
+            <p class="book-title">"{{ book.title }}"</p>
+            
+            <p>is now available for you to borrow at the library.</p>
+            
+            <p>Please collect it within the next <strong>7 days</strong> or your reservation will be automatically canceled.</p>
+            
+            <div class="button-container">
+                <a href="{{ url }}" class="button">Borrow This Book Now</a>
+            </div>
+            
+            <p>If you're unable to visit the library or no longer need this book, please cancel your reservation to allow others to borrow it.</p>
+            
+            <p>Thank you for using our library services!</p>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated message. Please do not reply directly to this email.</p>
+            <p>&copy; {% now "Y" %} {{ library_name|default:"REC Library" }}. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

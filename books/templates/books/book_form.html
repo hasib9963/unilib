@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex align-items-center">
+                        <i class="fas {% if form.instance.pk %}fa-book-edit{% else %}fa-book-medical{% endif %} me-3"></i>
+                        <h4 class="mb-0">
+                            {% if form.instance.pk %}Update Book Details{% else %}Add New Book{% endif %}
+                        </h4>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate id="book-form">
+                        {% csrf_token %}
+                        
+                        <!-- Book Information Section -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-info-circle text-primary me-2"></i>
+                                Book Information
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    {{ form.title|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.author|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.isbn|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.category|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Publication Details -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-newspaper text-primary me-2"></i>
+                                Publication Details
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    {{ form.publisher|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.publication_date|as_crispy_field }}
+                                </div>
+                                <div class="col-md-4">
+                                    {% comment %} {{ form.pages|as_crispy_field }} {% endcomment %}
+                                </div>
+                                <div class="col-md-4">
+                                    {% comment %} {{ form.language|as_crispy_field }} {% endcomment %}
+                                </div>
+                                <div class="col-md-4">
+                                    {% comment %} {{ form.edition|as_crispy_field }} {% endcomment %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Inventory Management -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-boxes text-primary me-2"></i>
+                                Inventory
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    {{ form.total_copies|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {% comment %} {{ form.available_copies|as_crispy_field }} {% endcomment %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Cover Image -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-image text-primary me-2"></i>
+                                Cover Image
+                            </h5>
+                            {{ form.cover_image|as_crispy_field }}
+                            {% if form.instance.cover_image %}
+                            <div class="mt-2">
+                                <img src="{{ form.instance.cover_image.url }}" 
+                                     class="img-thumbnail" 
+                                     width="150" 
+                                     alt="Current cover">
+                                <small class="d-block text-muted mt-1">Current cover image</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Description -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-align-left text-primary me-2"></i>
+                                Description
+                            </h5>
+                            {{ form.description|as_crispy_field }}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% if form.instance.pk %}{% url 'book-detail' form.instance.pk %}{% else %}{% url 'book-list' %}{% endif %}" 
+                               class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4" id="submit-button">
+                                <i class="fas fa-save me-2"></i> Save Book
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border-radius: 0.5rem;
+    }
+    
+    .form-section {
+        margin-bottom: 2rem;
+    }
+    
+    .img-thumbnail {
+        max-width: 150px;
+        border: 1px solid #dee2e6;
+        padding: 0.25rem;
+    }
+    
+    .btn-primary {
+        min-width: 150px;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(13, 110, 253, 0.3);
+    }
+    
+    /* Loading spinner animation */
+    .fa-spinner {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    @media (max-width: 768px) {
+        .d-flex.justify-content-between {
+            flex-direction: column-reverse;
+            gap: 1rem;
+        }
+        
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Preview cover image before upload
+    const coverImageInput = document.getElementById('id_cover_image');
+    const coverImagePreview = document.querySelector('.img-thumbnail');
+    
+    if (coverImageInput) {
+        coverImageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    if (!coverImagePreview) {
+                        // Create new image element if it doesn't exist
+                        const imgContainer = document.createElement('div');
+                        imgContainer.className = 'mt-2';
+                        imgContainer.innerHTML = `<img src="${event.target.result}" class="img-thumbnail" width="150" alt="Cover preview">`;
+                        coverImageInput.parentElement.appendChild(imgContainer);
+                    } else {
+                        coverImagePreview.src = event.target.result;
+                    }
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // Auto-calculate available copies if total copies changes
+    const totalCopiesInput = document.getElementById('id_total_copies');
+    const availableCopiesInput = document.getElementById('id_available_copies');
+    
+    if (totalCopiesInput && availableCopiesInput) {
+        totalCopiesInput.addEventListener('change', function() {
+            if (!availableCopiesInput.value || availableCopiesInput.value > this.value) {
+                availableCopiesInput.value = this.value;
+            }
+        });
+    }
+
+    // Form submission handling with loading spinner and delay
+    const form = document.getElementById('book-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitButton = document.getElementById('submit-button');
+            if (submitButton) {
+                // Store original button HTML
+                const originalButtonHTML = submitButton.innerHTML;
+                
+                // Show loading state
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Saving...';
+                submitButton.disabled = true;
+                
+                // Add delay to see the spinner (demo only - remove in production)
+                e.preventDefault();
+                setTimeout(function() {
+                    // After delay, submit the form
+                    form.submit();
+                }, 2000); // 2 second delay
+                
+                // In production, remove the e.preventDefault() and setTimeout
+                // and just let the form submit normally
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

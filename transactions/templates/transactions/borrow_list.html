@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+
+{% block title %}Borrowed Books - UniLib{% endblock %}
+
+{% block content %}
+<div class="container py-4 animate__animated animate__fadeIn">
+    <!-- Header with Centered Search -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+        <!-- Title Section -->
+        <div class="order-1 order-md-1 text-center text-md-start mb-3 mb-md-0">
+            <h2 class="mb-0">
+                <i class="fas fa-exchange-alt me-2 text-primary"></i>Borrowed Books
+            </h2>
+            <p class="text-muted mb-0">Current book circulation records</p>
+        </div>
+        
+        <!-- Centered Search Box -->
+        <div class="order-3 order-md-2 flex-grow-1 mx-md-4" style="max-width: 600px;">
+            <form method="get" action="{% url 'borrow-list' %}" class="search-form">
+                <div class="input-group shadow-sm" style="height: 38px;">
+                    <input type="text" 
+                           class="form-control border-end-0 rounded-start ps-3" 
+                           name="search" 
+                           placeholder="Search by title, author or borrower name, ID or email..." 
+                           value="{{ request.GET.search }}"
+                           style="font-size: 0.9rem;">
+                    <button class="btn btn-primary rounded-end px-3" type="submit">
+                        <i class="fas fa-search me-1"></i> Search
+                    </button>
+                    {% if request.GET.search %}
+                    <a href="{% url 'borrow-list' %}" class="btn btn-outline-secondary rounded ms-2 px-3">
+                        <i class="fas fa-times me-1"></i> Clear
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+        
+        <!-- Browse Books Button -->
+        <div class="order-2 order-md-3 flex-shrink-0">
+            <a href="{% url 'book-list' %}" class="btn btn-primary px-3" style="height: 38px; line-height: 24px;">
+                <i class="fas fa-book me-1"></i> Browse Books
+            </a>
+        </div>
+    </div>
+
+    </div>
+    </div>
+    
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Book</th>
+                            <th>Borrower</th>
+                            <th>Issued On</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th class="pe-4 text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for borrow in borrows %}
+                        <tr class="{% if borrow.is_overdue %}bg-danger-10{% elif borrow.is_returned %}bg-success-10{% endif %}">
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    {% if borrow.book.cover_image %}
+                                    <img src="{{ borrow.book.cover_image.url }}" 
+                                         class="rounded me-3" 
+                                         alt="{{ borrow.book.title }}"
+                                         style="width: 40px; height: 60px; object-fit: cover;">
+                                    {% else %}
+                                    <div class="rounded bg-light d-flex align-items-center justify-content-center me-3" 
+                                         style="width: 40px; height: 60px;">
+                                        <i class="fas fa-book text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <a href="{% url 'book-detail' borrow.book.pk %}" 
+                                           class="text-primary fw-bold text-decoration-none">
+                                            {{ borrow.book.title|truncatechars:30 }}
+                                        </a>
+                                        <p class="small text-muted mb-0">{{ borrow.book.author }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-sm me-2">
+                                        <i class="fas fa-user text-primary"></i>
+                                    </div>
+                                    {{ borrow.user.get_full_name }}
+                                </div>
+                            </td>
+                            <td>{{ borrow.issue_date|date:"M d, Y" }}</td>
+                            <td class="{% if borrow.is_overdue %}text-danger fw-bold{% endif %}">
+                                {{ borrow.due_date|date:"M d, Y" }}
+                                {% if borrow.is_overdue %}
+                                <div class="small text-danger">({{ borrow.overdue_days }} days overdue)</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if borrow.is_returned %}
+                                <span class="badge bg-success bg-opacity-10 text-success">
+                                    <i class="fas fa-check-circle me-1"></i> Returned
+                                </span>
+                                {% elif borrow.is_overdue %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger">
+                                    <i class="fas fa-exclamation-circle me-1"></i> Overdue
+                                </span>
+                                {% else %}
+                                <span class="badge bg-primary bg-opacity-10 text-primary">
+                                    <i class="fas fa-book me-1"></i> Borrowed
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="pe-4 text-end">
+                                {% if not borrow.is_returned %}
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'return-book' borrow.pk %}" 
+                                       class="btn btn-success"
+                                       data-bs-toggle="tooltip" 
+                                       title="Return Book">
+                                        <i class="fas fa-book"></i>
+                                    </a>
+                                    <!-- Removed renew-book button since the URL doesn't exist -->
+                                </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No borrowed books found</h5>
+                                <p class="text-muted">All books are currently available</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    {% if is_paginated %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="First">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<style>
+
+    /* Centered Search Styling */
+    .search-form .form-control {
+        height: 100%;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease;
+    }
+    
+    .search-form .form-control:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+        outline: none;
+    }
+    
+    .search-form .btn {
+        height: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+    
+    .search-form .btn-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+    
+    .search-form .btn-primary:hover {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+    }
+    
+    .search-form .input-group {
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 767.98px) {
+        .d-flex.flex-column.flex-md-row > * {
+            width: 100%;
+        }
+        
+        .search-form .input-group {
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .order-1 { order: 1 !important; }
+        .order-2 { order: 2 !important; }
+        .order-3 { order: 3 !important; }
+    }
+    
+    /* Existing styles */
+    .bg-danger-10 {
+        background-color: rgba(220, 53, 69, 0.05) !important;
+    }
+    .bg-success-10 {
+        background-color: rgba(25, 135, 84, 0.05) !important;
+    }
+    .avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(67, 97, 238, 0.1);
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(67, 97, 238, 0.03) !important;
+    }
+
+
+    .bg-danger-10 {
+        background-color: rgba(220, 53, 69, 0.05) !important;
+    }
+    .bg-success-10 {
+        background-color: rgba(25, 135, 84, 0.05) !important;
+    }
+    .avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(67, 97, 238, 0.1);
+    }
+    .avatar-sm {
+        width: 24px;
+        height: 24px;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(67, 97, 238, 0.03) !important;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}

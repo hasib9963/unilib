@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Return Confirmed: {{ book.title }}</title>
+    <style type="text/css">
+        /* Base styles */
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            font-size: 16px;
+        }
+        
+        /* Email container */
+        .email-container {
+            max-width: 600px;
+            margin: 30px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 600;
+        }
+        
+        .header-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+        
+        /* Content */
+        .content {
+            padding: 30px;
+        }
+        
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 25px;
+            color: #2c3e50;
+        }
+        
+        .book-card {
+            background-color: #f8f9ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: center;
+            border-top: 4px solid #00b09b;
+        }
+        
+        .book-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .confirmation-message {
+            font-size: 18px;
+            color: #00b09b;
+            font-weight: 600;
+            margin: 20px 0;
+        }
+        
+        .appreciation {
+            font-style: italic;
+            color: #7f8c8d;
+            margin: 25px 0 15px;
+        }
+        
+        /* Button */
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+            color: white !important;
+            padding: 16px 32px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            display: inline-block;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Footer */
+        .footer {
+            padding: 25px 30px;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .footer a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .content, .header {
+                padding: 25px 20px;
+            }
+            
+            .header h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="header-icon">✓</div>
+            <h1>Return Completed Successfully</h1>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                <h3>Hello {{ user.first_name }},</h3>
+            </div>
+            
+            <p>We've received your returned book. Thank you for using our library!</p>
+            
+            <div class="book-card">
+                <div class="book-title">{{ book.title }}</div>
+                <div class="confirmation-message">Return Processed Successfully</div>
+            </div>
+            
+            <p class="appreciation">Your timely returns help other readers enjoy our collection.</p>
+            
+            <div class="button-container">
+                <a href="{{ url }}" class="button">View Book Details</a>
+            </div>
+            
+            <p style="text-align: center; margin-top: 10px;">
+                <a href="{{ library_catalog_url }}" style="color: #7f8c8d; text-decoration: underline;">Browse more books</a>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated message. Please do not reply to this email.</p>
+            <p>Need help? Contact us at <a href="unilib:circulation@library.org">circulation@library.org</a></p>
+            <p style="margin-top: 15px;">&copy; {% now "Y" %} {{ library_name|default:"Community Library" }}</p>
+        </div>
+    </div>
+</body>
+</html>

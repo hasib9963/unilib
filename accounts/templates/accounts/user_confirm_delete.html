@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="delete-confirmation-container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-danger text-white p-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                        <div>
+                            <h3 class="mb-1">Confirm Account Deletion</h3>
+                            <p class="mb-0 opacity-85">This action cannot be undone</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <div class="row">
+                        <!-- Left Column - Warning and User Info -->
+                        <div class="col-md-6">
+                            <div class="alert alert-danger mb-4">
+                                <div class="d-flex">
+                                    <i class="fas fa-exclamation-circle fa-lg me-3 mt-1"></i>
+                                    <div>
+                                        <h4 class="alert-heading mb-2">Warning!</h4>
+                                        <p>Permanent deletion of user account and all associated data.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="user-summary p-3 bg-light rounded mb-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <img src="{{ user.get_profile_picture }}" 
+                                         class="rounded-circle me-3" 
+                                         width="80" 
+                                         height="80" 
+                                         alt="User profile">
+                                    <div>
+                                        <h4 class="mb-1">{{ user.get_full_name }}</h4>
+                                        <p class="text-muted mb-2">{{ user.email }}</p>
+                                        <div>
+                                            <span class="badge bg-{{ user.is_active|yesno:'success,secondary' }} me-2">
+                                                {{ user.is_active|yesno:'Active,Inactive' }}
+                                            </span>
+                                            <span class="badge bg-primary">
+                                                {{ user.get_role_display }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="mb-0 text-muted">
+                                    <i class="far fa-calendar me-1"></i> Member since {{ user.date_joined|date:"M d, Y" }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Right Column - Impact and Actions -->
+                        <div class="col-md-6">
+                            <div class="impact-summary h-100">
+                                <h4 class="fw-bold mb-3 border-bottom pb-2">Deletion Impact</h4>
+                                <ul class="list-unstyled mb-4">
+                                    <li class="mb-3 d-flex">
+                                        <i class="fas fa-user-slash text-danger mt-1 me-3"></i>
+                                        <div>User account and credentials will be permanently removed</div>
+                                    </li>
+                                    <li class="mb-3 d-flex">
+                                        <i class="fas fa-book text-danger mt-1 me-3"></i>
+                                        <div>All borrowing records will be deleted</div>
+                                    </li>
+                                    <li class="mb-3 d-flex">
+                                        <i class="fas fa-money-bill-wave text-danger mt-1 me-3"></i>
+                                        <div>Any associated fines will be cleared</div>
+                                    </li>
+                                    <li class="mb-3 d-flex">
+                                        <i class="fas fa-history text-danger mt-1 me-3"></i>
+                                        <div>All activity history will be erased</div>
+                                    </li>
+                                </ul>
+
+                                <div class="border-top pt-4 mt-auto">
+                                    <form method="POST" id="delete-form">
+                                        {% csrf_token %}
+                                        <div class="d-flex gap-3">
+                                            <a href="{% url 'user-detail' user.pk %}" class="btn btn-outline-secondary flex-grow-1 py-2">
+                                                <i class="fas fa-times me-2"></i> Cancel
+                                            </a>
+                                            <button type="submit" class="btn btn-danger flex-grow-1 py-2" id="submit-button">
+                                                <i class="fas fa-trash-alt me-2"></i> Confirm Delete
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .delete-confirmation-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+    }
+    
+    .card {
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+    
+    .user-summary {
+        border-left: 3px solid var(--bs-danger);
+        background-color: rgba(220, 53, 69, 0.05);
+    }
+    
+    .impact-summary {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .btn-danger {
+        transition: all 0.2s ease;
+    }
+    
+    .btn-danger:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    }
+    
+    /* Loading spinner */
+    .fa-spinner {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Button state transitions */
+    #submit-button {
+        transition: all 0.3s ease;
+    }
+    
+    #submit-button[disabled] {
+        opacity: 0.8;
+        transform: scale(0.98);
+    }
+    
+    @media (max-width: 768px) {
+        .d-flex.gap-3 {
+            flex-direction: column;
+            gap: 1rem !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form submission with loading spinner and delay
+    const form = document.getElementById('delete-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitButton = document.getElementById('submit-button');
+            if (submitButton) {
+                // Store original button content
+                const originalContent = submitButton.innerHTML;
+                
+                // Show loading state
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Deleting...';
+                submitButton.disabled = true;
+                
+                // Add delay to see the spinner (demo only)
+                e.preventDefault();
+                setTimeout(function() {
+                    // Submit the form after delay
+                    form.submit();
+                }, 2000); // 2 second delay
+                
+                // In production, remove the e.preventDefault() and setTimeout
+                // and just let the form submit normally
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

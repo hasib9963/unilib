@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add New User{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="text-center font-weight-light my-2">
+                        <i class="fas fa-user-plus me-2"></i> Add New User
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" novalidate id="user-form">
+                        {% csrf_token %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3 mb-md-0">
+                                    {{ form.username }}
+                                    <label for="{{ form.username.id_for_label }}">Username</label>
+                                    {% if form.username.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.username.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    {{ form.university_id }}
+                                    <label for="{{ form.university_id.id_for_label }}">University ID</label>
+                                    {% if form.university_id.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.university_id.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3 mb-md-0">
+                                    {{ form.first_name }}
+                                    <label for="{{ form.first_name.id_for_label }}">First Name</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    {{ form.last_name }}
+                                    <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            {{ form.email }}
+                            <label for="{{ form.email.id_for_label }}">Email Address</label>
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.email.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3 mb-md-0 position-relative password-toggle-container">
+                                    {{ form.password1 }}
+                                    <label for="{{ form.password1.id_for_label }}">Password</label>
+                                    <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y pe-3 toggle-password" aria-label="Toggle password visibility" aria-pressed="false">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    {% if form.password1.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.password1.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating position-relative password-toggle-container">
+                                    {{ form.password2 }}
+                                    <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                                    <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y pe-3 toggle-password" aria-label="Toggle password visibility" aria-pressed="false">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    {% if form.password2.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.password2.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3 mb-md-0">
+                                    {{ form.role }}
+                                    <label for="{{ form.role.id_for_label }}">Role</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    {{ form.phone }}
+                                    <label for="{{ form.phone.id_for_label }}">Phone Number</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            {{ form.address }}
+                            <label for="{{ form.address.id_for_label }}">Address</label>
+                        </div>
+                        
+                        <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
+                            <a href="{% url 'user-list' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Back to Users
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="submit-button">
+                                <i class="fas fa-save me-1"></i> Add User
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Password field container */
+    .password-toggle-container {
+        position: relative;
+    }
+
+    /* Eye toggle button */
+    .toggle-password {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        z-index: 3;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .toggle-password:hover {
+        color: #4361ee;
+        text-decoration: none;
+    }
+
+    .toggle-password i {
+        font-size: 1.1rem;
+    }
+
+    /* Form floating label adjustments */
+    .form-floating > .form-control {
+        padding-right: 2.5rem;
+    }
+
+    /* Loading spinner */
+    .fa-spinner {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Button state transitions */
+    #submit-button {
+        transition: all 0.3s ease;
+    }
+    
+    #submit-button[disabled] {
+        opacity: 0.8;
+        transform: scale(0.98);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Password visibility toggle
+    const toggleButtons = document.querySelectorAll('.toggle-password');
+    
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.parentElement.querySelector('input');
+            const icon = this.querySelector('i');
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            
+            input.setAttribute('type', type);
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+            this.setAttribute('aria-pressed', type === 'text');
+            this.style.color = type === 'text' ? '#4361ee' : '#6c757d';
+        });
+    });
+
+    // 2. Form submission handling with delay
+    const form = document.getElementById('user-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitButton = document.getElementById('submit-button');
+            if (submitButton) {
+                // Store original button content
+                const originalContent = submitButton.innerHTML;
+                
+                // Show loading state
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Adding...';
+                submitButton.disabled = true;
+                
+                // Add delay to see the spinner (demo only)
+                e.preventDefault();
+                setTimeout(function() {
+                    // Submit the form after delay
+                    form.submit();
+                }, 2000); // 2 second delay
+                
+                // In production, remove the e.preventDefault() and setTimeout
+                // and just let the form submit normally
+            }
+        });
+    }
+
+    // Add Bootstrap classes to form fields
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.classList.add('form-control');
+        
+        // Add is-invalid class if field has errors
+        if (input.nextElementSibling && input.nextElementSibling.classList.contains('invalid-feedback')) {
+            input.classList.add('is-invalid');
+        }
+    });
+    
+    // Special handling for select elements
+    const selects = document.querySelectorAll('select');
+    selects.forEach(select => {
+        select.classList.add('form-select');
+    });
+    
+    // Textarea specific styling
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach(textarea => {
+        textarea.style.minHeight = '100px';
+    });
+});
+</script>
+{% endblock %}

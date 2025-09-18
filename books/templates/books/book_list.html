@@ -1,0 +1,325 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div>
+            <h1 class="fw-bold mb-2">
+                <i class="fas fa-book-open text-primary me-2"></i>
+                Book Collection
+            </h1>
+            <p class="text-muted mb-0">Browse and discover our library's complete catalog</p>
+        </div>
+        
+        <div class="d-flex flex-column flex-sm-row gap-2">
+            {% if user.is_admin or user.is_librarian %}
+            <a href="{% url 'book-create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i> Add Book
+            </a>
+            {% endif %}
+            <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse">
+                <i class="fas fa-search me-2"></i> Search & Filter
+            </button>
+        </div>
+    </div>
+
+    <!-- Search and Filter Panel -->
+    <div class="collapse mb-4" id="searchCollapse">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form method="get" class="row g-3">
+                    <input type="hidden" name="view" value="{{ current_view }}">
+                    
+                    <div class="col-md-6">
+                        <label for="id_q" class="form-label">Search Books</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" name="q" class="form-control" id="id_q" 
+                                   placeholder="Search by title, author, ISBN..." value="{{ request.GET.q }}">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="id_category" class="form-label">Category</label>
+                        <select name="category" class="form-select" id="id_category">
+                            <option value="">All Categories</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"s" %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="id_availability" class="form-label">Availability</label>
+                        <select name="availability" class="form-select" id="id_availability">
+                            <option value="">All Books</option>
+                            <option value="available" {% if request.GET.availability == 'available' %}selected{% endif %}>Available Now</option>
+                            <option value="unavailable" {% if request.GET.availability == 'unavailable' %}selected{% endif %}>Checked Out</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-filter me-2"></i> Apply Filters
+                        </button>
+                        <a href="{% url 'book-list' %}?view={{ current_view }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-undo me-2"></i> Reset
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <p class="mb-2 mb-md-0">
+            Showing <span class="fw-bold">{{ page_obj.start_index }}-{{ page_obj.end_index }}</span> 
+            of <span class="fw-bold">{{ page_obj.paginator.count }}</span> books
+        </p>
+        
+        <div class="d-flex gap-2">
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown">
+                    <i class="fas fa-sort me-2"></i> 
+                    {% if request.GET.sort == 'popular' %}Most Popular
+                    {% elif request.GET.sort == 'title' %}A-Z
+                    {% elif request.GET.sort == '-title' %}Z-A
+                    {% elif request.GET.sort == '-created_at' %}Newest
+                    {% else %}Sort By{% endif %}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.availability %}availability={{ request.GET.availability }}&{% endif %}view={{ current_view }}&sort=-created_at">
+                        <i class="fas fa-calendar-plus me-2"></i> Newest First
+                    </a></li>
+                    <li><a class="dropdown-item" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.availability %}availability={{ request.GET.availability }}&{% endif %}view={{ current_view }}&sort=title">
+                        <i class="fas fa-sort-alpha-down me-2"></i> Title (A-Z)
+                    </a></li>
+                    <li><a class="dropdown-item" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.availability %}availability={{ request.GET.availability }}&{% endif %}view={{ current_view }}&sort=-title">
+                        <i class="fas fa-sort-alpha-up me-2"></i> Title (Z-A)
+                    </a></li>
+                    <li><a class="dropdown-item" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.availability %}availability={{ request.GET.availability }}&{% endif %}view={{ current_view }}&sort=popular">
+                        <i class="fas fa-fire me-2"></i> Most Popular
+                    </a></li>
+                </ul>
+            </div>
+            
+            <div class="btn-group" role="group">
+                <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.availability %}availability={{ request.GET.availability }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}view=grid" 
+                   class="btn btn-outline-secondary {% if current_view != 'list' %}active{% endif %}">
+                    <i class="fas fa-th-large"></i>
+                </a>
+                <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.availability %}availability={{ request.GET.availability }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}view=list" 
+                   class="btn btn-outline-secondary {% if current_view == 'list' %}active{% endif %}">
+                    <i class="fas fa-list"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if books %}
+        {% if current_view == 'list' %}
+            <!-- List View -->
+            <div class="card border-0 shadow-sm">
+                <div class="list-group list-group-flush">
+                    {% for book in books %}
+                    <div class="list-group-item">
+                        <div class="row align-items-center">
+                            <div class="col-md-2">
+                                {% if book.cover_image %}
+                                <img src="{{ book.cover_image.url }}" class="img-fluid rounded" alt="{{ book.title }}" style="max-height: 100px;">
+                                {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 100px;">
+                                    <i class="fas fa-book-open fa-2x text-muted"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="mb-1">
+                                    <a href="{% url 'book-detail' book.pk %}" class="text-decoration-none">{{ book.title }}</a>
+                                </h5>
+                                <p class="text-muted mb-2">by {{ book.author }}</p>
+                                <div class="d-flex flex-wrap gap-1">
+                                    {% if book.category %}
+                                    <span class="badge bg-primary-light text-primary">{{ book.category.name }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <span class="badge bg-{% if book.available_copies > 0 %}success{% else %}danger{% endif %}">
+                                    {{ book.available_copies }} available
+                                </span>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <a href="{% url 'book-detail' book.pk %}" class="btn btn-sm btn-outline-primary me-1">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if book.available_copies > 0 %}
+                                <a href="{% url 'book-issue' book.pk %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-bookmark"></i> Borrow
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <!-- Grid View -->
+            <div class="row g-4">
+                {% for book in books %}
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                    <div class="card h-100 border-0 shadow-sm hover-lift">
+                        <div class="position-relative">
+                            <a href="{% url 'book-detail' book.pk %}">
+                                {% if book.cover_image %}
+                                <img src="{{ book.cover_image.url }}" 
+                                     class="card-img-top" 
+                                     alt="{{ book.title }}"
+                                     style="height: 200px; object-fit: cover;">
+                                {% else %}
+                                <div class="book-placeholder bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <i class="fas fa-book-open fa-3x text-muted"></i>
+                                </div>
+                                {% endif %}
+                            </a>
+                            <span class="badge bg-{% if book.available_copies > 0 %}success{% else %}danger{% endif %} position-absolute bottom-0 start-0 m-2">
+                                {{ book.available_copies }} available
+                            </span>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title mb-1">
+                                <a href="{% url 'book-detail' book.pk %}" class="text-decoration-none text-dark">{{ book.title|truncatechars:40 }}</a>
+                            </h5>
+                            <p class="card-text text-muted small mb-2">by {{ book.author|truncatechars:30 }}</p>
+                            <div class="d-flex flex-wrap gap-1 mb-3">
+                                {% if book.category %}
+                                <a href="?category={{ book.category.id }}&view={{ current_view }}" class="badge bg-primary-light text-primary text-decoration-none">{{ book.category.name }}</a>
+                                {% endif %}
+                            </div>
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <a href="{% url 'book-detail' book.pk %}" class="btn btn-sm btn-outline-primary">
+                                    Details
+                                </a>
+                                {% if book.available_copies > 0 %}
+                                <a href="{% url 'book-issue' book.pk %}" class="btn btn-sm btn-primary">
+                                    Borrow
+                                </a>
+                                {% else %}
+                                <span class="badge bg-danger">Unavailable</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% else %}
+    <div class="text-center py-5">
+        <div class="mb-4" style="font-size: 5rem; color: #e9ecef;">
+            <i class="fas fa-book-open"></i>
+        </div>
+        <h4 class="fw-bold mb-3">No books found</h4>
+        <p class="text-muted mb-4">Try adjusting your search filters or <a href="{% url 'book-list' %}?view={{ current_view }}">reset the search</a>.</p>
+        {% if user.is_admin or user.is_librarian %}
+        <a href="{% url 'book-create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i> Add New Book
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav aria-label="Page navigation" class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}&view={{ current_view }}">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}&view={{ current_view }}">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}&view={{ current_view }}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}&view={{ current_view }}">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}&view={{ current_view }}">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hover-lift {
+        transition: all 0.2s ease;
+    }
+    
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .bg-primary-light {
+        background-color: rgba(67, 97, 238, 0.1);
+    }
+    
+    .book-placeholder {
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+        color: #6c757d;
+    }
+    
+    .list-group-item {
+        transition: background-color 0.2s ease;
+    }
+    
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .dropdown-item.active {
+        background-color: #4361ee;
+        color: white;
+    }
+    
+    .btn-group .btn-outline-secondary.active {
+        background-color: #4361ee;
+        color: white;
+        border-color: #4361ee;
+    }
+</style>
+{% endblock %}

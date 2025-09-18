@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="delete-confirmation-container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-danger text-white py-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-triangle fa-xl me-3"></i>
+                            <div>
+                                <h3 class="mb-0">Confirm Book Deletion</h3>
+                                <small class="opacity-85">This action cannot be undone</small>
+                            </div>
+                        </div>
+                        <a href="{% url 'book-detail' object.pk %}" class="btn btn-sm btn-outline-light">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <div class="row">
+                        <!-- Left Column - Book Details -->
+                        <div class="col-md-6">
+                            <div class="book-details p-3 h-100">
+                                <div class="d-flex flex-column h-100">
+                                    {% if object.cover_image %}
+                                    <img src="{{ object.cover_image.url }}" 
+                                         class="rounded mb-3 mx-auto" 
+                                         style="max-height: 200px; width: auto;"
+                                         alt="Book cover">
+                                    {% else %}
+                                    <div class="book-cover-placeholder mb-3 d-flex align-items-center justify-content-center bg-light rounded mx-auto" 
+                                         style="width: 140px; height: 200px;">
+                                        <i class="fas fa-book-open fa-2x text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <h4 class="text-center mb-2">"{{ object.title }}"</h4>
+                                    <p class="text-muted text-center mb-3">by {{ object.author }}</p>
+                                    
+                                    <div class="mt-auto">
+                                        <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
+                                            <span class="badge bg-primary">{{ object.category.name }}</span>
+                                            <span class="badge bg-secondary">ISBN: {{ object.isbn }}</span>
+                                            <span class="badge bg-{% if object.available_copies > 0 %}success{% else %}danger{% endif %}">
+                                                {{ object.available_copies }} available
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Column - Warning and Actions -->
+                        <div class="col-md-6">
+                            <div class="alert alert-danger mb-4">
+                                <div class="d-flex">
+                                    <i class="fas fa-exclamation-circle fa-lg me-3 mt-1"></i>
+                                    <div>
+                                        <h4 class="alert-heading mb-2">Warning: Permanent Action</h4>
+                                        <p class="mb-0">This will permanently remove the book from the library system.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="impact-summary mb-4">
+                                <h5 class="fw-bold mb-3">Deletion Consequences:</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-3 d-flex">
+                                        <i class="fas fa-book text-danger mt-1 me-3"></i>
+                                        <div>Book will be removed from all catalogs and search results</div>
+                                    </li>
+                                    <li class="mb-3 d-flex">
+                                        <i class="fas fa-exchange-alt text-danger mt-1 me-3"></i>
+                                        <div>All borrowing records will be permanently deleted</div>
+                                    </li>
+                                    <li class="mb-3 d-flex">
+                                        <i class="fas fa-heart text-danger mt-1 me-3"></i>
+                                        <div>Removed from all user favorites and reading lists</div>
+                                    </li>
+                                    <li class="mb-3 d-flex">
+                                        <i class="fas fa-history text-danger mt-1 me-3"></i>
+                                        <div>All historical data will be erased</div>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <form method="POST" class="mt-4" id="delete-form">
+                                {% csrf_token %}
+                                <div class="d-flex justify-content-end gap-3">
+                                    <button type="submit" class="btn btn-danger px-4 py-2" id="submit-button">
+                                        <i class="fas fa-trash-alt me-2"></i> Confirm Deletion
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .delete-confirmation-container {
+        padding: 2rem 0;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .card {
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+    
+    .book-cover-placeholder {
+        border: 1px solid #dee2e6;
+    }
+    
+    .btn-danger {
+        transition: all 0.2s ease;
+        min-width: 180px;
+    }
+    
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+    }
+    
+    .alert-danger {
+        border-left: 4px solid #dc3545;
+    }
+    
+    /* Loading spinner */
+    .fa-spinner {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Button state transitions */
+    #submit-button {
+        transition: all 0.3s ease;
+    }
+    
+    #submit-button[disabled] {
+        opacity: 0.8;
+        transform: scale(0.98);
+    }
+    
+    @media (max-width: 768px) {
+        .row > [class*="col-"] {
+            padding-right: calc(var(--bs-gutter-x) * .5);
+            padding-left: calc(var(--bs-gutter-x) * .5);
+            margin-top: var(--bs-gutter-y);
+        }
+        
+        .d-flex.justify-content-end {
+            justify-content: center !important;
+        }
+        
+        .btn-danger {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form submission with loading spinner and delay
+    const form = document.getElementById('delete-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitButton = document.getElementById('submit-button');
+            if (submitButton) {
+                // Store original button content
+                const originalContent = submitButton.innerHTML;
+                
+                // Show loading state
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Deleting...';
+                submitButton.disabled = true;
+                
+                // Add delay to see the spinner (demo only)
+                e.preventDefault();
+                setTimeout(function() {
+                    // Submit the form after delay
+                    form.submit();
+                }, 2000); // 2 second delay
+                
+                // In production, remove the e.preventDefault() and setTimeout
+                // and just let the form submit normally
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
