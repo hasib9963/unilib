@@ -2,7 +2,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}Edit Profile - UniLib{% endblock %}
+{% block title %}{% if edit_mode %}Edit{% else %}View{% endif %} Profile - UniLib{% endblock %}
 
 {% block content %}
 <!-- Background Elements -->
@@ -51,11 +51,13 @@
                                      class="rounded-circle" 
                                      alt="Profile Picture" 
                                      width="150" height="150" id="previewImage">
+                                {% if edit_mode %}
                                 <div class="avatar-overlay">
                                     <label for="id_profile_picture" class="avatar-edit-btn">
                                         <i class="fas fa-camera"></i>
                                     </label>
                                 </div>
+                                {% endif %}
                             </div>
                         </div>
 
@@ -108,17 +110,21 @@
             </div>
         </div>
 
-        <!-- Profile Edit Form -->
+        <!-- Profile Information Card -->
         <div class="col-lg-8">
             <div class="card glass-card border-0 shadow-lg">
                 <div class="card-header bg-transparent border-bottom-0 py-4">
                     <h4 class="mb-0 fw-bold text-dark">
-                        <i class="fas fa-user-edit text-primary me-2"></i> 
-                        Edit Profile Information
+                        <i class="fas {% if edit_mode %}fa-user-edit{% else %}fa-user{% endif %} text-primary me-2"></i> 
+                        {% if edit_mode %}Edit{% else %}View{% endif %} Profile Information
                     </h4>
-                    <p class="text-muted mb-0">Update your personal details and preferences</p>
+                    <p class="text-muted mb-0">
+                        {% if edit_mode %}Update your personal details and preferences{% else %}Your personal details and information{% endif %}
+                    </p>
                 </div>
                 <div class="card-body p-4">
+                    {% if edit_mode %}
+                    <!-- EDIT MODE: Show the form -->
                     <form method="POST" enctype="multipart/form-data" id="profileForm">
                         {% csrf_token %}
 
@@ -265,6 +271,96 @@
                             </button>
                         </div>
                     </form>
+                    {% else %}
+                    <!-- VIEW MODE: Show static information -->
+                    <div class="profile-info-view">
+                        <!-- Personal Information Section -->
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary section-header">
+                                <i class="fas fa-user-circle me-2"></i> Personal Information
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="info-field">
+                                        <label class="form-label"><i class="fas fa-user me-1 text-primary"></i> First Name</label>
+                                        <div class="info-value">{{ user.first_name }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-field">
+                                        <label class="form-label"><i class="fas fa-user me-1 text-primary"></i> Last Name</label>
+                                        <div class="info-value">{{ user.last_name }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information Section -->
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary section-header">
+                                <i class="fas fa-address-card me-2"></i> Contact Information
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="info-field">
+                                        <label class="form-label"><i class="fas fa-envelope me-1 text-primary"></i> Email</label>
+                                        <div class="info-value">{{ user.email }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-field">
+                                        <label class="form-label"><i class="fas fa-phone me-1 text-primary"></i> Phone</label>
+                                        <div class="info-value">{{ user.phone|default:"Not provided" }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="info-field">
+                                        <label class="form-label"><i class="fas fa-map-marker-alt me-1 text-primary"></i> Address</label>
+                                        <div class="info-value">{{ user.address|default:"Not provided" }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- University Information Section -->
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary section-header">
+                                <i class="fas fa-university me-2"></i> University Information
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="info-field">
+                                        <label class="form-label"><i class="fas fa-id-card me-1 text-primary"></i> University ID</label>
+                                        <div class="info-value">{{ user.university_id }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-field">
+                                        <label class="form-label"><i class="fas fa-user-tag me-1 text-primary"></i> Role</label>
+                                        <div class="info-value">{{ user.get_role_display }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Profile Picture Section -->
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary section-header">
+                                <i class="fas fa-camera me-2"></i> Profile Picture
+                            </h5>
+                            <div class="info-field">
+                                <label class="form-label"><i class="fas fa-image me-1 text-primary"></i> Current Profile Picture</label>
+                                <div class="info-value">{{ user.profile_picture.name|default:"No file chosen" }}</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3 mt-4">
+                            <button type="button" class="btn btn-primary px-4 btn-hover" id="edit-button" onclick="window.location.href='?edit=true'">
+                                <i class="fas fa-edit me-2"></i> Edit Profile
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -497,6 +593,28 @@
         width: 100%;
     }
 
+    /* Info field styles for view mode */
+    .info-field {
+        margin-bottom: 1.5rem;
+    }
+    
+    .info-field label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .info-value {
+        padding: 0.75rem 1rem;
+        background-color: rgba(255, 255, 255, 0.7);
+        border-radius: 0.5rem;
+        border: 1px solid #e9ecef;
+        min-height: 50px;
+        display: flex;
+        align-items: center;
+    }
+
     /* File Upload */
     .drag-drop-area {
         border: 2px dashed #dee2e6;
@@ -559,6 +677,8 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Only initialize these features if in edit mode
+    {% if edit_mode %}
     // Profile picture preview
     const profilePicInput = document.getElementById('id_profile_picture');
     const previewImage = document.getElementById('previewImage');
@@ -636,6 +756,7 @@ document.addEventListener('DOMContentLoaded', function() {
     inputs.forEach(input => {
         input.classList.add('form-control');
     });
+    {% endif %}
 });
 </script>
 {% endblock %}

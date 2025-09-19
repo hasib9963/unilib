@@ -91,6 +91,9 @@ class UserCreateView(CreateView):
 def profile(request):
     user = request.user
 
+    # Check if we're in edit mode (from query parameter)
+    edit_mode = request.GET.get('edit') == 'true'
+
     if request.method == 'POST':
         form = UserUpdateForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
@@ -110,8 +113,10 @@ def profile(request):
         'active_borrows': active_borrows,
         'total_borrows': total_borrows,
         'fines_count': fines_count,
+        'edit_mode': edit_mode,  # Pass edit mode to template
     }
     return render(request, 'accounts/profile.html', context)
+
 
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required, user_passes_test
