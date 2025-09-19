@@ -59,6 +59,21 @@ class BookDetailView(DetailView):
     model = Book
     template_name = 'books/book_detail.html'
 
+# class BookCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+#     model = Book
+#     form_class = BookForm
+#     template_name = 'books/book_form.html'
+#     success_url = reverse_lazy('book-list')
+
+#     def test_func(self):
+#         return self.request.user.is_admin or self.request.user.is_librarian
+    
+#     def form_valid(self, form):
+#         form.instance.added_by = self.request.user
+#         messages.success(self.request, 'Book added successfully!')
+#         return super().form_valid(form)
+
+# views.py
 class BookCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Book
     form_class = BookForm
@@ -68,12 +83,41 @@ class BookCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     def test_func(self):
         return self.request.user.is_admin or self.request.user.is_librarian
     
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['is_create'] = True  # Pass flag to form to indicate creation
+        return kwargs
+    
     def form_valid(self, form):
         form.instance.added_by = self.request.user
         messages.success(self.request, 'Book added successfully!')
         return super().form_valid(form)
 
+# class BookUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+#     model = Book
+#     form_class = BookForm
+#     template_name = 'books/book_form.html'
 
+#     def test_func(self):
+#         return self.request.user.is_admin or self.request.user.is_librarian
+
+#     def form_valid(self, form):
+#         # Get the original book instance to check if total_copies changed
+#         original_book = Book.objects.get(pk=self.object.pk)
+        
+#         # If total copies decreased, adjust available copies if needed
+#         if form.cleaned_data['total_copies'] < original_book.total_copies:
+#             if form.cleaned_data['available_copies'] > form.cleaned_data['total_copies']:
+#                 form.instance.available_copies = form.cleaned_data['total_copies']
+        
+#         messages.success(self.request, 'Book updated successfully!')
+#         return super().form_valid(form)
+
+#     def get_success_url(self):
+#         return reverse_lazy('book-detail', kwargs={'pk': self.object.pk})
+
+
+# views.py
 class BookUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Book
     form_class = BookForm
@@ -82,20 +126,17 @@ class BookUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def test_func(self):
         return self.request.user.is_admin or self.request.user.is_librarian
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['is_create'] = False  # Pass flag to form to indicate update
+        return kwargs
+
     def form_valid(self, form):
         messages.success(self.request, 'Book updated successfully!')
         return super().form_valid(form)
 
-    def get_initial(self):
-        book = get_object_or_404(Book, pk=self.kwargs['pk'])
-        return {
-            'book': book,
-        }
-
     def get_success_url(self):
-        return reverse_lazy('book-detail', kwargs={'pk': self.object.pk})  # ✅ fixed
-
-
+        return reverse_lazy('book-detail', kwargs={'pk': self.object.pk})
 class BookDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Book
     template_name = 'books/book_confirm_delete.html'
