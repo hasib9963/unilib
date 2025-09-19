@@ -167,11 +167,10 @@ EMAIL_HOST_PASSWORD = env('EMAIL_PASSWORD')
 
 
 # Email settings
-DEFAULT_FROM_EMAIL = 'UniLib Support <noreply@unilib.com>'  # Change to your preferred email
+DEFAULT_FROM_EMAIL = 'UniLib Support <noreply@unilib.com>'
 SERVER_EMAIL = 'server@unilib.com'  # For error messages
 
 # Sites framework
-SITE_DOMAIN = 'https://unilib-ci2k.onrender.com'
 SITE_ID = 1
 SITE_NAME = "UniLib"  # Custom setting we'll use
 
