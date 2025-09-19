@@ -1,17 +1,10 @@
-
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from transactions.models import Borrow  # Adjust this import based on your project
 from datetime import date
-from django.shortcuts import render, redirect
 from django.views.generic import CreateView
 from .forms import UserRegisterForm, UserUpdateForm
 from .models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
-
-
-
 
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
@@ -19,9 +12,13 @@ from django.contrib.auth.tokens import default_token_generator
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from django.contrib import messages
-from django.shortcuts import render, redirect
 from django.urls import reverse
 
+from django.views import View
+from django.http import HttpResponse
+from django.contrib.auth import get_user_model
+
+from django.db import IntegrityError
 
 def register(request):
     if request.method == 'POST':
@@ -57,12 +54,6 @@ def register(request):
 
 
 
-from django.views import View
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django.contrib.auth import get_user_model
-from django.contrib.auth.tokens import default_token_generator
-
 class ConfirmEmailView(View):
     def get(self, request, uidb64, token):
         try:
@@ -79,17 +70,8 @@ class ConfirmEmailView(View):
             return HttpResponse("Activation link is invalid or expired.")
 
 
-# class UserCreateView(CreateView):
-#     model = User
-#     form_class = UserRegisterForm
-#     template_name = 'accounts/user_create.html'
-    
-#     def form_valid(self, form):
-#         user = form.save()
-#         messages.success(self.request, f'User {user.username} created successfully!')
-#         return redirect('user-list')
 
-from django.db import IntegrityError
+
 
 class UserCreateView(CreateView):
     model = User
@@ -133,8 +115,6 @@ def profile(request):
 
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.shortcuts import render
-from accounts.models import User
 from django.db.models import Q
 
 @login_required

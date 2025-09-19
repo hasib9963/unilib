@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
@@ -74,7 +74,7 @@ class BorrowCreateView(LoginRequiredMixin, CreateView):
         email.attach_alternative(html_content, "text/html")
         email.send()
 
-        messages.success(self.request, 'Book borrowed successfully!')
+        messages.success(self.request, f"'{book.title}' borrowed successfully!")
         return response
 
     def get_success_url(self):

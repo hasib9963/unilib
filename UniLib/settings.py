@@ -171,6 +171,7 @@ DEFAULT_FROM_EMAIL = 'UniLib Support <noreply@unilib.com>'  # Change to your pre
 SERVER_EMAIL = 'server@unilib.com'  # For error messages
 
 # Sites framework
+SITE_DOMAIN = 'https://unilib-ci2k.onrender.com'
 SITE_ID = 1
 SITE_NAME = "UniLib"  # Custom setting we'll use
 
