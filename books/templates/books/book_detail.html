@@ -27,7 +27,7 @@
                         </span>
                     </div>
                     
-                    {% if user.is_authenticated %}
+                    {% comment %} {% if user.is_authenticated %} {% endcomment %}
                     <div class="d-grid gap-2">
                         {% if book.available_copies > 0 %}
                         <a href="{% url 'book-issue' book.pk %}" class="btn btn-success btn-lg">
@@ -39,7 +39,7 @@
                         </a>
                         {% endif %}
                     </div>
-                    {% endif %}
+                    {% comment %} {% endif %} {% endcomment %}
                 </div>
             </div>
         </div>

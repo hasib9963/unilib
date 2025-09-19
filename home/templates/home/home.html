@@ -319,6 +319,12 @@
             height: 200px;
         }
     }
+
+    /* Added styles for borrow button */
+    .book-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
 </style>
 {% endblock %}
 
@@ -428,9 +434,16 @@
                             <span class="book-status bg-{% if book.available_copies > 0 %}success{% else %}danger{% endif %}">
                                 {{ book.available_copies }} available
                             </span>
-                            <a href="{% url 'book-detail' book.pk %}" class="btn btn-sm btn-primary book-btn">
-                                Details
-                            </a>
+                            <div class="book-buttons">
+                                <a href="{% url 'book-detail' book.pk %}" class="btn btn-sm btn-outline-primary book-btn">
+                                    Details
+                                </a>
+                                {% if book.available_copies > 0 %}
+                                <a href="{% url 'book-issue' book.pk %}" class="btn btn-sm btn-primary book-btn">
+                                    Borrow
+                                </a>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -479,9 +492,20 @@
                             <span class="book-status bg-{% if book.available_copies > 0 %}success{% else %}danger{% endif %}">
                                 {{ book.available_copies }} available
                             </span>
-                            <a href="{% url 'book-detail' book.pk %}" class="btn btn-sm btn-primary book-btn">
-                                <i class="fas fa-info-circle me-1"></i> Details
-                            </a>
+                            <div class="book-buttons">
+                                <a href="{% url 'book-detail' book.pk %}" class="btn btn-sm btn-outline-primary book-btn">
+                                    <i class="fas fa-info-circle me-1"></i> Details
+                                </a>
+                                {% if book.available_copies > 0 %}
+                                <a href="{% url 'book-issue' book.pk %}" class="btn btn-sm btn-primary book-btn">
+                                    <i class="fas fa-bookmark me-1"></i> Borrow
+                                </a>
+                                {% else %}
+                                <a href="{% url 'book-reserve' book.pk %}" class="btn btn-sm btn-warning book-btn">
+                                    <i class="fas fa-bookmark me-2"></i> Reserve Book
+                                </a>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
