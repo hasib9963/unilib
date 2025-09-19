@@ -145,28 +145,49 @@ def user_list(request):
 
 from django.utils import timezone
 
+# @login_required
+# @user_passes_test(lambda u: u.is_admin)
+# def user_detail(request, pk):
+#     user = get_object_or_404(User, pk=pk)
+    
+#     # Get borrow counts
+#     total_borrows = Borrow.objects.filter(user=user).count()
+#     active_borrows = Borrow.objects.filter(user=user, is_returned=False).count()
+#     overdue = Borrow.objects.filter(
+#         user=user, 
+#         is_returned=False,
+#         due_date__lt=timezone.now().date()
+#     ).count()
+    
+#     context = {
+#         'user': user,
+#         'total_borrows': total_borrows,
+#         'active_borrows': active_borrows,
+#         'overdue': overdue,
+#     }
+#     return render(request, 'accounts/user_detail.html', context)
+
 @login_required
 @user_passes_test(lambda u: u.is_admin)
 def user_detail(request, pk):
-    user = get_object_or_404(User, pk=pk)
+    viewed_user = get_object_or_404(User, pk=pk)  # Changed variable name
     
     # Get borrow counts
-    total_borrows = Borrow.objects.filter(user=user).count()
-    active_borrows = Borrow.objects.filter(user=user, is_returned=False).count()
+    total_borrows = Borrow.objects.filter(user=viewed_user).count()
+    active_borrows = Borrow.objects.filter(user=viewed_user, is_returned=False).count()
     overdue = Borrow.objects.filter(
-        user=user, 
+        user=viewed_user, 
         is_returned=False,
         due_date__lt=timezone.now().date()
     ).count()
     
     context = {
-        'user': user,
+        'viewed_user': viewed_user,  # Changed key name
         'total_borrows': total_borrows,
         'active_borrows': active_borrows,
         'overdue': overdue,
     }
     return render(request, 'accounts/user_detail.html', context)
-
 
 @login_required
 @user_passes_test(lambda u: u.is_admin)

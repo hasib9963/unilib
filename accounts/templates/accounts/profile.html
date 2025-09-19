@@ -5,23 +5,34 @@
 {% block title %}Edit Profile - UniLib{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<!-- Background Elements -->
+<div class="background-elements">
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+    <div class="circle circle-3"></div>
+</div>
+
+<div class="container py-5 position-relative">
     <!-- Page Header -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5">
         <div>
-            <h1 class="fw-bold mb-2">
-                <i class="fas fa-user-circle text-primary me-2"></i>
+            <h1 class="fw-bold mb-2 text-gradient">
+                <i class="fas fa-user-circle me-2"></i>
                 My Profile
             </h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="fas fa-home me-1"></i> Dashboard</a></li>
-                    <li class="breadcrumb-item active" aria-current="page"><i class="fas fa-user me-1"></i> Profile</li>
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}" class="text-decoration-none">
+                        <i class="fas fa-home me-1"></i> Dashboard
+                    </a></li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="fas fa-user me-1"></i> Profile
+                    </li>
                 </ol>
             </nav>
         </div>
         <div class="mt-3 mt-md-0">
-            <a href="{% url 'password_change' %}" class="btn btn-outline-primary">
+            <a href="{% url 'password_change' %}" class="btn btn-outline-primary btn-hover">
                 <i class="fas fa-key me-2"></i> Change Password
             </a>
         </div>
@@ -30,26 +41,27 @@
     <div class="row g-4">
         <!-- Profile Summary Card -->
         <div class="col-lg-4">
-            <div class="card border-0 shadow-sm h-100">
+            <div class="card glass-card border-0 shadow-lg h-100">
                 <div class="card-body p-4">
                     <div class="text-center">
                         <!-- Profile Picture -->
                         <div class="avatar-upload mb-4 position-relative mx-auto">
-                            <div class="avatar-preview rounded-circle shadow-sm">
+                            <div class="avatar-preview rounded-circle">
                                 <img src="{{ user.get_profile_picture|default:'/static/images/default-avatar.png' }}" 
                                      class="rounded-circle" 
                                      alt="Profile Picture" 
                                      width="150" height="150" id="previewImage">
+                                <div class="avatar-overlay">
+                                    <label for="id_profile_picture" class="avatar-edit-btn">
+                                        <i class="fas fa-camera"></i>
+                                    </label>
+                                </div>
                             </div>
-                            <label for="id_profile_picture" class="avatar-edit btn btn-primary btn-sm rounded-circle position-absolute bottom-0 end-0">
-                                <i class="fas fa-camera"></i>
-                                <input type="file" id="id_profile_picture" name="profile_picture" accept="image/*" class="d-none">
-                            </label>
                         </div>
 
                         <h3 class="mb-2"><i class="fas fa-user me-2"></i>{{ user.get_full_name }}</h3>
                         <p class="text-muted mb-1"><i class="fas fa-envelope me-2"></i>{{ user.email }}</p>
-                        <span class="badge bg-primary-light text-primary">
+                        <span class="badge bg-primary-soft text-primary">
                             <i class="fas fa-user-tag me-1"></i>{{ user.get_role_display }}
                         </span>
 
@@ -58,22 +70,37 @@
                         <!-- Stats Cards -->
                         <div class="row g-3 text-center">
                             <div class="col-4">
-                                <div class="stat-card p-3 rounded-3 bg-primary-light">
+                                <div class="stat-card p-3 rounded-4 bg-primary-soft stat-hover">
                                     <h4 class="fw-bold mb-1 text-primary">{{ active_borrows }}</h4>
-                                    <small class="text-muted"><i class="fas fa-book-open me-1"></i>Active Borrows</small>
+                                    <small class="text-muted"><i class="fas fa-book-open me-1"></i>Active</small>
+                                    <div class="stat-hover-effect"></div>
                                 </div>
                             </div>
                             <div class="col-4">
-                                <div class="stat-card p-3 rounded-3 bg-success-light">
+                                <div class="stat-card p-3 rounded-4 bg-success-soft stat-hover">
                                     <h4 class="fw-bold mb-1 text-success">{{ total_borrows }}</h4>
-                                    <small class="text-muted"><i class="fas fa-book me-1"></i>Total Borrows</small>
+                                    <small class="text-muted"><i class="fas fa-book me-1"></i>Total</small>
+                                    <div class="stat-hover-effect"></div>
                                 </div>
                             </div>
                             <div class="col-4">
-                                <div class="stat-card p-3 rounded-3 {% if fines_count > 0 %}bg-danger-light{% else %}bg-secondary-light{% endif %}">
+                                <div class="stat-card p-3 rounded-4 {% if fines_count > 0 %}bg-danger-soft{% else %}bg-secondary-soft{% endif %} stat-hover">
                                     <h4 class="fw-bold mb-1 {% if fines_count > 0 %}text-danger{% else %}text-secondary{% endif %}">{{ fines_count }}</h4>
                                     <small class="text-muted"><i class="fas fa-exclamation-circle me-1"></i>Fines</small>
+                                    <div class="stat-hover-effect"></div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Info -->
+                        <div class="mt-4 additional-info">
+                            <div class="info-item">
+                                <i class="fas fa-id-card text-primary"></i>
+                                <span>ID: {{ user.university_id }}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-calendar-alt text-primary"></i>
+                                <span>Joined: {{ user.date_joined|date:"M d, Y" }}</span>
                             </div>
                         </div>
                     </div>
@@ -83,12 +110,13 @@
 
         <!-- Profile Edit Form -->
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h4 class="mb-0 fw-bold">
+            <div class="card glass-card border-0 shadow-lg">
+                <div class="card-header bg-transparent border-bottom-0 py-4">
+                    <h4 class="mb-0 fw-bold text-dark">
                         <i class="fas fa-user-edit text-primary me-2"></i> 
                         Edit Profile Information
                     </h4>
+                    <p class="text-muted mb-0">Update your personal details and preferences</p>
                 </div>
                 <div class="card-body p-4">
                     <form method="POST" enctype="multipart/form-data" id="profileForm">
@@ -101,9 +129,10 @@
                             </h5>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <div class="form-floating mb-3">
+                                    <div class="form-floating modern-input">
                                         {{ form.first_name }}
                                         <label for="{{ form.first_name.id_for_label }}"><i class="fas fa-user me-1"></i> First Name</label>
+                                        <div class="input-highlight"></div>
                                         {% if form.first_name.errors %}
                                             <div class="invalid-feedback d-block">
                                                 <i class="fas fa-exclamation-circle me-1"></i>{{ form.first_name.errors.0 }}
@@ -112,9 +141,10 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-floating mb-3">
+                                    <div class="form-floating modern-input">
                                         {{ form.last_name }}
                                         <label for="{{ form.last_name.id_for_label }}"><i class="fas fa-user me-1"></i> Last Name</label>
+                                        <div class="input-highlight"></div>
                                         {% if form.last_name.errors %}
                                             <div class="invalid-feedback d-block">
                                                 <i class="fas fa-exclamation-circle me-1"></i>{{ form.last_name.errors.0 }}
@@ -132,9 +162,10 @@
                             </h5>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <div class="form-floating mb-3">
+                                    <div class="form-floating modern-input">
                                         {{ form.email }}
                                         <label for="{{ form.email.id_for_label }}"><i class="fas fa-envelope me-1"></i> Email</label>
+                                        <div class="input-highlight"></div>
                                         {% if form.email.errors %}
                                             <div class="invalid-feedback d-block">
                                                 <i class="fas fa-exclamation-circle me-1"></i>{{ form.email.errors.0 }}
@@ -143,9 +174,10 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-floating mb-3">
+                                    <div class="form-floating modern-input">
                                         {{ form.phone }}
                                         <label for="{{ form.phone.id_for_label }}"><i class="fas fa-phone me-1"></i> Phone</label>
+                                        <div class="input-highlight"></div>
                                         {% if form.phone.errors %}
                                             <div class="invalid-feedback d-block">
                                                 <i class="fas fa-exclamation-circle me-1"></i>{{ form.phone.errors.0 }}
@@ -154,9 +186,10 @@
                                     </div>
                                 </div>
                                 <div class="col-12">
-                                    <div class="form-floating mb-3">
+                                    <div class="form-floating modern-input">
                                         {{ form.address }}
                                         <label for="{{ form.address.id_for_label }}"><i class="fas fa-map-marker-alt me-1"></i> Address</label>
+                                        <div class="input-highlight"></div>
                                         {% if form.address.errors %}
                                             <div class="invalid-feedback d-block">
                                                 <i class="fas fa-exclamation-circle me-1"></i>{{ form.address.errors.0 }}
@@ -174,9 +207,10 @@
                             </h5>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <div class="form-floating mb-3">
+                                    <div class="form-floating modern-input">
                                         {{ form.university_id }}
                                         <label for="{{ form.university_id.id_for_label }}"><i class="fas fa-id-card me-1"></i> University ID</label>
+                                        <div class="input-highlight"></div>
                                         {% if form.university_id.errors %}
                                             <div class="invalid-feedback d-block">
                                                 <i class="fas fa-exclamation-circle me-1"></i>{{ form.university_id.errors.0 }}
@@ -185,7 +219,9 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    {{ form.role|as_crispy_field }}
+                                    <div class="modern-select">
+                                        {{ form.role|as_crispy_field }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -195,19 +231,21 @@
                             <h5 class="mb-3 text-primary section-header">
                                 <i class="fas fa-camera me-2"></i> Profile Picture
                             </h5>
-                            <div class="form-group">
-                                <label for="{{ form.profile_picture.id_for_label }}" class="form-label">
+                            <div class="file-upload-wrapper">
+                                <label class="form-label">
                                     <i class="fas fa-upload me-1"></i>Update Photo 
                                 </label>
-                                <div class="custom-file">
+                                <div class="drag-drop-area" id="dragDropArea">
+                                    <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
+                                    <p>Drag & drop or click to browse</p>
                                     <input type="file" 
-                                        class="custom-file-input" 
+                                        class="d-none" 
                                         id="{{ form.profile_picture.id_for_label }}" 
                                         name="{{ form.profile_picture.name }}"
                                         accept="image/*">
-                                    <label class="custom-file-label" for="{{ form.profile_picture.id_for_label }}">
-                                        <i class="fas fa-file-image me-1"></i>Choose file
-                                    </label>
+                                    <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="document.getElementById('{{ form.profile_picture.id_for_label }}').click()">
+                                        <i class="fas fa-search me-1"></i> Browse Files
+                                    </button>
                                 </div>
                                 {% if form.profile_picture.errors %}
                                     <div class="invalid-feedback d-block">
@@ -219,14 +257,10 @@
                         </div>
 
                         <div class="d-flex justify-content-end gap-3 mt-4">
-                            <a href="{% url 'profile' %}" class="btn btn-outline-secondary px-4">
+                            <a href="{% url 'profile' %}" class="btn btn-outline-secondary px-4 btn-hover">
                                 <i class="fas fa-times me-2"></i> Cancel
                             </a>
-                            {% comment %} <button type="submit" class="btn btn-primary px-4">
-                                <i class="fas fa-save me-2"></i> Save Changes
-                            </button> {% endcomment %}
-
-                            <button type="submit" class="btn btn-primary px-4" id="submit-button">
+                            <button type="submit" class="btn btn-primary px-4 btn-hover" id="submit-button">
                                 <i class="fas fa-save me-2"></i> <span id="button-text">Save Changes</span>
                             </button>
                         </div>
@@ -240,202 +274,295 @@
 
 {% block extra_css %}
 <style>
-
-    .fa-spinner {
-    animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    /* Custom file input styling */
-    .custom-file {
-        position: relative;
-        display: block;
-        width: 100%;
-        height: calc(3.5rem + 2px);
-        margin-bottom: 0.5rem;
-    }
-
-    .custom-file-input {
-        position: relative;
-        z-index: 2;
-        width: 100%;
-        height: calc(3.5rem + 2px);
-        margin: 0;
-        opacity: 0;
-    }
-
-    .custom-file-label {
-        position: absolute;
-        top: 0;
-        right: 0;
-        left: 0;
-        z-index: 1;
-        height: calc(3.5rem + 2px);
-        padding: 1rem 0.75rem;
-        line-height: 1.5;
-        color: #495057;
-        background-color: #fff;
-        border: 1px solid #ced4da;
-        border-radius: 0.5rem;
-        transition: all 0.3s;
-        display: flex;
-        align-items: center;
-    }
-
-    .custom-file-label::after {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 3;
-        display: block;
-        height: calc(3.5rem + 2px);
-        padding: 1rem 0.75rem;
-        line-height: 1.5;
-        color: #495057;
-        content: "Browse";
-        background-color: #e9ecef;
-        border-left: 1px solid #ced4da;
-        border-radius: 0 0.5rem 0.5rem 0;
-        transition: all 0.3s;
-    }
-
-    .custom-file-label i {
-        margin-right: 0.5rem;
-    }
-
-
-
     :root {
-        --primary-light: rgba(67, 97, 238, 0.1);
-        --success-light: rgba(40, 167, 69, 0.1);
-        --danger-light: rgba(220, 53, 69, 0.1);
-        --secondary-light: rgba(108, 117, 125, 0.1);
+        --primary-gradient: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+        --primary-soft: rgba(67, 97, 238, 0.1);
+        --success-soft: rgba(40, 167, 69, 0.1);
+        --danger-soft: rgba(220, 53, 69, 0.1);
+        --secondary-soft: rgba(108, 117, 125, 0.1);
+        --glass-bg: rgba(255, 255, 255, 0.95);
+        --glass-border: rgba(255, 255, 255, 0.2);
+        --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
     }
-    
+
+    /* Background Elements */
+    .background-elements {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .circle {
+        position: absolute;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(58, 12, 163, 0.05) 100%);
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .circle-1 {
+        width: 300px;
+        height: 300px;
+        top: -150px;
+        right: -150px;
+        animation-delay: 0s;
+    }
+
+    .circle-2 {
+        width: 200px;
+        height: 200px;
+        bottom: 100px;
+        left: -100px;
+        animation-delay: 2s;
+    }
+
+    .circle-3 {
+        width: 150px;
+        height: 150px;
+        top: 50%;
+        right: 20%;
+        animation-delay: 4s;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
+    }
+
+    /* Text Gradient */
+    .text-gradient {
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* Glass Card Effect */
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--glass-shadow);
+        border-radius: 1rem;
+    }
+
+    /* Avatar Styles */
     .avatar-upload {
         width: 150px;
         height: 150px;
+        position: relative;
     }
-    
+
     .avatar-preview {
         width: 100%;
         height: 100%;
         border: 3px solid white;
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
         overflow: hidden;
+        position: relative;
     }
-    
+
     .avatar-preview img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        transition: all 0.3s ease;
     }
-    
-    .avatar-edit {
-        width: 36px;
-        height: 36px;
+
+    .avatar-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        transition: all 0.3s ease;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
     }
-    
-    .stat-card {
+
+    .avatar-preview:hover .avatar-overlay {
+        opacity: 1;
+    }
+
+    .avatar-preview:hover img {
+        transform: scale(1.1);
+    }
+
+    .avatar-edit-btn {
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
         transition: all 0.3s ease;
     }
-    
-    .stat-card:hover {
+
+    .avatar-edit-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.1);
+    }
+
+    /* Stats Cards with Hover Effect */
+    .stat-card {
+        position: relative;
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .stat-hover {
+        cursor: pointer;
+    }
+
+    .stat-hover-effect {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .stat-hover:hover .stat-hover-effect {
+        left: 100%;
+    }
+
+    .stat-hover:hover {
         transform: translateY(-3px);
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     }
-    
-    .bg-primary-light {
-        background-color: var(--primary-light);
+
+    /* Additional Info */
+    .additional-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
     }
-    
-    .bg-success-light {
-        background-color: var(--success-light);
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
     }
-    
-    .bg-danger-light {
-        background-color: var(--danger-light);
+
+    .info-item:hover {
+        background: rgba(255, 255, 255, 0.8);
+        transform: translateX(5px);
     }
-    
-    .bg-secondary-light {
-        background-color: var(--secondary-light);
+
+    /* Form Styles */
+    .modern-input {
+        position: relative;
+        margin-bottom: 1rem;
     }
-    
-    /* Section Header Styling */
+
+    .modern-input .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.8);
+    }
+
+    .modern-input .form-control:focus {
+        border-color: #4361ee;
+        box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+        background: white;
+    }
+
+    .input-highlight {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: var(--primary-gradient);
+        transition: all 0.3s ease;
+        transform: translateX(-50%);
+    }
+
+    .modern-input .form-control:focus ~ .input-highlight {
+        width: 100%;
+    }
+
+    /* File Upload */
+    .drag-drop-area {
+        border: 2px dashed #dee2e6;
+        border-radius: 0.8rem;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+    }
+
+    .drag-drop-area:hover {
+        border-color: #4361ee;
+        background: rgba(67, 97, 238, 0.05);
+    }
+
+    .drag-drop-area.dragover {
+        border-color: #4361ee;
+        background: rgba(67, 97, 238, 0.1);
+        transform: scale(1.02);
+    }
+
+    /* Button Hover Effects */
+    .btn-hover {
+        transition: all 0.3s ease;
+        border-radius: 0.5rem;
+    }
+
+    .btn-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Section Header */
     .section-header {
         padding-bottom: 0.5rem;
         border-bottom: 2px solid rgba(67, 97, 238, 0.2);
         display: flex;
         align-items: center;
     }
-    
-    /* Form floating label adjustments */
-    .form-floating > label {
-        padding: 1rem 0.75rem;
+
+    /* Background Colors */
+    .bg-primary-soft { background-color: var(--primary-soft); }
+    .bg-success-soft { background-color: var(--success-soft); }
+    .bg-danger-soft { background-color: var(--danger-soft); }
+    .bg-secondary-soft { background-color: var(--secondary-soft); }
+
+    /* Spinner Animation */
+    .fa-spinner {
+        animation: spin 1s linear infinite;
     }
-    
-    .form-floating > .form-control {
-        height: calc(3.5rem + 2px);
-        padding: 1rem 0.75rem;
-    }
-    
-    /* Error message styling */
-    .invalid-feedback.d-block {
-        display: flex;
-        align-items: center;
-        margin-top: 0.25rem;
-    }
-    
-    /* Breadcrumb icon spacing */
-    .breadcrumb-item i {
-        width: 16px;
-        text-align: center;
-    }
-    
-    /* Custom file input styling */
-    .form-group .input-group {
-        margin-bottom: 0.5rem;
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-
-document.addEventListener('DOMContentLoaded', function() {
-    // File upload display for both forms
-    const fileInput = document.querySelector('.custom-file-input');
-    if (fileInput) {
-        fileInput.addEventListener('change', function() {
-            const label = this.nextElementSibling;
-            const fileName = this.files[0] ? this.files[0].name : "Choose file";
-            
-            // Update label text while keeping the icon
-            label.innerHTML = `<i class="fas fa-file-image me-1"></i>${fileName}`;
-            
-            // Visual feedback
-            if (this.files[0]) {
-                label.classList.add('file-selected');
-            } else {
-                label.classList.remove('file-selected');
-            }
-        });
-    }
-});
-
-
 document.addEventListener('DOMContentLoaded', function() {
     // Profile picture preview
     const profilePicInput = document.getElementById('id_profile_picture');
     const previewImage = document.getElementById('previewImage');
+    const dragDropArea = document.getElementById('dragDropArea');
 
     if (profilePicInput && previewImage) {
         profilePicInput.addEventListener('change', function(event) {
@@ -450,63 +577,65 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Form validation
-    const form = document.getElementById('profileForm');
-    if (form) {
-        form.addEventListener('submit', function() {
-            const requiredFields = form.querySelectorAll('[required]');
-            requiredFields.forEach(field => {
-                if (!field.value) {
-                    field.classList.add('is-invalid');
-                }
-            });
+    // Drag and drop functionality
+    if (dragDropArea) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dragDropArea.addEventListener(eventName, preventDefaults, false);
         });
 
-        // Clear validation when typing
-        form.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', function() {
-                if (this.classList.contains('is-invalid')) {
-                    this.classList.remove('is-invalid');
-                }
-            });
-        });
-    }
-    
-    // Add Bootstrap classes to form fields
-    const inputs = document.querySelectorAll('input:not(.custom-file-input), textarea');
-    inputs.forEach(input => {
-        input.classList.add('form-control');
-        
-        if (input.nextElementSibling && input.nextElementSibling.classList.contains('invalid-feedback')) {
-            input.classList.add('is-invalid');
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
         }
-    });
-});
 
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dragDropArea.addEventListener(eventName, highlight, false);
+        });
 
-{% comment %} spinner reload animation {% endcomment %}
+        ['dragleave', 'drop'].forEach(eventName => {
+            dragDropArea.addEventListener(eventName, unhighlight, false);
+        });
 
-document.addEventListener('DOMContentLoaded', function () {
+        function highlight() {
+            dragDropArea.classList.add('dragover');
+        }
+
+        function unhighlight() {
+            dragDropArea.classList.remove('dragover');
+        }
+
+        dragDropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                profilePicInput.files = files;
+                const event = new Event('change');
+                profilePicInput.dispatchEvent(event);
+            }
+        }
+    }
+
+    // Form submission with loading state
     const form = document.getElementById('profileForm');
     const submitButton = document.getElementById('submit-button');
     const buttonText = document.getElementById('button-text');
-
+    
     if (form && submitButton && buttonText) {
-        form.addEventListener('submit', function () {
-            // Prevent multiple submits
+        form.addEventListener('submit', function() {
             if (submitButton.disabled) return;
-
-            // Show spinner and disable button
+            
             submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Updating...';
             submitButton.disabled = true;
-
-            // Optional: Add a small delay to ensure the UI updates before form submission
-            setTimeout(() => {
-                form.submit();
-            }, 2000);
         });
     }
-});
 
+    // Add modern classes to form fields
+    const inputs = document.querySelectorAll('input:not([type="file"]), textarea, select');
+    inputs.forEach(input => {
+        input.classList.add('form-control');
+    });
+});
 </script>
 {% endblock %}
