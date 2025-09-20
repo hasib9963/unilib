@@ -1,1 +1,3 @@
-while edit profile from admin it's redirect to that user profile 
+fines issue need to solve
+
+if user already borrow a book he can't borrow same book again
