@@ -9,7 +9,7 @@ from django_filters.views import FilterView
 from .models import Book, Category
 from .forms import BookForm, CategoryForm, BookSearchForm
 from .filters import BookFilter
-
+from transactions.models import Borrow
 
 from django_filters.views import FilterView
 from django.db.models import Count, Q
@@ -23,7 +23,6 @@ class BookListView(FilterView):
     context_object_name = 'books'
     filterset_class = BookFilter
     paginate_by = 12
-
 
     def get_queryset(self):
         qs = super().get_queryset().select_related('category')
@@ -51,29 +50,26 @@ class BookListView(FilterView):
         context['search_form'] = BookSearchForm(self.request.GET or None)
         context['categories'] = Category.objects.all()
         context['current_view'] = self.request.GET.get('view', 'grid')  # Default to grid
+        
+        # Add user's borrowed books information if user is authenticated
+        if self.request.user.is_authenticated:
+            borrowed_book_ids = Borrow.objects.filter(
+                user=self.request.user, 
+                is_returned=False
+            ).values_list('book_id', flat=True)
+            context['borrowed_book_ids'] = list(borrowed_book_ids)
+        
         return context
-
-
 
 class BookDetailView(DetailView):
     model = Book
     template_name = 'books/book_detail.html'
 
-# class BookCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
-#     model = Book
-#     form_class = BookForm
-#     template_name = 'books/book_form.html'
-#     success_url = reverse_lazy('book-list')
-
-#     def test_func(self):
-#         return self.request.user.is_admin or self.request.user.is_librarian
-    
-#     def form_valid(self, form):
-#         form.instance.added_by = self.request.user
-#         messages.success(self.request, 'Book added successfully!')
-#         return super().form_valid(form)
-
-# views.py
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context['is_borrowed'] = self.object.is_borrowed_by_user(self.request.user)
+        return context
 class BookCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Book
     form_class = BookForm
@@ -92,32 +88,6 @@ class BookCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         form.instance.added_by = self.request.user
         messages.success(self.request, 'Book added successfully!')
         return super().form_valid(form)
-
-# class BookUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-#     model = Book
-#     form_class = BookForm
-#     template_name = 'books/book_form.html'
-
-#     def test_func(self):
-#         return self.request.user.is_admin or self.request.user.is_librarian
-
-#     def form_valid(self, form):
-#         # Get the original book instance to check if total_copies changed
-#         original_book = Book.objects.get(pk=self.object.pk)
-        
-#         # If total copies decreased, adjust available copies if needed
-#         if form.cleaned_data['total_copies'] < original_book.total_copies:
-#             if form.cleaned_data['available_copies'] > form.cleaned_data['total_copies']:
-#                 form.instance.available_copies = form.cleaned_data['total_copies']
-        
-#         messages.success(self.request, 'Book updated successfully!')
-#         return super().form_valid(form)
-
-#     def get_success_url(self):
-#         return reverse_lazy('book-detail', kwargs={'pk': self.object.pk})
-
-
-# views.py
 class BookUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Book
     form_class = BookForm

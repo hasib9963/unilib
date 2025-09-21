@@ -160,9 +160,17 @@
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 {% if book.available_copies > 0 %}
-                                <a href="{% url 'book-issue' book.pk %}" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-bookmark"></i> Borrow
-                                </a>
+                                    {% if book.id in borrowed_book_ids %}
+                                        <button class="btn btn-sm btn-secondary"
+                                                data-bs-toggle="popover" 
+                                                data-bs-content="You already borrowed this book and haven't returned it yet.">
+                                            <i class="fas fa-check-circle"></i> Borrowed
+                                        </button>
+                                    {% else %}
+                                        <a href="{% url 'book-issue' book.pk %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-bookmark"></i> Borrow
+                                        </a>
+                                    {% endif %}
                                 {% endif %}
                             </div>
                         </div>
@@ -208,11 +216,19 @@
                                     Details
                                 </a>
                                 {% if book.available_copies > 0 %}
-                                <a href="{% url 'book-issue' book.pk %}" class="btn btn-sm btn-primary">
-                                    Borrow
-                                </a>
+                                    {% if book.id in borrowed_book_ids %}
+                                        <button class="btn btn-sm btn-secondary"
+                                                data-bs-toggle="popover" 
+                                                data-bs-content="You already borrowed this book and haven't returned it yet.">
+                                            Borrowed
+                                        </button>
+                                    {% else %}
+                                        <a href="{% url 'book-issue' book.pk %}" class="btn btn-sm btn-primary">
+                                            Borrow
+                                        </a>
+                                    {% endif %}
                                 {% else %}
-                                <span class="badge bg-danger">Unavailable</span>
+                                    <span class="badge bg-danger">Unavailable</span>
                                 {% endif %}
                             </div>
                         </div>
@@ -321,5 +337,43 @@
         color: white;
         border-color: #4361ee;
     }
+    
+    .popover {
+        max-width: 300px;
+    }
+    
+    .btn-secondary {
+        cursor: default;
+    }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize popovers
+    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl, {
+            trigger: 'focus hover click'
+        })
+    })
+    
+    // Close popover when clicking outside
+    document.addEventListener('click', function(e) {
+        var popovers = document.querySelectorAll('.popover');
+        popovers.forEach(function(popover) {
+            if (!e.target.closest('[data-bs-toggle="popover"]') && 
+                !popover.contains(e.target)) {
+                var popoverInstance = bootstrap.Popover.getInstance(
+                    document.querySelector('[data-bs-toggle="popover"]')
+                );
+                if (popoverInstance) {
+                    popoverInstance.hide();
+                }
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

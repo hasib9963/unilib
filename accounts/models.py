@@ -3,7 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
-
 class User(AbstractUser):
     email = models.EmailField(unique=True)
     class Role(models.TextChoices):
@@ -53,25 +52,3 @@ class User(AbstractUser):
             due_date__lt=timezone.now().date()
         ).count()
     
-    
-    # This method can be used to get borrow counts directly from the User model
-    # if you want to avoid querying the Borrow model directly in views.
-    # this can use any template. don't need to use it in every views separately.
-
-    # def get_total_borrows(self):
-    #     return self.borrows.count()
-    
-    # def get_active_borrows(self):
-    #     return self.borrows.filter(is_returned=False).count()
-    
-    # def get_overdue_borrows(self):
-    #     return self.borrows.filter(
-    #         is_returned=False,
-    #         due_date__lt=timezone.now().date()
-    #     ).count()
-    
-    # just use below in template
-
-    # {{ user.get_total_borrows }}
-    # {{ user.get_active_borrows }}
-    # {{ user.get_overdue_borrows }}

@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import ListView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
@@ -13,7 +13,6 @@ from django.urls import reverse
 from notifications.utils import notify  # adjust import to your project structure
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-
 
 class BorrowCreateView(LoginRequiredMixin, CreateView):
     model = Borrow
@@ -41,6 +40,11 @@ class BorrowCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         user = self.request.user
         book = get_object_or_404(Book, pk=self.kwargs['pk'])
+        
+        # Check if user already has this book borrowed
+        if Borrow.objects.filter(user=user, book=book, is_returned=False).exists():
+            messages.error(self.request, f"You have already borrowed '{book.title}' and haven't returned it yet.")
+            return redirect('book-detail', pk=book.pk)
 
         if user.role in [User.Role.STUDENT, User.Role.FACULTY]:
             form.instance.user = user
@@ -79,7 +83,6 @@ class BorrowCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy('book-detail', kwargs={'pk': self.kwargs['pk']})
-
 
 from django.db.models import Q
 

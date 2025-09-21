@@ -27,19 +27,27 @@
                         </span>
                     </div>
                     
-                    {% comment %} {% if user.is_authenticated %} {% endcomment %}
+                    {% if user.is_authenticated %}
                     <div class="d-grid gap-2">
                         {% if book.available_copies > 0 %}
-                        <a href="{% url 'book-issue' book.pk %}" class="btn btn-success btn-lg">
-                            <i class="fas fa-book-open me-2"></i> Borrow Book
-                        </a>
+                            {% if is_borrowed %}
+                                <button class="btn btn-secondary btn-lg"
+                                        data-bs-toggle="popover" 
+                                        data-bs-content="You already borrowed this book and haven't returned it yet.">
+                                    <i class="fas fa-check-circle me-2"></i> Already Borrowed
+                                </button>
+                            {% else %}
+                                <a href="{% url 'book-issue' book.pk %}" class="btn btn-success btn-lg">
+                                    <i class="fas fa-book-open me-2"></i> Borrow Book
+                                </a>
+                            {% endif %}
                         {% else %}
-                        <a href="{% url 'book-reserve' book.pk %}" class="btn btn-warning btn-lg">
-                            <i class="fas fa-bookmark me-2"></i> Reserve Book
-                        </a>
+                            <a href="{% url 'book-reserve' book.pk %}" class="btn btn-warning btn-lg">
+                                <i class="fas fa-bookmark me-2"></i> Reserve Book
+                            </a>
                         {% endif %}
                     </div>
-                    {% comment %} {% endif %} {% endcomment %}
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -196,5 +204,43 @@
     .progress {
         border-radius: 0.25rem;
     }
+    
+    .popover {
+        max-width: 300px;
+    }
+    
+    .btn-secondary {
+        cursor: default;
+    }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize popovers
+    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl, {
+            trigger: 'focus hover click'
+        })
+    })
+    
+    // Close popover when clicking outside
+    document.addEventListener('click', function(e) {
+        var popovers = document.querySelectorAll('.popover');
+        popovers.forEach(function(popover) {
+            if (!e.target.closest('[data-bs-toggle="popover"]') && 
+                !popover.contains(e.target)) {
+                var popoverInstance = bootstrap.Popover.getInstance(
+                    document.querySelector('[data-bs-toggle="popover"]')
+                );
+                if (popoverInstance) {
+                    popoverInstance.hide();
+                }
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

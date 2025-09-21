@@ -5,7 +5,6 @@ from .models import Borrow, Fine, Reservation
 from books.models import Book
 from accounts.models import User
 
-
 class BorrowForm(forms.ModelForm):
     class Meta:
         model = Borrow

@@ -1,23 +1,6 @@
-# books/forms.py
-
 from django import forms
 from .models import Book, Category
 
-# class BookForm(forms.ModelForm):
-#     class Meta:
-#         model = Book
-#         fields = ['title', 'author', 'isbn', 'publisher', 'category', 
-#                   'publication_date', 'total_copies', 'cover_image', 'description']
-#         widgets = {
-#             'publication_date': forms.DateInput(attrs={'type': 'date'}),
-#             'description': forms.Textarea(attrs={'rows': 3}),
-#         }
-
-
-# forms.py
-# 
-
-# forms.py
 class BookForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.is_create = kwargs.pop('is_create', False)
@@ -26,7 +9,6 @@ class BookForm(forms.ModelForm):
         # For creation, exclude available_copies field as it's set automatically by the model
         if self.is_create:
             self.fields.pop('available_copies', None)
-    
     class Meta:
         model = Book
         fields = ['title', 'author', 'isbn', 'publisher', 'category', 
