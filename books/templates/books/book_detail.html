@@ -29,19 +29,20 @@
                     
                     {% if user.is_authenticated %}
                     <div class="d-grid gap-2">
-                        {% if book.available_copies > 0 %}
-                            {% if is_borrowed %}
-                                <button class="btn btn-secondary btn-lg"
-                                        data-bs-toggle="popover" 
-                                        data-bs-content="You already borrowed this book and haven't returned it yet.">
-                                    <i class="fas fa-check-circle me-2"></i> Already Borrowed
-                                </button>
-                            {% else %}
-                                <a href="{% url 'book-issue' book.pk %}" class="btn btn-success btn-lg">
-                                    <i class="fas fa-book-open me-2"></i> Borrow Book
-                                </a>
-                            {% endif %}
+                        {% if is_borrowed %}
+                            <!-- User has already borrowed this book -->
+                            <button class="btn btn-secondary btn-lg"
+                                    data-bs-toggle="popover" 
+                                    data-bs-content="You already borrowed this book and haven't returned it yet.">
+                                <i class="fas fa-check-circle me-2"></i> Already Borrowed
+                            </button>
+                        {% elif book.available_copies > 0 %}
+                            <!-- Book is available and user hasn't borrowed it -->
+                            <a href="{% url 'book-issue' book.pk %}" class="btn btn-success btn-lg">
+                                <i class="fas fa-book-open me-2"></i> Borrow Book
+                            </a>
                         {% else %}
+                            <!-- Book is unavailable and user hasn't borrowed it -->
                             <a href="{% url 'book-reserve' book.pk %}" class="btn btn-warning btn-lg">
                                 <i class="fas fa-bookmark me-2"></i> Reserve Book
                             </a>
@@ -52,7 +53,7 @@
             </div>
         </div>
         
-        <!-- Book Details Column -->
+        <!-- Rest of your template remains the same -->
         <div class="col-lg-8">
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-primary bg-opacity-10 border-0 py-3">
