@@ -47,7 +47,13 @@ class ReturnForm(forms.ModelForm):
 class FinePaymentForm(forms.ModelForm):
     class Meta:
         model = Fine
-        fields = []
+        fields = []  # No fields needed, just marking as paid
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make the form read-only for display purposes
+        for field in self.fields:
+            self.fields[field].disabled = True
 
 
 class ReservationForm(forms.ModelForm):

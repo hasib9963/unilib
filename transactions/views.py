@@ -5,6 +5,8 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from django.utils import timezone
 from datetime import timedelta
+
+from django.db.models import Sum
 from .models import Borrow, Fine, Reservation
 from .forms import BorrowForm, ReturnForm, FinePaymentForm, ReservationForm
 from books.models import Book
@@ -187,14 +189,42 @@ class FineListView(LoginRequiredMixin, ListView):
     context_object_name = 'fines'
     
     def get_queryset(self):
+        # First, check for any overdue books that need fines
+        overdue_borrows = Borrow.objects.filter(
+            is_returned=False,
+            due_date__lt=timezone.now().date()
+        )
+        for borrow in overdue_borrows:
+            borrow.check_and_create_fine()
+        
         if self.request.user.is_admin or self.request.user.is_librarian:
             return Fine.objects.all().order_by('-created_at')
-        return Fine.objects.filter(borrow__user=self.request.user).order_by('-created_at')
-
-class PayFineView(LoginRequiredMixin, UpdateView):
+        return Fine.objects.filter(user=self.request.user).order_by('-created_at')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = self.get_queryset()
+        
+        total_pending_fines = queryset.filter(is_paid=False).aggregate(
+            total=Sum('amount')
+        )['total'] or 0
+        
+        total_paid_fines = queryset.filter(is_paid=True).aggregate(
+            total=Sum('amount')
+        )['total'] or 0
+        
+        context['total_pending_fines'] = total_pending_fines
+        context['total_paid_fines'] = total_paid_fines
+        
+        return context
+class PayFineView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Fine
     form_class = FinePaymentForm
     template_name = 'transactions/pay_fine.html'
+    
+    def test_func(self):
+        # Only admin/librarian can mark fines as paid
+        return self.request.user.is_admin or self.request.user.is_librarian
     
     def form_valid(self, form):
         fine = form.save(commit=False)

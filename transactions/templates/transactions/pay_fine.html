@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Pay Fine - UniLib{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i>Pay Fine</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Marking this fine as paid will update the status to "Paid".
+                    </div>
+                    
+                    <div class="fine-details mb-4">
+                        <h5>Fine Details:</h5>
+                        <p><strong>User:</strong> {{ fine.user.get_full_name }}</p>
+                        <p><strong>Book:</strong> {{ fine.borrow.book.title }}</p>
+                        <p><strong>Due Date:</strong> {{ fine.borrow.due_date|date:"M d, Y" }}</p>
+                        <p><strong>Overdue Days:</strong> {{ fine.borrow.overdue_days }} days</p>
+                        <p><strong>Amount:</strong> ${{ fine.amount }}</p>
+                        <p><strong>Status:</strong> 
+                            <span class="badge bg-warning">Pending</span>
+                        </p>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check-circle me-2"></i>Mark as Paid
+                            </button>
+                            <a href="{% url 'fine-list' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Fines
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

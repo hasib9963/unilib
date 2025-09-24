@@ -20,7 +20,19 @@ class Borrow(models.Model):
         if not self.pk:  # New borrow
             self.book.available_copies -= 1
             self.book.save()
+        else:
+            # Check if this is an update and book was returned
+            old_instance = Borrow.objects.get(pk=self.pk) if self.pk else None
+            if old_instance and not old_instance.is_returned and self.is_returned:
+                # Book is being returned, remove any fine if exists
+                if hasattr(self, 'fine'):
+                    self.fine.delete()
+        
         super().save(*args, **kwargs)
+        
+        # Check for overdue and create fine if needed (after saving)
+        if not self.is_returned and self.due_date < timezone.now().date():
+            self.check_and_create_fine()
     
     def return_book(self):
         if not self.is_returned:
@@ -28,6 +40,9 @@ class Borrow(models.Model):
             self.return_date = timezone.now().date()
             self.book.available_copies += 1
             self.book.save()
+            # Remove fine when book is returned
+            if hasattr(self, 'fine'):
+                self.fine.delete()
             self.save()
     
     @property
@@ -39,6 +54,23 @@ class Borrow(models.Model):
         if self.is_overdue:
             return (timezone.now().date() - self.due_date).days
         return 0
+    
+    def check_and_create_fine(self):
+        """Check if book is overdue and create fine if needed"""
+        if self.is_overdue and not hasattr(self, 'fine'):
+            # Calculate fine amount - $50 fixed fine for overdue
+            fine_amount = 50
+            
+            # Create fine only if it doesn't exist
+            Fine.objects.get_or_create(
+                borrow=self,
+                defaults={
+                    'user': self.user,
+                    'amount': fine_amount,
+                    'is_paid': False
+                }
+            )
+            print(f"Fine created for {self.user.get_full_name()} - {self.book.title}")
 
 class Fine(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='fines')
