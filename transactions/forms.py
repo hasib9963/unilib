@@ -32,7 +32,6 @@ class BorrowForm(forms.ModelForm):
                 # Set due date to 7 days from today
                 self.initial['due_date'] = timezone.now().date() + timedelta(days=7)
 
-
 class ReturnForm(forms.ModelForm):
     class Meta:
         model = Borrow

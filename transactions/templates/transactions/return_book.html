@@ -20,7 +20,41 @@
                 </div>
                 
                 <div class="card-body">
-                    <!-- Borrow Details Section - Now at the TOP -->
+                    <!-- Fine Status Alert -->
+                    {% if has_unpaid_fine %}
+                    <div class="alert alert-warning mb-4">
+                        <div class="d-flex">
+                            <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                            <div class="w-100">
+                                <h5 class="alert-heading">Unpaid Fine Detected!</h5>
+                                <p class="mb-2">
+                                    <strong>Fine Amount:</strong> ${{ fine_amount|floatformat:2 }}
+                                </p>
+                                {% if request.user == object.user %}
+                                <p class="mb-0">You haven't paid the fine yet. You can still return the book, but please settle your fine soon.</p>
+                                {% else %}
+                                <p class="mb-0"><strong>{{ object.user.get_full_name }}</strong> hasn't paid the fine yet.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% elif fine_exists and fine_paid %}
+                    <div class="alert alert-info mb-4">
+                        <div class="d-flex">
+                            <i class="fas fa-check-circle fa-2x me-3 text-success"></i>
+                            <div class="w-100">
+                                <h5 class="alert-heading">Fine Paid</h5>
+                                {% if request.user == object.user %}
+                                <p class="mb-0">Your fine has been paid. You can proceed with returning the book.</p>
+                                {% else %}
+                                <p class="mb-0">User <strong>{{ object.user.get_full_name }}</strong> has paid the fine.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Borrow Details Section -->
                     <div class="alert alert-info mb-4">
                         <div class="d-flex">
                             <i class="fas fa-info-circle fa-2x me-3"></i>
@@ -38,10 +72,17 @@
                                             <span class="badge bg-danger ms-2">Overdue: {{ object.overdue_days }} days</span>
                                             {% endif %}
                                         </p>
-                                        {% if object.is_overdue %}
-                                        <p class="text-danger">
-                                            <strong>Fine Amount:</strong> ${{ fine_amount|default:"0.00" }}
+                                        {% if fine_exists %}
+                                        <p class="{% if not fine_paid %}text-warning fw-bold{% else %}text-success{% endif %}">
+                                            <strong>Fine Status:</strong> 
+                                            {% if fine_paid %}
+                                                <span class="badge bg-success">Paid</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">Unpaid - ${{ fine_amount|floatformat:2 }}</span>
+                                            {% endif %}
                                         </p>
+                                        {% else %}
+                                        <p><strong>Fine Status:</strong> <span class="badge bg-success">No Fine</span></p>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -99,7 +140,9 @@
                                 <i class="fas fa-arrow-left me-2"></i> Back to Borrows
                             </a>
                             <button type="submit" class="btn btn-success px-4" id="submit-button">
-                                <i class="fas fa-check-circle me-2"></i> <span id="button-text">Confirm Return</span>
+                                <i class="fas fa-check-circle me-2"></i> <span id="button-text">
+                                    {% if has_unpaid_fine %}Return Book (Fine Unpaid){% else %}Confirm Return{% endif %}
+                                </span>
                             </button>
                         </div>
                     </form>
@@ -171,11 +214,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Change button content to spinner and disable
                 submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing...';
                 submitButton.disabled = true;
-                
-                // Optional: Add a small delay to ensure the UI updates before form submission
-                {% comment %} setTimeout(() => {
-                    form.submit();
-                }, 100); {% endcomment %}
             }
         });
     }

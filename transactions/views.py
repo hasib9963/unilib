@@ -43,26 +43,32 @@ class BorrowCreateView(LoginRequiredMixin, CreateView):
         user = self.request.user
         book = get_object_or_404(Book, pk=self.kwargs['pk'])
         
-        # Check if user already has this book borrowed
-        if Borrow.objects.filter(user=user, book=book, is_returned=False).exists():
-            messages.error(self.request, f"You have already borrowed '{book.title}' and haven't returned it yet.")
-            return redirect('book-detail', pk=book.pk)
-
+        # Determine the borrower user
         if user.role in [User.Role.STUDENT, User.Role.FACULTY]:
+            # Student/faculty borrowing for themselves
+            borrower = user
             form.instance.user = user
             form.instance.book = book
             form.instance.due_date = timezone.now().date() + timedelta(days=7)
+        else:
+            # Admin/librarian borrowing for another user
+            borrower = form.cleaned_data['user']
+            form.instance.due_date = form.cleaned_data['due_date']
+        
+        # Check if user already has this book borrowed (for ALL users)
+        if Borrow.objects.filter(user=borrower, book=book, is_returned=False).exists():
+            messages.error(self.request, f"User '{borrower.get_full_name()}' has already borrowed '{book.title}' and hasn't returned it yet.")
+            return redirect('book-detail', pk=book.pk)
 
         form.instance.issued_by = user
         response = super().form_valid(form)
 
-        borrower = form.instance.user
         book_url = reverse('book-detail', kwargs={'pk': book.pk})
 
-        # ✅ Notify borrower (always "You borrowed ...")
+        # Notify borrower
         notify(borrower, f"You borrowed '{book.title}'", url=book_url)
 
-        # ✅ Notify all staff (including acting user if they're staff), "Hasib borrowed ..."
+        # Notify all staff (except the borrower if they are staff)
         staff_users = User.objects.filter(role__in=[User.Role.ADMIN, User.Role.LIBRARIAN])
         for staff in staff_users:
             if staff != borrower:
@@ -80,7 +86,7 @@ class BorrowCreateView(LoginRequiredMixin, CreateView):
         email.attach_alternative(html_content, "text/html")
         email.send()
 
-        messages.success(self.request, f"'{book.title}' borrowed successfully!")
+        messages.success(self.request, f"'{book.title}' borrowed successfully for {borrower.get_full_name()}!")
         return response
 
     def get_success_url(self):
@@ -125,6 +131,23 @@ class ReturnBookView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
                 self.request.user.is_librarian or
                 self.request.user == borrow.user)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        borrow = self.get_object()
+        
+        # Get fine information
+        fine_exists = hasattr(borrow, 'fine')
+        fine_amount = borrow.fine.amount if fine_exists else 0
+        fine_paid = borrow.fine.is_paid if fine_exists else True  # True if no fine
+        
+        context.update({
+            'fine_exists': fine_exists,
+            'fine_amount': fine_amount,
+            'fine_paid': fine_paid,
+            'has_unpaid_fine': borrow.has_unpaid_fine,
+        })
+        return context
+
     def form_valid(self, form):
         borrow = form.save(commit=False)
         borrow.return_book()
@@ -134,10 +157,25 @@ class ReturnBookView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         book = borrow.book
         book_url = reverse('book-detail', kwargs={'pk': book.pk})
 
-        # ✅ Notify borrower
+        # Check fine status and set appropriate messages
+        if hasattr(borrow, 'fine'):
+            if borrow.fine.is_paid:
+                if self.request.user == borrower:
+                    messages.success(self.request, "Your fine has been paid and book returned successfully!")
+                else:
+                    messages.success(self.request, f"User {borrower.get_full_name()} has paid the fine and book returned successfully!")
+            else:
+                if self.request.user == borrower:
+                    messages.warning(self.request, "Book returned successfully, but you haven't paid the fine yet!")
+                else:
+                    messages.warning(self.request, f"Book returned successfully, but user {borrower.get_full_name()} hasn't paid the fine yet!")
+        else:
+            messages.success(self.request, 'Book returned successfully!')
+
+        # Notify borrower
         notify(borrower, f"You returned '{book.title}'", url=book_url)
 
-        # ✅ Notify all staff (excluding borrower)
+        # Notify all staff
         staff_users = User.objects.filter(role__in=[User.Role.ADMIN, User.Role.LIBRARIAN])
         for staff in staff_users:
             if staff != borrower:
@@ -154,7 +192,7 @@ class ReturnBookView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         email.attach_alternative(html_content, "text/html")
         email.send()
 
-        # ✅ Notify next reserver (existing logic)
+        # Notify next reserver
         next_reservation = Reservation.objects.filter(book=book, status='PENDING').order_by('reservation_date').first()
         if next_reservation:
             next_reservation.status = 'AVAILABLE'
@@ -177,12 +215,12 @@ class ReturnBookView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             email.attach_alternative(html_content, "text/html")
             email.send()
 
-        messages.success(self.request, 'Book returned successfully!')
         return response
 
     def get_success_url(self):
         return reverse_lazy('borrow-list')
     
+
 class FineListView(LoginRequiredMixin, ListView):
     model = Fine
     template_name = 'transactions/fine_list.html'
@@ -217,6 +255,7 @@ class FineListView(LoginRequiredMixin, ListView):
         context['total_paid_fines'] = total_paid_fines
         
         return context
+    
 class PayFineView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Fine
     form_class = FinePaymentForm
@@ -229,7 +268,13 @@ class PayFineView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def form_valid(self, form):
         fine = form.save(commit=False)
         fine.pay_fine()
-        messages.success(self.request, 'Fine paid successfully!')
+        
+        # Set appropriate success message
+        if self.request.user == fine.user:
+            messages.success(self.request, 'Your fine has been paid successfully!')
+        else:
+            messages.success(self.request, f"Fine for {fine.user.get_full_name()} has been paid successfully!")
+        
         return super().form_valid(form)
     
     def get_success_url(self):

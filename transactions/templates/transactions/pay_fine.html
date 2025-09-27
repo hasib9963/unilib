@@ -7,33 +7,55 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow-sm">
-                <div class="card-header bg-success text-white">
-                    <h4 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i>Pay Fine</h4>
+                <div class="card-header {% if fine.is_paid %}bg-success{% else %}bg-warning{% endif %} text-white">
+                    <h4 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i>
+                        {% if fine.is_paid %}Fine Already Paid{% else %}Pay Fine{% endif %}
+                    </h4>
                 </div>
                 <div class="card-body">
+                    {% if fine.is_paid %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        This fine has already been paid on {{ fine.paid_at|date:"M d, Y" }}.
+                    </div>
+                    {% else %}
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
                         Marking this fine as paid will update the status to "Paid".
                     </div>
+                    {% endif %}
                     
                     <div class="fine-details mb-4">
                         <h5>Fine Details:</h5>
                         <p><strong>User:</strong> {{ fine.user.get_full_name }}</p>
                         <p><strong>Book:</strong> {{ fine.borrow.book.title }}</p>
                         <p><strong>Due Date:</strong> {{ fine.borrow.due_date|date:"M d, Y" }}</p>
+                        <p><strong>Return Date:</strong> 
+                            {% if fine.borrow.return_date %}
+                                {{ fine.borrow.return_date|date:"M d, Y" }}
+                            {% else %}
+                                <span class="text-danger">Not returned yet</span>
+                            {% endif %}
+                        </p>
                         <p><strong>Overdue Days:</strong> {{ fine.borrow.overdue_days }} days</p>
                         <p><strong>Amount:</strong> ${{ fine.amount }}</p>
                         <p><strong>Status:</strong> 
-                            <span class="badge bg-warning">Pending</span>
+                            {% if fine.is_paid %}
+                                <span class="badge bg-success">Paid on {{ fine.paid_at|date:"M d, Y" }}</span>
+                            {% else %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% endif %}
                         </p>
                     </div>
                     
                     <form method="post">
                         {% csrf_token %}
                         <div class="d-grid gap-2">
+                            {% if not fine.is_paid %}
                             <button type="submit" class="btn btn-success">
                                 <i class="fas fa-check-circle me-2"></i>Mark as Paid
                             </button>
+                            {% endif %}
                             <a href="{% url 'fine-list' %}" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left me-2"></i>Back to Fines
                             </a>
