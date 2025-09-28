@@ -158,16 +158,21 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# For development/testing on Render
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = env('EMAIL')
 EMAIL_HOST_PASSWORD = env('EMAIL_PASSWORD')
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
 
+EMAIL_TIMEOUT = 30
 
 # Email settings
-DEFAULT_FROM_EMAIL = 'UniLib Support <noreply@unilib.com>'
+DEFAULT_FROM_EMAIL = 'UniLib <noreply@unilib.com>'
 SERVER_EMAIL = 'server@unilib.com'  # For error messages
 
 # Sites framework
