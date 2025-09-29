@@ -164,13 +164,10 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = env('EMAIL')
 EMAIL_HOST_PASSWORD = env('EMAIL_PASSWORD')
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
 
-EMAIL_TIMEOUT = 30
 
 # Email settings
-DEFAULT_FROM_EMAIL = 'UniLib <noreply@unilib.com>'
+DEFAULT_FROM_EMAIL = 'UniLib Support <noreply@unilib.com>'
 SERVER_EMAIL = 'server@unilib.com'  # For error messages
 
 # Sites framework
