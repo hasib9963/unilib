@@ -1,148 +1,258 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ book.title }} - UniLib{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="row g-4">
-        <!-- Book Cover Column -->
-        <div class="col-lg-4">
-            <div class="card shadow-sm h-100">
-                {% if book.cover_image %}
-                <img src="{{ book.cover_image.url }}" 
-                     class="card-img-top p-3" 
-                     alt="{{ book.title }}"
-                     style="object-fit: contain; height: 350px;">
-                {% else %}
-                <div class="text-center py-5 bg-light">
-                    <i class="fas fa-book-open fa-5x text-muted py-5"></i>
-                </div>
-                {% endif %}
-                
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="badge bg-primary bg-opacity-10 text-primary py-2">
-                            {{ book.category }}
-                        </span>
-                        <span class="badge bg-{% if book.available_copies > 0 %}success{% else %}danger{% endif %} bg-opacity-10 text-{% if book.available_copies > 0 %}success{% else %}danger{% endif %} py-2">
-                            {{ book.available_copies }} available
-                        </span>
-                    </div>
-                    
-                    {% if user.is_authenticated %}
-                    <div class="d-grid gap-2">
-                        {% if is_borrowed %}
-                            <!-- User has already borrowed this book -->
-                            <button class="btn btn-secondary btn-lg"
-                                    data-bs-toggle="popover" 
-                                    data-bs-content="You already borrowed this book and haven't returned it yet.">
-                                <i class="fas fa-check-circle me-2"></i> Already Borrowed
-                            </button>
-                        {% elif book.available_copies > 0 %}
-                            <!-- Book is available and user hasn't borrowed it -->
-                            <a href="{% url 'book-issue' book.pk %}" class="btn btn-success btn-lg">
-                                <i class="fas fa-book-open me-2"></i> Borrow Book
-                            </a>
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Floating Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 text-indigo-200 opacity-40 animate-float">
+            <i class="fas fa-book text-6xl"></i>
+        </div>
+        <div class="absolute top-40 right-20 text-blue-200 opacity-30 animate-float-delayed">
+            <i class="fas fa-book-open text-4xl"></i>
+        </div>
+        <div class="absolute bottom-40 left-20 text-purple-200 opacity-25 animate-float">
+            <i class="fas fa-book-reader text-5xl"></i>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto relative z-10">
+        <!-- Breadcrumb -->
+        <div class="flex items-center space-x-4 text-gray-600 mb-8">
+            <a href="{% url 'dashboard' %}" class="flex items-center text-gray-600 hover:text-indigo-600 transition-colors">
+                <i class="fas fa-home mr-2"></i> Dashboard
+            </a>
+            <span class="text-gray-400">/</span>
+            <a href="{% url 'book-list' %}" class="flex items-center text-gray-600 hover:text-indigo-600 transition-colors">
+                <i class="fas fa-book mr-2"></i> Books
+            </a>
+            <span class="text-gray-400">/</span>
+            <span class="flex items-center text-indigo-600">
+                <i class="fas fa-file-alt mr-2"></i> Details
+            </span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column - Book Cover & Actions -->
+            <div class="lg:col-span-1">
+                <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+                    <!-- Book Cover -->
+                    <div class="p-6">
+                        {% if book.cover_image %}
+                        <img src="{{ book.cover_image.url }}" 
+                             class="w-full h-auto max-h-96 object-contain rounded-2xl shadow-lg" 
+                             alt="{{ book.title }}">
                         {% else %}
-                            <!-- Book is unavailable and user hasn't borrowed it -->
-                            <a href="{% url 'book-reserve' book.pk %}" class="btn btn-warning btn-lg">
-                                <i class="fas fa-bookmark me-2"></i> Reserve Book
-                            </a>
+                        <div class="w-full h-80 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl shadow-lg flex items-center justify-center">
+                            <i class="fas fa-book-open text-7xl text-gray-400"></i>
+                        </div>
                         {% endif %}
                     </div>
-                    {% endif %}
+
+                    <!-- Action Buttons -->
+                    <div class="p-6 border-t border-gray-100">
+                        <div class="flex flex-wrap gap-3 mb-4">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+                                <i class="fas fa-tag mr-1"></i> {{ book.category }}
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {% if book.available_copies > 0 %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                <i class="fas {% if book.available_copies > 0 %}fa-check-circle{% else %}fa-times-circle{% endif %} mr-1"></i>
+                                {{ book.available_copies }} available
+                            </span>
+                        </div>
+
+                        {% if user.is_authenticated %}
+                        <div class="space-y-3">
+                            {% if is_borrowed %}
+                                <!-- User has already borrowed this book -->
+                                <button class="w-full bg-gray-100 text-gray-600 px-6 py-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center cursor-default"
+                                        data-tooltip="You already borrowed this book and haven't returned it yet.">
+                                    <i class="fas fa-check-circle mr-3"></i> Already Borrowed
+                                </button>
+                            {% elif book.available_copies > 0 %}
+                                <!-- Book is available and user hasn't borrowed it -->
+                                <a href="{% url 'book-issue' book.pk %}" class="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center">
+                                    <i class="fas fa-book-open mr-3"></i> Borrow Book
+                                </a>
+                            {% else %}
+                                <!-- Book is unavailable and user hasn't borrowed it -->
+                                <a href="{% url 'book-reserve' book.pk %}" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center">
+                                    <i class="fas fa-bookmark mr-3"></i> Reserve Book
+                                </a>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="mt-6 bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl p-6">
+                    <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-chart-bar mr-2 text-indigo-600"></i> Quick Stats
+                    </h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center p-4 bg-gray-50 rounded-xl">
+                            <div class="text-2xl font-bold text-indigo-600">12</div>
+                            <div class="text-sm text-gray-600">Total Borrows</div>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-xl">
+                            <div class="text-2xl font-bold text-indigo-600">3.5</div>
+                            <div class="text-sm text-gray-600">Avg Rating</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Rest of your template remains the same -->
-        <div class="col-lg-8">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-primary bg-opacity-10 border-0 py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h2 class="mb-1">{{ book.title }}</h2>
-                            <h4 class="text-muted mb-0">by {{ book.author }}</h4>
+
+            <!-- Right Column - Book Details -->
+            <div class="lg:col-span-2">
+                <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 py-6 px-8">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                            <div class="mb-4 md:mb-0">
+                                <h1 class="text-3xl font-bold text-white mb-2">{{ book.title }}</h1>
+                                <h2 class="text-xl text-indigo-100">by {{ book.author }}</h2>
+                            </div>
+                            {% if user.is_admin or user.is_librarian %}
+                            <div class="flex space-x-2">
+                                <a href="{% url 'book-update' book.pk %}" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 flex items-center">
+                                    <i class="fas fa-edit mr-2"></i> Edit
+                                </a>
+                                <a href="{% url 'book-delete' book.pk %}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 flex items-center">
+                                    <i class="fas fa-trash-alt mr-2"></i> Delete
+                                </a>
+                            </div>
+                            {% endif %}
                         </div>
-                        {% if user.is_admin or user.is_librarian %}
-                        <div class="btn-group">
-                            <a href="{% url 'book-update' book.pk %}" class="btn btn-sm btn-outline-secondary">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <a href="{% url 'book-delete' book.pk %}" class="btn btn-sm btn-outline-danger">
-                                <i class="fas fa-trash-alt"></i>
-                            </a>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="p-8">
+                        <!-- Description -->
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-align-left mr-3 text-indigo-600"></i> Description
+                            </h3>
+                            <p class="text-gray-700 leading-relaxed text-lg">{{ book.description }}</p>
                         </div>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <div class="card-body">
-                    <!-- Book Description -->
-                    <div class="mb-4">
-                        <h5 class="border-bottom pb-2 mb-3">Description</h5>
-                        <p class="lead">{{ book.description }}</p>
-                    </div>
-                    
-                    <div class="row g-4">
-                        <!-- Book Metadata -->
-                        <div class="col-md-6">
-                            <div class="bg-light p-3 rounded">
-                                <h5 class="border-bottom pb-2 mb-3">Details</h5>
-                                <dl class="row">
-                                    <dt class="col-sm-4">ISBN</dt>
-                                    <dd class="col-sm-8">{{ book.isbn }}</dd>
-                                    
-                                    <dt class="col-sm-4">Publisher</dt>
-                                    <dd class="col-sm-8">{{ book.publisher }}</dd>
-                                    
-                                    <dt class="col-sm-4">Published</dt>
-                                    <dd class="col-sm-8">{{ book.publication_date|date:"F Y" }}</dd>
-                                    
-                                    <dt class="col-sm-4">Pages</dt>
-                                    <dd class="col-sm-8">{{ book.pages|default:"-" }}</dd>
-                                    
-                                    <dt class="col-sm-4">Language</dt>
-                                    <dd class="col-sm-8">{{ book.language|default:"English" }}</dd>
-                                </dl>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Book Metadata -->
+                            <div class="space-y-6">
+                                <div class="bg-gray-50 rounded-2xl p-6">
+                                    <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                                        <i class="fas fa-info-circle mr-2 text-indigo-600"></i> Book Details
+                                    </h4>
+                                    <div class="space-y-4">
+                                        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+                                            <span class="text-gray-600 font-medium">ISBN</span>
+                                            <span class="text-gray-900 font-semibold">{{ book.isbn|default:"N/A" }}</span>
+                                        </div>
+                                        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+                                            <span class="text-gray-600 font-medium">Publisher</span>
+                                            <span class="text-gray-900 font-semibold">{{ book.publisher|default:"N/A" }}</span>
+                                        </div>
+                                        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+                                            <span class="text-gray-600 font-medium">Published</span>
+                                            <span class="text-gray-900 font-semibold">{{ book.publication_date|date:"F Y"|default:"N/A" }}</span>
+                                        </div>
+                                        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+                                            <span class="text-gray-600 font-medium">Pages</span>
+                                            <span class="text-gray-900 font-semibold">{{ book.pages|default:"N/A" }}</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600 font-medium">Language</span>
+                                            <span class="text-gray-900 font-semibold">{{ book.language|default:"English" }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Availability & Rating -->
+                            <div class="space-y-6">
+                                <div class="bg-gray-50 rounded-2xl p-6">
+                                    <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                                        <i class="fas fa-chart-pie mr-2 text-indigo-600"></i> Availability
+                                    </h4>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <div class="flex justify-between items-center mb-2">
+                                                <span class="text-gray-600">Copies Available</span>
+                                                <span class="text-gray-900 font-semibold">{{ book.available_copies }} of {{ book.total_copies }}</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                                <div class="bg-green-600 h-3 rounded-full transition-all duration-500" 
+                                                     style="width: {% widthratio book.available_copies book.total_copies 100 %}%"></div>
+                                            </div>
+                                        </div>
+
+                                        {% if book.available_copies == 0 %}
+                                        <div class="bg-yellow-50 border-l-4 border-yellow-500 rounded-r-xl p-4">
+                                            <div class="flex">
+                                                <i class="fas fa-exclamation-circle text-yellow-500 text-xl mt-1 mr-3"></i>
+                                                <div>
+                                                    <p class="text-yellow-800 font-medium">All copies are currently checked out</p>
+                                                    <p class="text-yellow-700 text-sm mt-1">Consider reserving this book</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Rating -->
+                                <div class="bg-gray-50 rounded-2xl p-6">
+                                    <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                                        <i class="fas fa-star mr-2 text-indigo-600"></i> Community Rating
+                                    </h4>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <div class="relative">
+                                                <div class="flex text-gray-300">
+                                                    <i class="fas fa-star text-2xl"></i>
+                                                    <i class="fas fa-star text-2xl"></i>
+                                                    <i class="fas fa-star text-2xl"></i>
+                                                    <i class="fas fa-star text-2xl"></i>
+                                                    <i class="fas fa-star text-2xl"></i>
+                                                </div>
+                                                <div class="absolute top-0 left-0 flex overflow-hidden" style="width: 70%">
+                                                    <i class="fas fa-star text-yellow-400 text-2xl"></i>
+                                                    <i class="fas fa-star text-yellow-400 text-2xl"></i>
+                                                    <i class="fas fa-star text-yellow-400 text-2xl"></i>
+                                                    <i class="fas fa-star text-yellow-400 text-2xl"></i>
+                                                    <i class="fas fa-star text-yellow-400 text-2xl"></i>
+                                                </div>
+                                            </div>
+                                            <span class="ml-3 text-2xl font-bold text-gray-800">3.5</span>
+                                        </div>
+                                        <span class="text-gray-600 text-sm">(12 reviews)</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        
-                        <!-- Availability -->
-                        <div class="col-md-6">
-                            <div class="bg-light p-3 rounded h-100">
-                                <h5 class="border-bottom pb-2 mb-3">Availability</h5>
-                                <div class="mb-3">
-                                    <div class="d-flex justify-content-between mb-2">
-                                        <span>Copies Available</span>
-                                        <span>{{ book.available_copies }} of {{ book.total_copies }}</span>
-                                    </div>
-                                    <div class="progress" style="height: 10px;">
-                                        <div class="progress-bar bg-success" 
-                                             role="progressbar" 
-                                             style="width: {% widthratio book.available_copies book.total_copies 100 %}%" 
-                                             aria-valuenow="{{ book.available_copies }}" 
-                                             aria-valuemin="0" 
-                                             aria-valuemax="{{ book.total_copies }}">
-                                        </div>
-                                    </div>
+
+                        <!-- Additional Information -->
+                        <div class="mt-8 bg-indigo-50 rounded-2xl p-6">
+                            <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-clock mr-2 text-indigo-600"></i> Borrowing Information
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                                <div class="bg-white rounded-xl p-4 shadow-sm">
+                                    <i class="fas fa-calendar-alt text-indigo-600 text-2xl mb-2"></i>
+                                    <h5 class="font-semibold text-gray-800">Borrow Period</h5>
+                                    <p class="text-gray-600 text-sm">7 Days</p>
                                 </div>
-                                
-                                {% if book.available_copies == 0 %}
-                                <div class="alert alert-warning">
-                                    <i class="fas fa-exclamation-circle me-2"></i>
-                                    All copies are currently checked out
+                                <div class="bg-white rounded-xl p-4 shadow-sm">
+                                    <i class="fas fa-redo-alt text-indigo-600 text-2xl mb-2"></i>
+                                    <h5 class="font-semibold text-gray-800">Renewals</h5>
+                                    <p class="text-gray-600 text-sm">Up to 2 times</p>
                                 </div>
-                                {% endif %}
-                                
-                                <div class="mt-4">
-                                    <h6 class="mb-2">Average Rating</h6>
-                                    <div class="d-flex align-items-center">
-                                        <div class="rating-display me-3">
-                                            <span class="text-warning">★★★★★</span>
-                                            <span class="text-muted">★★★★★</span>
-                                            <span class="rating-overlay" style="width: 70%"></span>
-                                        </div>
-                                        <small class="text-muted">(3.5 from 12 reviews)</small>
-                                    </div>
+                                <div class="bg-white rounded-xl p-4 shadow-sm">
+                                    <i class="fas fa-exclamation-triangle text-indigo-600 text-2xl mb-2"></i>
+                                    <h5 class="font-semibold text-gray-800">Late Fees</h5>
+                                    <p class="text-gray-600 text-sm">$0.50 </p>
                                 </div>
                             </div>
                         </div>
@@ -156,62 +266,44 @@
 
 {% block extra_css %}
 <style>
-    .card {
-        border-radius: 0.5rem;
-        border: none;
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
     }
     
-    .rating-display {
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .animate-float-delayed {
+        animation: float 8s ease-in-out infinite;
+        animation-delay: 2s;
+    }
+    
+    [data-tooltip] {
         position: relative;
-        display: inline-block;
-        font-size: 1.25rem;
-        line-height: 1;
     }
     
-    .rating-display .rating-overlay {
+    [data-tooltip]:before {
+        content: attr(data-tooltip);
         position: absolute;
-        top: 0;
-        left: 0;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 8px 12px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        border-radius: 8px;
+        font-size: 14px;
         white-space: nowrap;
-        overflow: hidden;
-        color: #ffc107;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        z-index: 10;
     }
     
-    .rating-display .text-warning {
-        position: relative;
-        z-index: 2;
-    }
-    
-    .rating-display .text-muted {
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 1;
-    }
-    
-    .bg-opacity-10 {
-        background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
-    }
-    
-    dl.row dt {
-        font-weight: 500;
-        color: #6c757d;
-    }
-    
-    dl.row dd {
-        margin-bottom: 0.75rem;
-    }
-    
-    .progress {
-        border-radius: 0.25rem;
-    }
-    
-    .popover {
-        max-width: 300px;
-    }
-    
-    .btn-secondary {
-        cursor: default;
+    [data-tooltip]:hover:before {
+        opacity: 1;
     }
 </style>
 {% endblock %}
@@ -219,27 +311,31 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize popovers
-    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
-    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-        return new bootstrap.Popover(popoverTriggerEl, {
-            trigger: 'focus hover click'
-        })
-    })
-    
-    // Close popover when clicking outside
-    document.addEventListener('click', function(e) {
-        var popovers = document.querySelectorAll('.popover');
-        popovers.forEach(function(popover) {
-            if (!e.target.closest('[data-bs-toggle="popover"]') && 
-                !popover.contains(e.target)) {
-                var popoverInstance = bootstrap.Popover.getInstance(
-                    document.querySelector('[data-bs-toggle="popover"]')
-                );
-                if (popoverInstance) {
-                    popoverInstance.hide();
-                }
-            }
+    // Add loading animation to buttons
+    const buttons = document.querySelectorAll('a[href*="book-issue"], a[href*="book-reserve"]');
+    buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i> Processing...';
+            this.classList.add('opacity-75');
+            this.classList.remove('hover:scale-105');
+            
+            setTimeout(() => {
+                this.innerHTML = originalText;
+                this.classList.remove('opacity-75');
+                this.classList.add('hover:scale-105');
+            }, 2000);
+        });
+    });
+
+    // Add hover effects to stat cards
+    const statCards = document.querySelectorAll('.bg-gray-50.rounded-2xl');
+    statCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
         });
     });
 });

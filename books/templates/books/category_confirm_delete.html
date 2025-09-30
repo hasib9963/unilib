@@ -1,93 +1,209 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Category - UniLib{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <!-- Horizontal Layout for Desktop -->
-            <div class="card border-0 shadow-lg">
-                <div class="card-header bg-danger text-white py-3">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-exclamation-triangle fa-xl me-3"></i>
-                            <div>
-                                <h3 class="mb-0">Confirm Category Deletion</h3>
-                                <small class="opacity-85">This action cannot be undone</small>
-                            </div>
+<div class="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Floating Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 text-red-200 opacity-40 animate-float">
+            <i class="fas fa-exclamation-triangle text-6xl"></i>
+        </div>
+        <div class="absolute top-40 right-20 text-orange-200 opacity-30 animate-float-delayed">
+            <i class="fas fa-tag text-4xl"></i>
+        </div>
+        <div class="absolute bottom-40 left-20 text-red-200 opacity-25 animate-float">
+            <i class="fas fa-trash-alt text-5xl"></i>
+        </div>
+        <div class="absolute bottom-20 right-10 text-orange-200 opacity-20 animate-float-delayed">
+            <i class="fas fa-times-circle text-6xl"></i>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto relative z-10">
+        <!-- Page Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 font-serif mb-4">
+                <i class="fas fa-exclamation-triangle mr-3 text-red-600"></i>
+                Confirm Category Deletion
+            </h1>
+            <p class="text-gray-600 text-lg">This action cannot be undone</p>
+        </div>
+
+        <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+            <!-- Card Header -->
+            <div class="bg-gradient-to-r from-red-600 to-orange-600 py-6 px-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="flex items-center mb-4 md:mb-0">
+                        <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
+                            <i class="fas fa-trash-alt text-white text-xl"></i>
                         </div>
-                        <a href="{% url 'category-detail' category.pk %}" class="btn btn-sm btn-outline-light">
-                            <i class="fas fa-times"></i> Cancel
-                        </a>
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">Delete "{{ category.name }}"</h2>
+                            <p class="text-red-100">Permanent removal from library system</p>
+                        </div>
                     </div>
+                    <a href="{% url 'category-detail' category.pk %}" class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 flex items-center">
+                        <i class="fas fa-times mr-3"></i> Cancel
+                    </a>
                 </div>
-                
-                <div class="card-body p-4">
-                    <div class="row">
-                        <!-- Left Column - Category Details -->
-                        <div class="col-md-5 border-end pe-4">
-                            <div class="category-details sticky-top" style="top: 20px;">
-                                <div class="d-flex align-items-start mb-4">
-                                    <div class="bg-danger bg-opacity-10 p-3 rounded me-3">
-                                        <i class="fas fa-tag fa-2x text-danger"></i>
-                                    </div>
-                                    <div>
-                                        <h2 class="mb-1">{{ category.name }}</h2>
-                                        <p class="text-muted">{{ category.description|default:"No description" }}</p>
-                                        <div class="d-flex align-items-center mt-3">
-                                            <span class="badge bg-dark bg-opacity-10 text-dark py-2 px-3">
-                                                <i class="fas fa-book me-2"></i>
-                                                {{ category.book_set.count }} book(s)
-                                            </span>
+            </div>
+
+            <!-- Card Content -->
+            <div class="p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Left Column - Category Details -->
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-br from-red-50 to-orange-50 border-l-4 border-red-500 rounded-r-2xl p-6">
+                            <div class="flex items-start">
+                                <div class="bg-red-100 p-4 rounded-xl mr-4">
+                                    <i class="fas fa-tag text-red-600 text-2xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-2xl font-bold text-gray-800 mb-2">{{ category.name }}</h3>
+                                    <p class="text-gray-600 mb-4">{{ category.description|default:"No description provided" }}</p>
+                                    
+                                    <div class="flex items-center space-x-4">
+                                        <div class="bg-white rounded-xl p-3 shadow-sm">
+                                            <div class="text-2xl font-bold text-red-600 text-center">{{ category.book_set.count }}</div>
+                                            <div class="text-sm text-gray-600 text-center">Books</div>
+                                        </div>
+                                        <div class="text-sm text-gray-500">
+                                            This category contains {{ category.book_set.count }} book{{ category.book_set.count|pluralize }}
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- Right Column - Warning and Actions -->
-                        <div class="col-md-7 ps-4">
-                            <div class="alert alert-danger mb-4">
-                                <div class="d-flex">
-                                    <i class="fas fa-exclamation-circle fa-lg me-3 mt-1"></i>
+
+                        <!-- Quick Stats -->
+                        <div class="bg-gray-50 rounded-2xl p-6">
+                            <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-chart-bar mr-2 text-indigo-600"></i> Category Statistics
+                            </h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="text-center p-4 bg-white rounded-xl shadow-sm">
+                                    <div class="text-2xl font-bold text-indigo-600">{{ category.book_set.count }}</div>
+                                    <div class="text-sm text-gray-600">Total Books</div>
+                                </div>
+                                <div class="text-center p-4 bg-white rounded-xl shadow-sm">
+                                    <div class="text-2xl font-bold text-indigo-600">0</div>
+                                    <div class="text-sm text-gray-600">Active Borrows</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Warnings and Actions -->
+                    <div class="space-y-6">
+                        <!-- Critical Warning -->
+                        <div class="bg-red-50 border-l-4 border-red-500 rounded-r-2xl p-6">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-circle text-red-500 text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-bold text-red-800">Critical Warning: Permanent Action</h3>
+                                    <p class="mt-2 text-red-700">This category will be permanently removed from the library system. All books in this category will lose their categorization.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Impact Analysis -->
+                        <div class="space-y-4">
+                            <h4 class="text-xl font-bold text-gray-800 flex items-center">
+                                <i class="fas fa-chart-line mr-3 text-orange-500"></i>
+                                Impact Analysis
+                            </h4>
+                            
+                            <div class="space-y-3">
+                                <div class="flex items-start p-4 bg-white rounded-xl border border-gray-200 hover:border-red-200 transition-colors">
+                                    <i class="fas fa-tag text-red-500 mt-1 mr-4"></i>
                                     <div>
-                                        <h4 class="alert-heading mb-2">Critical Action Required</h4>
-                                        <p class="mb-0">Deleting this category will affect all associated books.</p>
+                                        <h5 class="font-semibold text-gray-800">Category Removal</h5>
+                                        <p class="text-sm text-gray-600 mt-1">Permanently deleted from the system and all category listings</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start p-4 bg-white rounded-xl border border-gray-200 hover:border-red-200 transition-colors">
+                                    <i class="fas fa-book text-red-500 mt-1 mr-4"></i>
+                                    <div>
+                                        <h5 class="font-semibold text-gray-800">Book Relations</h5>
+                                        <p class="text-sm text-gray-600 mt-1">{{ category.book_set.count }} book{{ category.book_set.count|pluralize }} will lose this categorization and become uncategorized</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start p-4 bg-white rounded-xl border border-gray-200 hover:border-red-200 transition-colors">
+                                    <i class="fas fa-chart-bar text-red-500 mt-1 mr-4"></i>
+                                    <div>
+                                        <h5 class="font-semibold text-gray-800">Reports & Analytics</h5>
+                                        <p class="text-sm text-gray-600 mt-1">Historical data and reports referencing this category will be affected</p>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div class="impact-summary mb-4">
-                                <h4 class="fw-bold mb-3 border-bottom pb-2">Impact Analysis</h4>
-                                <div class="table-responsive">
-                                    <table class="table table-borderless">
-                                        <tbody>
-                                            <tr>
-                                                <td width="40"><i class="fas fa-check-circle text-danger"></i></td>
-                                                <td><strong>Category Removal</strong><br>Permanently deleted from system</td>
-                                            </tr>
-                                            <tr>
-                                                <td><i class="fas fa-check-circle text-danger"></i></td>
-                                                <td><strong>Book Relations</strong><br>{{ category.book_set.count }} books will lose this categorization</td>
-                                            </tr>
-                                            <tr>
-                                                <td><i class="fas fa-check-circle text-danger"></i></td>
-                                                <td><strong>Reports & Analytics</strong><br>Historical data referencing this category will be affected</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                        </div>
+
+                        <!-- Books in Category Preview -->
+                        {% if category.book_set.exists %}
+                        <div class="bg-yellow-50 border-l-4 border-yellow-500 rounded-r-2xl p-6">
+                            <h5 class="font-bold text-gray-800 mb-3 flex items-center">
+                                <i class="fas fa-books mr-2 text-yellow-600"></i>
+                                Books in This Category
+                            </h5>
+                            <div class="space-y-2 max-h-32 overflow-y-auto">
+                                {% for book in category.book_set.all|slice:":5" %}
+                                <div class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-book text-gray-400 mr-2 text-xs"></i>
+                                    <span class="truncate">{{ book.title }}</span>
                                 </div>
+                                {% endfor %}
+                                {% if category.book_set.count > 5 %}
+                                <div class="text-sm text-gray-500">
+                                    + {{ category.book_set.count|add:"-5" }} more book{{ category.book_set.count|add:"-5"|pluralize }}
+                                </div>
+                                {% endif %}
                             </div>
-                            
-                            <form method="POST" class="mt-4" id="delete-form">
-                                {% csrf_token %}
-                                <div class="d-flex justify-content-end gap-3 border-top pt-4">
-                                    <button type="submit" class="btn btn-danger px-4 py-2" id="submit-button">
-                                        <i class="fas fa-trash-alt me-2"></i> Confirm Permanent Deletion
+                        </div>
+                        {% endif %}
+
+                        <!-- Confirmation Form -->
+                        <form method="POST" class="mt-6" id="delete-form">
+                            {% csrf_token %}
+                            <div class="bg-gray-50 rounded-2xl p-6">
+                                <div class="flex items-start mb-4">
+                                    <input type="checkbox" id="confirm-delete" class="w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500 mt-1">
+                                    <label for="confirm-delete" class="ml-3 text-sm font-medium text-gray-700">
+                                        I understand this action is permanent and will affect {{ category.book_set.count }} book{{ category.book_set.count|pluralize }}
+                                    </label>
+                                </div>
+                                
+                                <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                                    <a href="{% url 'category-detail' category.pk %}" class="bg-gray-500 hover:bg-gray-600 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center order-2 sm:order-1">
+                                        <i class="fas fa-times mr-3"></i> Cancel
+                                    </a>
+                                    <button type="submit" 
+                                            class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none order-1 sm:order-2"
+                                            id="submit-button"
+                                            disabled>
+                                        <i class="fas fa-trash-alt mr-3"></i> 
+                                        <span id="button-text">Delete Category</span>
                                     </button>
                                 </div>
-                            </form>
-                        </div>
+                            </div>
+                        </form>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Warning -->
+        <div class="mt-8 bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-orange-200">
+            <div class="flex items-center">
+                <i class="fas fa-shield-alt text-orange-500 text-2xl mr-4"></i>
+                <div>
+                    <h4 class="font-semibold text-gray-800">Administrative Action Required</h4>
+                    <p class="text-gray-600 mt-1">This deletion requires administrative privileges. Please ensure this action is authorized and consider reassigning books to a different category before deletion.</p>
                 </div>
             </div>
         </div>
@@ -97,67 +213,37 @@
 
 {% block extra_css %}
 <style>
-    .card {
-        border-radius: 0.5rem;
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
     }
     
-    .category-details {
-        border-left: 3px solid var(--bs-danger);
-        padding-left: 1rem;
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
     }
     
-    .table td {
-        vertical-align: middle;
-        padding: 1rem 0.5rem;
+    .animate-float-delayed {
+        animation: float 8s ease-in-out infinite;
+        animation-delay: 2s;
     }
     
-    .btn-danger {
-        transition: all 0.2s ease;
-        min-width: 220px;
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
     }
     
-    .btn-danger:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
-    }
-
-    /* Loading spinner */
-    .fa-spinner {
-        animation: spin 1s linear infinite;
+    .pulse-warning {
+        animation: pulse 2s ease-in-out infinite;
     }
     
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+    /* Custom checkbox styling */
+    input[type="checkbox"] {
+        border-radius: 0.25rem;
     }
     
-    /* Button state transitions */
-    #submit-button {
-        transition: all 0.3s ease;
-    }
-    
-    #submit-button[disabled] {
-        opacity: 0.8;
-        transform: scale(0.98);
-    }
-    
-    @media (max-width: 992px) {
-        .border-end {
-            border-right: none !important;
-            padding-right: 0 !important;
-        }
-        
-        .ps-4 {
-            padding-left: 0 !important;
-        }
-        
-        .row > [class*="col-"] {
-            margin-bottom: 2rem;
-        }
-        
-        .btn-danger {
-            width: 100%;
-        }
+    input[type="checkbox"]:checked {
+        background-color: #dc2626;
+        border-color: #dc2626;
     }
 </style>
 {% endblock %}
@@ -165,30 +251,66 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Form submission with loading spinner and delay
+    const confirmCheckbox = document.getElementById('confirm-delete');
+    const submitButton = document.getElementById('submit-button');
+    const buttonText = document.getElementById('button-text');
     const form = document.getElementById('delete-form');
+
+    // Enable/disable submit button based on checkbox
+    if (confirmCheckbox && submitButton) {
+        confirmCheckbox.addEventListener('change', function() {
+            submitButton.disabled = !this.checked;
+        });
+    }
+
+    // Form submission with loading state
+    if (form && submitButton) {
+        form.addEventListener('submit', function(e) {
+            if (!confirmCheckbox.checked) {
+                e.preventDefault();
+                return;
+            }
+
+            // Show loading state
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i> Deleting Category...';
+            submitButton.disabled = true;
+            
+            // Add a small delay to show the loading state
+            setTimeout(() => {
+                // Form will submit normally after this
+            }, 1000);
+        });
+    }
+
+    // Add confirmation dialog for extra safety
     if (form) {
         form.addEventListener('submit', function(e) {
-            const submitButton = document.getElementById('submit-button');
-            if (submitButton) {
-                // Store original button content
-                const originalContent = submitButton.innerHTML;
-                
-                // Show loading state
-                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Deleting...';
-                submitButton.disabled = true;
-                
-                // Add delay to see the spinner (demo only)
+            if (!confirm('Are you absolutely sure you want to permanently delete the category "{{ category.name }}"? This will affect {{ category.book_set.count }} book{{ category.book_set.count|pluralize }} and cannot be undone.')) {
                 e.preventDefault();
-                setTimeout(function() {
-                    // Submit the form after delay
-                    form.submit();
-                }, 2000); // 2 second delay
-                
-                // In production, remove the e.preventDefault() and setTimeout
-                // and just let the form submit normally
+                // Reset button state
+                if (submitButton && buttonText) {
+                    submitButton.innerHTML = '<i class="fas fa-trash-alt mr-3"></i><span id="button-text">Delete Category</span>';
+                    submitButton.disabled = !confirmCheckbox.checked;
+                }
             }
         });
+    }
+
+    // Add hover effects to impact items
+    const impactItems = document.querySelectorAll('.flex.items-start.p-4');
+    impactItems.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(4px)';
+        });
+        item.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0)';
+        });
+    });
+
+    // Add pulse animation to critical warning
+    const criticalWarning = document.querySelector('.bg-red-50');
+    if (criticalWarning) {
+        criticalWarning.classList.add('pulse-warning');
     }
 });
 </script>

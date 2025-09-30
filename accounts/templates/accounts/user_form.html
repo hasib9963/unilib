@@ -1,104 +1,266 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Update {{ form.instance.get_full_name }}{% else %}Create New User{% endif %} - UniLib{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-primary text-white py-3">
-                    <div class="d-flex align-items-center">
-                        <i class="fas {% if form.instance.pk %}fa-user-edit{% else %}fa-user-plus{% endif %} me-3"></i>
-                        <h4 class="mb-0">
-                            {% if form.instance.pk %}Update User{% else %}Create New User{% endif %}
-                        </h4>
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Floating Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 text-indigo-200 opacity-40 animate-float">
+            <i class="fas {% if form.instance.pk %}fa-user-edit{% else %}fa-user-plus{% endif %} text-6xl"></i>
+        </div>
+        <div class="absolute top-40 right-20 text-blue-200 opacity-30 animate-float-delayed">
+            <i class="fas fa-user-circle text-4xl"></i>
+        </div>
+        <div class="absolute bottom-40 left-20 text-purple-200 opacity-25 animate-float">
+            <i class="fas fa-id-card text-5xl"></i>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto relative z-10">
+        <!-- Page Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 font-serif mb-4">
+                <i class="fas {% if form.instance.pk %}fa-user-edit{% else %}fa-user-plus{% endif %} mr-3 text-indigo-600"></i>
+                {% if form.instance.pk %}Update User{% else %}Create New User{% endif %}
+            </h1>
+            <div class="flex items-center justify-center space-x-4 text-gray-600">
+                <a href="{% url 'dashboard' %}" class="flex items-center text-gray-600 hover:text-indigo-600 transition-colors">
+                    <i class="fas fa-home mr-2"></i> Dashboard
+                </a>
+                <span class="text-gray-400">/</span>
+                <a href="{% url 'user-list' %}" class="flex items-center text-gray-600 hover:text-indigo-600 transition-colors">
+                    <i class="fas fa-users mr-2"></i> Users
+                </a>
+                <span class="text-gray-400">/</span>
+                <span class="flex items-center text-indigo-600">
+                    <i class="fas {% if form.instance.pk %}fa-edit{% else %}fa-plus{% endif %} mr-2"></i> 
+                    {% if form.instance.pk %}Edit{% else %}Create{% endif %}
+                </span>
+            </div>
+        </div>
+
+        <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+            <!-- Card Header -->
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 py-6 px-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
+                            <i class="fas {% if form.instance.pk %}fa-edit{% else %}fa-plus{% endif %} text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">
+                                {% if form.instance.pk %}"{{ form.instance.get_full_name }}"{% else %}New User Account{% endif %}
+                            </h2>
+                            <p class="text-indigo-100">
+                                {% if form.instance.pk %}Update user information{% else %}Create a new library user account{% endif %}
+                            </p>
+                        </div>
                     </div>
+                    <a href="{% if form.instance.pk %}{% url 'user-detail' form.instance.pk %}{% else %}{% url 'user-list' %}{% endif %}" 
+                       class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 flex items-center">
+                        <i class="fas fa-times mr-3"></i> Cancel
+                    </a>
                 </div>
-                
-                <div class="card-body p-4">
-                    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate id="user-form">
-                        {% csrf_token %}
-                        
-                        <!-- Personal Information Section -->
-                        <div class="mb-4">
-                            <h5 class="border-bottom pb-2 mb-3">
-                                <i class="fas fa-id-card text-primary me-2"></i>
-                                Personal Information
-                            </h5>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    {{ form.first_name|as_crispy_field }}
+            </div>
+
+            <!-- Form Content -->
+            <div class="p-8">
+                <form method="POST" enctype="multipart/form-data" id="user-form">
+                    {% csrf_token %}
+                    
+                    <!-- Personal Information Section -->
+                    <div class="mb-8 border-l-4 border-indigo-500 pl-6">
+                        <h5 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-user text-indigo-600"></i>
+                            </div>
+                            Personal Information
+                        </h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="relative">
+                                {{ form.first_name }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 flex items-center justify-center h-full">
+                                    <i class="fas fa-signature"></i>
                                 </div>
-                                <div class="col-md-6">
-                                    {{ form.last_name|as_crispy_field }}
+                                {% if form.first_name.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.first_name.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="relative">
+                                {{ form.last_name }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 flex items-center justify-center h-full">
+                                    <i class="fas fa-signature"></i>
                                 </div>
+                                {% if form.last_name.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.last_name.errors.0 }}
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
-                        
-                        <!-- Contact Information Section -->
-                        <div class="mb-4">
-                            <h5 class="border-bottom pb-2 mb-3">
-                                <i class="fas fa-address-card text-primary me-2"></i>
-                                Contact Information
-                            </h5>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    {{ form.email|as_crispy_field }}
+                    </div>
+
+                    <!-- Contact Information Section -->
+                    <div class="mb-8 border-l-4 border-indigo-500 pl-6">
+                        <h5 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-address-card text-indigo-600"></i>
+                            </div>
+                            Contact Information
+                        </h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="relative">
+                                {{ form.email }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 flex items-center justify-center h-full">
+                                    <i class="fas fa-envelope"></i>
                                 </div>
-                                <div class="col-md-6">
-                                    {{ form.phone|as_crispy_field }}
+                                {% if form.email.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.email.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="relative">
+                                {{ form.phone }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 flex items-center justify-center h-full">
+                                    <i class="fas fa-phone"></i>
                                 </div>
+                                {% if form.phone.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.phone.errors.0 }}
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
-                        
-                        <!-- University Information Section -->
-                        <div class="mb-4">
-                            <h5 class="border-bottom pb-2 mb-3">
-                                <i class="fas fa-university text-primary me-2"></i>
-                                University Information
-                            </h5>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    {{ form.university_id|as_crispy_field }}
+                    </div>
+
+                    <!-- University Information Section -->
+                    <div class="mb-8 border-l-4 border-indigo-500 pl-6">
+                        <h5 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-university text-indigo-600"></i>
+                            </div>
+                            University Information
+                        </h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="relative">
+                                {{ form.university_id }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 flex items-center justify-center h-full">
+                                    <i class="fas fa-id-card"></i>
                                 </div>
-                                <div class="col-md-6">
-                                    {{ form.role|as_crispy_field }}
+                                {% if form.university_id.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.university_id.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="relative">
+                                {{ form.role }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 flex items-center justify-center h-full">
+                                    <i class="fas fa-user-tag"></i>
                                 </div>
+                                {% if form.role.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.role.errors.0 }}
+                                    </div>
+                                {% endif %}
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Picture Section -->
+                    <div class="mb-8 border-l-4 border-indigo-500 pl-6">
+                        <h5 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-camera text-indigo-600"></i>
+                            </div>
+                            Profile Picture
+                        </h5>
+                        
+                        <div class="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center transition-all duration-300 hover:border-indigo-400 hover:bg-indigo-50 cursor-pointer" id="file-upload-area">
+                            <input type="file" 
+                                id="{{ form.profile_picture.id_for_label }}" 
+                                name="{{ form.profile_picture.name }}"
+                                accept="image/*" 
+                                class="hidden">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                            <p class="text-gray-700 font-semibold">Upload Profile Picture</p>
+                            <p class="text-sm text-gray-500 mt-2">Drag & drop or click to browse</p>
+                            <p class="text-xs text-gray-400 mt-1">JPG, PNG • Max 2MB</p>
+                            <div id="file-name" class="mt-3 text-sm text-indigo-600 font-medium hidden"></div>
                         </div>
                         
-                        <!-- Profile Picture Section -->
-                        <div class="mb-4">
-                            <h5 class="border-bottom pb-2 mb-3">
-                                <i class="fas fa-camera text-primary me-2"></i>
-                                Profile Picture
-                            </h5>
-                            {{ form.profile_picture|as_crispy_field }}
-                            {% if form.instance.profile_picture %}
-                            <div class="mt-2">
-                                <img src="{{ form.instance.profile_picture.url }}" 
-                                     class="img-thumbnail" 
-                                     width="120" 
-                                     alt="Current profile picture"
-                                     id="current-profile-pic">
+                        {% if form.profile_picture.errors %}
+                            <div class="mt-2 text-sm text-red-600 flex items-center">
+                                <i class="fas fa-exclamation-circle mr-1"></i>{{ form.profile_picture.errors.0 }}
                             </div>
-                            {% endif %}
-                            <div id="image-preview" class="mt-2 d-none">
-                                <img id="preview-image" class="img-thumbnail" width="120" alt="Profile preview">
-                            </div>
-                        </div>
+                        {% endif %}
                         
-                        <div class="d-flex justify-content-between mt-4">
-                            <a href="{% if form.instance.pk %}{% url 'user-detail' form.instance.pk %}{% else %}{% url 'user-list' %}{% endif %}" 
-                               class="btn btn-outline-secondary">
-                                <i class="fas fa-times me-2"></i> Cancel
-                            </a>
-                            <button type="submit" class="btn btn-primary px-4" id="submit-button">
-                                <i class="fas fa-save me-2"></i> 
-                                {% if form.instance.pk %}Update{% else %}Create{% endif %} User
-                            </button>
+                        {% if form.instance.profile_picture %}
+                        <div class="mt-4 flex items-center space-x-4">
+                            <img src="{{ form.instance.profile_picture.url }}" 
+                                 class="w-24 h-24 object-cover rounded-2xl shadow-md border-2 border-gray-200" 
+                                 alt="Current profile picture"
+                                 id="current-profile-pic">
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Current Profile Picture</p>
+                                <p class="text-xs text-gray-500">Upload a new image to replace</p>
+                            </div>
                         </div>
-                    </form>
+                        {% endif %}
+                        
+                        <div id="image-preview" class="mt-4 hidden flex items-center space-x-4">
+                            <img id="preview-image" class="w-24 h-24 object-cover rounded-2xl shadow-md border-2 border-green-200" alt="Profile preview">
+                            <div>
+                                <p class="text-sm font-medium text-green-700">New Profile Picture</p>
+                                <p class="text-xs text-gray-500">This will replace your current photo</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4 pt-6 border-t border-gray-200">
+                        <a href="{% if form.instance.pk %}{% url 'user-detail' form.instance.pk %}{% else %}{% url 'user-list' %}{% endif %}" 
+                           class="bg-gray-500 hover:bg-gray-600 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center">
+                            <i class="fas fa-times mr-3"></i> Cancel
+                        </a>
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center" id="submit-button">
+                            <i class="fas fa-save mr-3"></i> 
+                            <span id="button-text">{% if form.instance.pk %}Update User{% else %}Create User{% endif %}</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="mt-8 bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-blue-200">
+            <div class="flex items-start">
+                <i class="fas fa-lightbulb text-yellow-500 text-2xl mr-4 mt-1"></i>
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-2">User Management Tips</h4>
+                    <ul class="text-gray-600 space-y-2">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mr-2 mt-1 text-xs"></i>
+                            Ensure email addresses are valid for communication
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mr-2 mt-1 text-xs"></i>
+                            Assign appropriate roles based on user responsibilities
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mr-2 mt-1 text-xs"></i>
+                            University IDs should be unique for each user
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mr-2 mt-1 text-xs"></i>
+                            Profile pictures help with user identification
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -108,51 +270,18 @@
 
 {% block extra_css %}
 <style>
-    .card {
-        border-radius: 0.5rem;
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
     }
     
-    .form-group {
-        margin-bottom: 1.25rem;
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
     }
     
-    .img-thumbnail {
-        max-width: 120px;
-        border: 1px solid #dee2e6;
-        padding: 0.25rem;
-        background-color: #fff;
-    }
-    
-    .btn-primary {
-        min-width: 150px;
-        transition: all 0.3s ease;
-    }
-    
-    /* Loading spinner animation */
-    .fa-spinner {
-        animation: spin 0.8s linear infinite;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    
-    /* Button state transitions */
-    #submit-button[disabled] {
-        opacity: 0.8;
-        transform: scale(0.98);
-    }
-    
-    @media (max-width: 768px) {
-        .d-flex.justify-content-between {
-            flex-direction: column-reverse;
-            gap: 1rem;
-        }
-        
-        .btn {
-            width: 100%;
-        }
+    .animate-float-delayed {
+        animation: float 8s ease-in-out infinite;
+        animation-delay: 2s;
     }
 </style>
 {% endblock %}
@@ -160,69 +289,189 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Preview profile picture before upload
-    const profilePicInput = document.getElementById('id_profile_picture');
+    // Add Tailwind classes to form fields and set placeholders
+    const textInputs = document.querySelectorAll('input:not([type="file"]):not([type="checkbox"]):not([type="radio"])');
+    const selects = document.querySelectorAll('select');
+    
+    // Apply styles to all text inputs and set placeholders
+    textInputs.forEach(input => {
+        input.classList.add('w-full', 'pl-12', 'pr-4', 'py-3', 'border-2', 'border-gray-300', 'rounded-xl', 'focus:ring-2', 'focus:ring-indigo-500', 'focus:border-indigo-500', 'transition-all', 'duration-300', 'focus:transform', 'focus:-translate-y-1');
+        
+        // Set appropriate placeholder based on field name
+        const fieldName = input.name;
+        if (fieldName.includes('first_name')) {
+            input.placeholder = 'Enter first name';
+        } else if (fieldName.includes('last_name')) {
+            input.placeholder = 'Enter last name';
+        } else if (fieldName.includes('email')) {
+            input.placeholder = 'Enter email address';
+        } else if (fieldName.includes('phone')) {
+            input.placeholder = 'Enter phone number';
+        } else if (fieldName.includes('university_id')) {
+            input.placeholder = 'Enter university ID';
+        }
+    });
+    
+    // Apply styles to select
+    selects.forEach(select => {
+        select.classList.add('w-full', 'pl-12', 'pr-4', 'py-3', 'border-2', 'border-gray-300', 'rounded-xl', 'focus:ring-2', 'focus:ring-indigo-500', 'focus:border-indigo-500', 'transition-all', 'duration-300', 'focus:transform', 'focus:-translate-y-1', 'appearance-none');
+    });
+
+    // Profile picture upload functionality
+    const profilePicInput = document.getElementById('{{ form.profile_picture.id_for_label }}');
+    const dragDropArea = document.getElementById('file-upload-area');
+    const fileName = document.getElementById('file-name');
     const imagePreview = document.getElementById('image-preview');
     const previewImage = document.getElementById('preview-image');
     const currentProfilePic = document.getElementById('current-profile-pic');
-    
-    if (profilePicInput) {
-        profilePicInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
+
+    if (profilePicInput && dragDropArea) {
+        dragDropArea.addEventListener('click', function() {
+            profilePicInput.click();
+        });
+        
+        profilePicInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                const file = this.files[0];
+                fileName.textContent = file.name;
+                fileName.classList.remove('hidden');
+                dragDropArea.classList.add('border-indigo-500', 'bg-indigo-50');
+                dragDropArea.innerHTML = `
+                    <i class="fas fa-check-circle text-4xl text-green-500 mb-4"></i>
+                    <p class="text-gray-700 font-semibold">File Selected</p>
+                    <div id="file-name" class="mt-3 text-sm text-indigo-600 font-medium">${file.name}</div>
+                    <p class="text-xs text-gray-400 mt-2">Click to change file</p>
+                `;
+                
+                // Show image preview
                 const reader = new FileReader();
-                reader.onload = function(event) {
-                    imagePreview.classList.remove('d-none');
-                    previewImage.src = event.target.result;
+                reader.onload = function(e) {
+                    imagePreview.classList.remove('hidden');
+                    previewImage.src = e.target.result;
                     
                     if (currentProfilePic) {
-                        currentProfilePic.classList.add('d-none');
+                        currentProfilePic.classList.add('hidden');
                     }
-                }
+                };
                 reader.readAsDataURL(file);
-            } else {
-                imagePreview.classList.add('d-none');
-                if (currentProfilePic) {
-                    currentProfilePic.classList.remove('d-none');
-                }
+                
+                // Update the event listener for the new content
+                const newDragDropArea = document.getElementById('file-upload-area');
+                newDragDropArea.addEventListener('click', function() {
+                    profilePicInput.click();
+                });
             }
         });
-    }
-    
-    // Form validation
-    const forms = document.querySelectorAll('.needs-validation');
-    Array.prototype.slice.call(forms).forEach(function(form) {
-        form.addEventListener('submit', function(event) {
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            form.classList.add('was-validated');
-        }, false);
-    });
 
-    // Form submission with loading spinner and delay
+        // Drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dragDropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dragDropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dragDropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dragDropArea.classList.add('border-indigo-500', 'bg-indigo-100');
+        }
+
+        function unhighlight() {
+            dragDropArea.classList.remove('border-indigo-500', 'bg-indigo-100');
+        }
+
+        dragDropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            profilePicInput.files = files;
+            
+            if (files.length > 0) {
+                profilePicInput.dispatchEvent(new Event('change'));
+            }
+        }
+    }
+
+    // Form validation and submission
     const form = document.getElementById('user-form');
-    if (form) {
+    const submitButton = document.getElementById('submit-button');
+    const buttonText = document.getElementById('button-text');
+    
+    if (form && submitButton && buttonText) {
         form.addEventListener('submit', function(e) {
-            const submitButton = document.getElementById('submit-button');
-            if (submitButton) {
-                // Store original button content
-                const originalContent = submitButton.innerHTML;
-                
-                // Show loading state
-                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Updating...';
-                submitButton.disabled = true;
-                
-                // Add delay to see the spinner (demo only)
+            // Basic validation
+            let isValid = true;
+            const requiredFields = form.querySelectorAll('input[required], select[required]');
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.classList.add('border-red-500');
+                    
+                    // Add error message if not exists
+                    if (!field.nextElementSibling || !field.nextElementSibling.classList.contains('text-red-600')) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'mt-1 text-sm text-red-600 flex items-center';
+                        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>This field is required';
+                        field.parentNode.appendChild(errorDiv);
+                    }
+                } else {
+                    field.classList.remove('border-red-500');
+                    // Remove error message if exists
+                    if (field.nextElementSibling && field.nextElementSibling.classList.contains('text-red-600')) {
+                        field.nextElementSibling.remove();
+                    }
+                }
+            });
+
+            if (!isValid) {
                 e.preventDefault();
-                setTimeout(function() {
-                    // Submit the form after delay
-                    form.submit();
-                }, 2000); // 2 second delay
-                
-                // In production, remove the e.preventDefault() and setTimeout
-                // and just let the form submit normally
+                return;
+            }
+
+            // Show loading state
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i> Processing...';
+            submitButton.disabled = true;
+            submitButton.classList.remove('hover:scale-105');
+        });
+    }
+
+    // Auto-focus on first field
+    const firstInput = form.querySelector('input:not([type="hidden"])');
+    if (firstInput) {
+        setTimeout(() => {
+            firstInput.focus();
+        }, 300);
+    }
+
+    // Real-time validation for email format
+    const emailInput = document.getElementById('id_email');
+    if (emailInput) {
+        emailInput.addEventListener('blur', function() {
+            const email = this.value;
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                this.classList.add('border-red-500');
+                if (!this.nextElementSibling || !this.nextElementSibling.classList.contains('text-red-600')) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'mt-1 text-sm text-red-600 flex items-center';
+                    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>Please enter a valid email address';
+                    this.parentNode.appendChild(errorDiv);
+                }
+            } else if (email) {
+                this.classList.remove('border-red-500');
+                if (this.nextElementSibling && this.nextElementSibling.classList.contains('text-red-600')) {
+                    this.nextElementSibling.remove();
+                }
             }
         });
     }

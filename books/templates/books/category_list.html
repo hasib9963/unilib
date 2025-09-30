@@ -1,89 +1,315 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Book Categories - UniLib{% endblock %}
 
 {% block content %}
-<div class="container py-4 animate__animated animate__fadeIn">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="mb-0">
-                <i class="fas fa-tags me-2"></i>Book Categories
-            </h2>
-            <p class="text-muted mb-0">Browse all available book categories</p>
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Floating Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 text-indigo-200 opacity-40 animate-float">
+            <i class="fas fa-tags text-6xl"></i>
         </div>
-        {% if user.is_admin or user.is_librarian %}
-        <a href="{% url 'category-create' %}" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i> Add Category
-        </a>
-        {% endif %}
+        <div class="absolute top-40 right-20 text-blue-200 opacity-30 animate-float-delayed">
+            <i class="fas fa-book text-4xl"></i>
+        </div>
+        <div class="absolute bottom-40 left-20 text-purple-200 opacity-25 animate-float">
+            <i class="fas fa-books text-5xl"></i>
+        </div>
     </div>
-    
-    {% if categories %}
-    <div class="row g-4">
-        {% for category in categories %}
-        <div class="col-lg-4 col-md-6">
-            <div class="card shadow-sm hover-shadow h-100">
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h5 class="card-title mb-0">{{ category.name }}</h5>
-                        <span class="badge bg-primary bg-opacity-10 text-primary">
-                            {{ category.book_set.count }} books
+
+    <div class="max-w-7xl mx-auto relative z-10">
+        <!-- Page Header -->
+        <div class="flex flex-col lg:flex-row justify-between items-center mb-8">
+            <div class="text-center lg:text-left mb-6 lg:mb-0">
+                <h1 class="text-4xl font-bold text-gray-800 font-serif mb-4">
+                    <i class="fas fa-tags mr-3 text-indigo-600"></i>
+                    Book Categories
+                </h1>
+                <div class="flex items-center justify-center lg:justify-start space-x-4 text-gray-600">
+                    <a href="{% url 'dashboard' %}" class="flex items-center text-gray-600 hover:text-indigo-600 transition-colors">
+                        <i class="fas fa-home mr-2"></i> Dashboard
+                    </a>
+                    <span class="text-gray-400">/</span>
+                    <span class="flex items-center text-indigo-600">
+                        <i class="fas fa-tags mr-2"></i> Categories
+                    </span>
+                </div>
+            </div>
+            {% if user.is_admin or user.is_librarian %}
+            <a href="{% url 'category-create' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center">
+                <i class="fas fa-plus mr-3"></i> Add Category
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl p-6 text-center">
+                <div class="text-3xl font-bold text-indigo-600 mb-2">{{ categories|length }}</div>
+                <div class="text-sm text-gray-600">Total Categories</div>
+            </div>
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl p-6 text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2">
+                    {{ total_books }}
+                </div>
+                <div class="text-sm text-gray-600">Total Books</div>
+            </div>
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl p-6 text-center">
+                <div class="text-3xl font-bold text-blue-600 mb-2">
+                    {{ avg_books_per_category }}
+                </div>
+                <div class="text-sm text-gray-600">Avg Books/Category</div>
+            </div>
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl p-6 text-center">
+                <div class="text-3xl font-bold text-purple-600 mb-2">
+                    {{ most_popular_category.book_set.count }}
+                </div>
+                <div class="text-sm text-gray-600">Most Popular</div>
+            </div>
+        </div>
+
+        {% if categories %}
+        <!-- Categories Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+            {% for category in categories %}
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group">
+                <!-- Category Header -->
+                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                            <i class="fas fa-tag text-white text-xl"></i>
+                        </div>
+                        <span class="bg-white/20 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                            {{ category.book_set.count }} book{{ category.book_set.count|pluralize }}
                         </span>
                     </div>
+                    <h3 class="text-xl font-bold text-white mb-2 line-clamp-2">{{ category.name }}</h3>
                     {% if category.description %}
-                    <p class="card-text text-muted flex-grow-1">
-                        {{ category.description|truncatewords:25 }}
-                    </p>
+                    <p class="text-indigo-100 text-sm line-clamp-2">{{ category.description }}</p>
                     {% endif %}
-                    <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
-                        <a href="{% url 'category-detail' category.pk %}" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-eye me-1"></i> View
+                </div>
+
+                <!-- Category Content -->
+                <div class="p-6">
+                    <!-- Quick Stats -->
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="text-center p-3 bg-gray-50 rounded-xl">
+                            <div class="text-lg font-bold text-indigo-600">{{ category.book_set.count }}</div>
+                            <div class="text-xs text-gray-600">Total</div>
+                        </div>
+                        <div class="text-center p-3 bg-gray-50 rounded-xl">
+                            <div class="text-lg font-bold text-green-600">
+                                {{ category.book_set.count }}
+                            </div>
+                            <div class="text-xs text-gray-600">Available</div>
+                        </div>
+                    </div>
+
+                    <!-- Sample Books (if any) -->
+                    {% if category.book_set.all %}
+                    <div class="mb-4">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                            <i class="fas fa-book-open mr-2 text-gray-400"></i> Sample Books
+                        </h4>
+                        <div class="space-y-1 max-h-20 overflow-y-auto">
+                            {% for book in category.book_set.all|slice:":3" %}
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-book text-gray-400 mr-2 text-xs"></i>
+                                <span class="truncate">{{ book.title }}</span>
+                            </div>
+                            {% endfor %}
+                            {% if category.book_set.count > 3 %}
+                            <div class="text-xs text-gray-500">
+                                + {{ category.book_set.count|add:"-3" }} more book{{ category.book_set.count|add:"-3"|pluralize }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Action Buttons -->
+                    <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+                        <a href="{% url 'category-detail' category.pk %}" 
+                           class="text-indigo-600 hover:text-indigo-800 font-medium text-sm flex items-center transition-colors group-hover:underline">
+                            View Details
+                            <i class="fas fa-arrow-right ml-1 text-xs transition-transform group-hover:translate-x-1"></i>
                         </a>
+                        
                         {% if user.is_admin or user.is_librarian %}
-                        <div class="btn-group">
-                            <a href="{% url 'category-update' category.pk %}" class="btn btn-sm btn-outline-secondary">
-                                <i class="fas fa-edit"></i>
+                        <div class="flex space-x-2">
+                            <a href="{% url 'category-update' category.pk %}" 
+                               class="w-8 h-8 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg flex items-center justify-center transition-colors duration-200"
+                               data-tooltip="Edit Category">
+                                <i class="fas fa-edit text-sm"></i>
                             </a>
-                            <a href="{% url 'category-delete' category.pk %}" class="btn btn-sm btn-outline-danger">
-                                <i class="fas fa-trash-alt"></i>
+                            <a href="{% url 'category-delete' category.pk %}" 
+                               class="w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg flex items-center justify-center transition-colors duration-200"
+                               data-tooltip="Delete Category">
+                                <i class="fas fa-trash-alt text-sm"></i>
                             </a>
                         </div>
                         {% endif %}
                     </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
-    {% else %}
-    <div class="card shadow-sm">
-        <div class="card-body text-center py-5">
-            <i class="fas fa-tags fa-4x text-muted mb-4"></i>
-            <h4 class="text-muted">No Categories Found</h4>
-            <p class="text-muted">There are currently no book categories available</p>
-            {% if user.is_admin or user.is_librarian %}
-            <a href="{% url 'category-create' %}" class="btn btn-primary mt-3">
-                <i class="fas fa-plus me-2"></i> Create First Category
-            </a>
-            {% endif %}
+        {% else %}
+        <!-- Empty State -->
+        <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl overflow-hidden text-center py-16">
+            <div class="max-w-md mx-auto">
+                <div class="text-7xl text-indigo-200 mb-6">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">No Categories Found</h3>
+                <p class="text-gray-600 mb-8">
+                    There are currently no book categories available. 
+                    {% if user.is_admin or user.is_librarian %}
+                    Start by creating your first category to organize your library books.
+                    {% endif %}
+                </p>
+                {% if user.is_admin or user.is_librarian %}
+                <a href="{% url 'category-create' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center mx-auto w-fit">
+                    <i class="fas fa-plus mr-3"></i> Create First Category
+                </a>
+                {% endif %}
+            </div>
         </div>
+        {% endif %}
+
+        <!-- Quick Actions -->
+        {% if user.is_admin or user.is_librarian and categories %}
+        <div class="mt-8 bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-indigo-200">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-rocket mr-2 text-indigo-600"></i> Quick Management
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="{% url 'category-create' %}" 
+                   class="flex items-center p-4 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors group">
+                    <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-plus text-white"></i>
+                    </div>
+                    <div>
+                        <div class="font-semibold text-gray-800 group-hover:text-indigo-600">Add Category</div>
+                        <div class="text-sm text-gray-600">Create new book category</div>
+                    </div>
+                </a>
+                <a href="{% url 'book-create' %}" 
+                   class="flex items-center p-4 bg-green-50 hover:bg-green-100 rounded-xl transition-colors group">
+                    <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-book text-white"></i>
+                    </div>
+                    <div>
+                        <div class="font-semibold text-gray-800 group-hover:text-green-600">Add Book</div>
+                        <div class="text-sm text-gray-600">Create new book entry</div>
+                    </div>
+                </a>
+                <a href="{% url 'book-list' %}" 
+                   class="flex items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors group">
+                    <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-search text-white"></i>
+                    </div>
+                    <div>
+                        <div class="font-semibold text-gray-800 group-hover:text-blue-600">Browse Books</div>
+                        <div class="text-sm text-gray-600">View all books</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
 </div>
 {% endblock %}
 
 {% block extra_css %}
 <style>
-    .card-title {
-        font-family: 'Playfair Display', serif;
-        font-weight: 700;
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
     }
-    .hover-shadow {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
     }
-    .hover-shadow:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    
+    .animate-float-delayed {
+        animation: float 8s ease-in-out infinite;
+        animation-delay: 2s;
+    }
+    
+    .line-clamp-2 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+    
+    [data-tooltip] {
+        position: relative;
+    }
+    
+    [data-tooltip]:before {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 4px 8px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        border-radius: 4px;
+        font-size: 12px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        z-index: 10;
+    }
+    
+    [data-tooltip]:hover:before {
+        opacity: 1;
     }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add loading animation to cards
+    const cards = document.querySelectorAll('.group');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+
+    // Add click animation to quick action links
+    const quickActions = document.querySelectorAll('.bg-indigo-50, .bg-green-50, .bg-blue-50');
+    quickActions.forEach(action => {
+        action.addEventListener('click', function() {
+            this.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 150);
+        });
+    });
+
+    // Add hover effects to stat cards
+    const statCards = document.querySelectorAll('.bg-white\\/95.rounded-2xl');
+    statCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
 {% endblock %}

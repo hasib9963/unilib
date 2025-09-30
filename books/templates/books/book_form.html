@@ -1,212 +1,307 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Update Book - {{ form.instance.title }}{% else %}Add New Book{% endif %} - UniLib{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-primary text-white py-3">
-                    <div class="d-flex align-items-center">
-                        <i class="fas {% if form.instance.pk %}fa-book-edit{% else %}fa-book-medical{% endif %} me-3"></i>
-                        <h4 class="mb-0">
-                            {% if form.instance.pk %}Update Book Details{% else %}Add New Book{% endif %}
-                        </h4>
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Floating Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 text-indigo-200 opacity-40 animate-float">
+            <i class="fas fa-book text-6xl"></i>
+        </div>
+        <div class="absolute top-40 right-20 text-blue-200 opacity-30 animate-float-delayed">
+            <i class="fas fa-edit text-4xl"></i>
+        </div>
+        <div class="absolute bottom-40 left-20 text-purple-200 opacity-25 animate-float">
+            <i class="fas fa-plus-circle text-5xl"></i>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto relative z-10">
+        <!-- Page Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 font-serif mb-4">
+                <i class="fas {% if form.instance.pk %}fa-book-edit{% else %}fa-book-medical{% endif %} mr-3 text-indigo-600"></i>
+                {% if form.instance.pk %}Update Book Details{% else %}Add New Book{% endif %}
+            </h1>
+            <div class="flex items-center justify-center space-x-4 text-gray-600">
+                <a href="{% url 'dashboard' %}" class="flex items-center text-gray-600 hover:text-indigo-600 transition-colors">
+                    <i class="fas fa-home mr-2"></i> Dashboard
+                </a>
+                <span class="text-gray-400">/</span>
+                <a href="{% url 'book-list' %}" class="flex items-center text-gray-600 hover:text-indigo-600 transition-colors">
+                    <i class="fas fa-book mr-2"></i> Books
+                </a>
+                <span class="text-gray-400">/</span>
+                <span class="flex items-center text-indigo-600">
+                    <i class="fas {% if form.instance.pk %}fa-edit{% else %}fa-plus{% endif %} mr-2"></i> 
+                    {% if form.instance.pk %}Edit{% else %}Add{% endif %}
+                </span>
+            </div>
+        </div>
+
+        <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+            <!-- Card Header -->
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 py-6 px-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
+                            <i class="fas {% if form.instance.pk %}fa-edit{% else %}fa-plus{% endif %} text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">
+                                {% if form.instance.pk %}"{{ form.instance.title }}"{% else %}New Book Entry{% endif %}
+                            </h2>
+                            <p class="text-indigo-100">
+                                {% if form.instance.pk %}Update book information{% else %}Add a new book to the library catalog{% endif %}
+                            </p>
+                        </div>
                     </div>
+                    <a href="{% if form.instance.pk %}{% url 'book-detail' form.instance.pk %}{% else %}{% url 'book-list' %}{% endif %}" 
+                       class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 flex items-center">
+                        <i class="fas fa-times mr-3"></i> Cancel
+                    </a>
                 </div>
-                
-                <div class="card-body p-4">
-                    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate id="book-form">
-                        {% csrf_token %}
-                        
-                        <!-- Book Information Section -->
-                        <div class="mb-4">
-                            <h5 class="border-bottom pb-2 mb-3">
-                                <i class="fas fa-info-circle text-primary me-2"></i>
-                                Book Information
-                            </h5>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    {{ form.title|as_crispy_field }}
+            </div>
+
+            <!-- Form Content -->
+            <div class="p-8">
+                <form method="POST" enctype="multipart/form-data" id="book-form">
+                    {% csrf_token %}
+                    
+                    <!-- Book Information Section -->
+                    <div class="mb-8 border-l-4 border-indigo-500 pl-6">
+                        <h5 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-info-circle text-indigo-600"></i>
+                            </div>
+                            Book Information
+                        </h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="relative">
+                                {{ form.title }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                    <i class="fas fa-heading"></i>
                                 </div>
-                                <div class="col-md-6">
-                                    {{ form.author|as_crispy_field }}
+                                {% if form.title.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.title.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="relative">
+                                {{ form.author }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                    <i class="fas fa-user-edit"></i>
                                 </div>
-                                <div class="col-md-6">
-                                    {{ form.isbn|as_crispy_field }}
+                                {% if form.author.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.author.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="relative">
+                                {{ form.isbn }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                    <i class="fas fa-barcode"></i>
                                 </div>
-                                <div class="col-md-6">
-                                    {{ form.category|as_crispy_field }}
+                                {% if form.isbn.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.isbn.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="relative">
+                                {{ form.category }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                    <i class="fas fa-tag"></i>
                                 </div>
+                                {% if form.category.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.category.errors.0 }}
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
-                        
-                        <!-- Publication Details -->
-                        <div class="mb-4">
-                            <h5 class="border-bottom pb-2 mb-3">
-                                <i class="fas fa-newspaper text-primary me-2"></i>
-                                Publication Details
-                            </h5>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    {{ form.publisher|as_crispy_field }}
+                    </div>
+
+                    <!-- Publication Details -->
+                    <div class="mb-8 border-l-4 border-indigo-500 pl-6">
+                        <h5 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-newspaper text-indigo-600"></i>
+                            </div>
+                            Publication Details
+                        </h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="relative">
+                                {{ form.publisher }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                    <i class="fas fa-building"></i>
                                 </div>
-                                <div class="col-md-6">
-                                    {{ form.publication_date|as_crispy_field }}
+                                {% if form.publisher.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.publisher.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="relative">
+                                {{ form.publication_date }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                    <i class="fas fa-calendar-alt"></i>
                                 </div>
+                                {% if form.publication_date.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.publication_date.errors.0 }}
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
-                        
-                        <!-- Inventory Management -->
-                        <div class="mb-4">
-                            <h5 class="border-bottom pb-2 mb-3">
-                                <i class="fas fa-boxes text-primary me-2"></i>
-                                Inventory
-                            </h5>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    {{ form.total_copies|as_crispy_field }}
+                    </div>
+
+                    <!-- Inventory Management -->
+                    <div class="mb-8 border-l-4 border-indigo-500 pl-6">
+                        <h5 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-boxes text-indigo-600"></i>
+                            </div>
+                            Inventory Management
+                        </h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="relative">
+                                {{ form.total_copies }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                    <i class="fas fa-copy"></i>
                                 </div>
-                                {% if form.available_copies %}
-                                <div class="col-md-6">
-                                    {{ form.available_copies|as_crispy_field }}
-                                </div>
+                                {% if form.total_copies.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.total_copies.errors.0 }}
+                                    </div>
                                 {% endif %}
                             </div>
                             {% if form.available_copies %}
-                            <div class="alert alert-info mt-3">
-                                <i class="fas fa-info-circle me-2"></i>
-                                Note: Available copies cannot exceed total copies. If you reduce total copies, available copies will be adjusted automatically if needed.
-                            </div>
-                            {% else %}
-                            <div class="alert alert-info mt-3">
-                                <i class="fas fa-info-circle me-2"></i>
-                                Note: For new books, available copies will be set equal to total copies automatically.
-                            </div>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- Cover Image -->
-                        <div class="mb-4">
-                            <h5 class="border-bottom pb-2 mb-3">
-                                <i class="fas fa-image text-primary me-2"></i>
-                                Cover Image
-                            </h5>
-                            {{ form.cover_image|as_crispy_field }}
-                            {% if form.instance.cover_image %}
-                            <div class="mt-2">
-                                <img src="{{ form.instance.cover_image.url }}" 
-                                     class="img-thumbnail" 
-                                     width="150" 
-                                     alt="Current cover">
-                                <small class="d-block text-muted mt-1">Current cover image</small>
+                            <div class="relative">
+                                {{ form.available_copies }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                {% if form.available_copies.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.available_copies.errors.0 }}
+                                    </div>
+                                {% endif %}
                             </div>
                             {% endif %}
                         </div>
                         
-                        <!-- Description -->
-                        <div class="mb-4">
-                            <h5 class="border-bottom pb-2 mb-3">
-                                <i class="fas fa-align-left text-primary me-2"></i>
-                                Description
-                            </h5>
-                            {{ form.description|as_crispy_field }}
+                        <div class="mt-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-xl p-4">
+                            <div class="flex">
+                                <i class="fas fa-info-circle text-blue-500 text-xl mt-1 mr-3"></i>
+                                <div>
+                                    <p class="text-blue-800 font-medium">
+                                        {% if form.available_copies %}
+                                        Note: Available copies cannot exceed total copies. If you reduce total copies, available copies will be adjusted automatically.
+                                        {% else %}
+                                        Note: For new books, available copies will be set equal to total copies automatically.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cover Image -->
+                    <div class="mb-8 border-l-4 border-indigo-500 pl-6">
+                        <h5 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-image text-indigo-600"></i>
+                            </div>
+                            Cover Image
+                        </h5>
+                        
+                        <div class="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center transition-all duration-300 hover:border-indigo-400 hover:bg-indigo-50 cursor-pointer" id="file-upload-area">
+                            <input type="file" 
+                                id="{{ form.cover_image.id_for_label }}" 
+                                name="{{ form.cover_image.name }}"
+                                accept="image/*" 
+                                class="hidden">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                            <p class="text-gray-700 font-semibold">Upload Cover Image</p>
+                            <p class="text-sm text-gray-500 mt-2">Drag & drop or click to browse</p>
+                            <p class="text-xs text-gray-400 mt-1">JPG, PNG • Max 5MB</p>
+                            <div id="file-name" class="mt-3 text-sm text-indigo-600 font-medium hidden"></div>
                         </div>
                         
-                        <div class="d-flex justify-content-between mt-4">
-                            <a href="{% if form.instance.pk %}{% url 'book-detail' form.instance.pk %}{% else %}{% url 'book-list' %}{% endif %}" 
-                               class="btn btn-outline-secondary">
-                                <i class="fas fa-times me-2"></i> Cancel
-                            </a>
-                            <button type="submit" class="btn btn-primary px-4" id="submit-button">
-                                <i class="fas fa-save me-2"></i> 
-                                {% if form.instance.pk %}Update Book{% else %}Add Book{% endif %}
-                            </button>
+                        {% if form.cover_image.errors %}
+                            <div class="mt-2 text-sm text-red-600 flex items-center">
+                                <i class="fas fa-exclamation-circle mr-1"></i>{{ form.cover_image.errors.0 }}
+                            </div>
+                        {% endif %}
+                        
+                        {% if form.instance.cover_image %}
+                        <div class="mt-4 flex items-center space-x-4">
+                            <img src="{{ form.instance.cover_image.url }}" 
+                                 class="w-24 h-32 object-cover rounded-xl shadow-md" 
+                                 alt="Current cover">
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Current Cover</p>
+                                <p class="text-xs text-gray-500">Upload a new image to replace</p>
+                            </div>
                         </div>
-                    </form>
-                </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-8 border-l-4 border-indigo-500 pl-6">
+                        <h5 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-align-left text-indigo-600"></i>
+                            </div>
+                            Book Description
+                        </h5>
+                        <div class="relative">
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="mt-1 text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>{{ form.description.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4 pt-6 border-t border-gray-200">
+                        <a href="{% if form.instance.pk %}{% url 'book-detail' form.instance.pk %}{% else %}{% url 'book-list' %}{% endif %}" 
+                           class="bg-gray-500 hover:bg-gray-600 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center">
+                            <i class="fas fa-times mr-3"></i> Cancel
+                        </a>
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center" id="submit-button">
+                            <i class="fas fa-save mr-3"></i> 
+                            <span id="button-text">{% if form.instance.pk %}Update Book{% else %}Add Book{% endif %}</span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Scroll to Top Button (Fixed) -->
-<button id="scroll-to-top" class="btn btn-primary rounded-circle">
-    <i class="fas fa-arrow-up"></i>
-</button>
 {% endblock %}
 
 {% block extra_css %}
 <style>
-    .card {
-        border-radius: 0.5rem;
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
     }
     
-    .form-section {
-        margin-bottom: 2rem;
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
     }
     
-    .img-thumbnail {
-        max-width: 150px;
-        border: 1px solid #dee2e6;
-        padding: 0.25rem;
-    }
-    
-    .btn-primary {
-        min-width: 150px;
-        transition: all 0.2s ease;
-    }
-    
-    .btn-primary:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 6px rgba(13, 110, 253, 0.3);
-    }
-    
-    /* Loading spinner animation */
-    .fa-spinner {
-        animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    
-    /* Scroll to Top Button Styles */
-    #scroll-to-top {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        display: none;
-        z-index: 1000;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        transition: all 0.3s ease;
-    }
-    
-    #scroll-to-top:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    }
-    
-    @media (max-width: 768px) {
-        .d-flex.justify-content-between {
-            flex-direction: column-reverse;
-            gap: 1rem;
-        }
-        
-        .btn {
-            width: 100%;
-        }
-        
-        #scroll-to-top {
-            bottom: 15px;
-            right: 15px;
-            width: 45px;
-            height: 45px;
-        }
+    .animate-float-delayed {
+        animation: float 8s ease-in-out infinite;
+        animation-delay: 2s;
     }
 </style>
 {% endblock %}
@@ -214,89 +309,153 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Preview cover image before upload
-    const coverImageInput = document.getElementById('id_cover_image');
-    const coverImagePreview = document.querySelector('.img-thumbnail');
+    // Add Tailwind classes to form fields and set placeholders
+    const textInputs = document.querySelectorAll('input:not([type="file"]):not([type="checkbox"]):not([type="radio"])');
+    const textareas = document.querySelectorAll('textarea');
+    const selects = document.querySelectorAll('select');
     
-    if (coverImageInput) {
-        coverImageInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    if (!coverImagePreview) {
-                        // Create new image element if it doesn't exist
-                        const imgContainer = document.createElement('div');
-                        imgContainer.className = 'mt-2';
-                        imgContainer.innerHTML = `<img src="${event.target.result}" class="img-thumbnail" width="150" alt="Cover preview">`;
-                        coverImageInput.parentElement.appendChild(imgContainer);
-                    } else {
-                        coverImagePreview.src = event.target.result;
-                    }
-                }
-                reader.readAsDataURL(file);
+    // Apply styles to all text inputs and set placeholders
+    textInputs.forEach(input => {
+        input.classList.add('w-full', 'pl-12', 'pr-4', 'py-3', 'border-2', 'border-gray-300', 'rounded-xl', 'focus:ring-2', 'focus:ring-indigo-500', 'focus:border-indigo-500', 'transition-all', 'duration-300', 'focus:transform', 'focus:-translate-y-1');
+        
+        // Set appropriate placeholder based on field name
+        const fieldName = input.name;
+        if (fieldName.includes('title')) {
+            input.placeholder = 'Enter book title';
+        } else if (fieldName.includes('author')) {
+            input.placeholder = 'Enter author name';
+        } else if (fieldName.includes('isbn')) {
+            input.placeholder = 'Enter ISBN number';
+        } else if (fieldName.includes('publisher')) {
+            input.placeholder = 'Enter publisher name';
+        } else if (fieldName.includes('total_copies')) {
+            input.placeholder = 'Enter total copies';
+        } else if (fieldName.includes('available_copies')) {
+            input.placeholder = 'Enter available copies';
+        }
+    });
+    
+    // Apply styles to textarea and set placeholder
+    textareas.forEach(textarea => {
+        textarea.classList.add('w-full', 'px-4', 'py-3', 'border-2', 'border-gray-300', 'rounded-xl', 'focus:ring-2', 'focus:ring-indigo-500', 'focus:border-indigo-500', 'transition-all', 'duration-300', 'focus:transform', 'focus:-translate-y-1');
+        textarea.style.minHeight = '120px';
+        textarea.placeholder = 'Enter book description...';
+    });
+    
+    // Apply styles to select
+    selects.forEach(select => {
+        select.classList.add('w-full', 'pl-12', 'pr-4', 'py-3', 'border-2', 'border-gray-300', 'rounded-xl', 'focus:ring-2', 'focus:ring-indigo-500', 'focus:border-indigo-500', 'transition-all', 'duration-300', 'focus:transform', 'focus:-translate-y-1', 'appearance-none');
+    });
+
+    // Cover image upload functionality
+    const coverImageInput = document.getElementById('{{ form.cover_image.id_for_label }}');
+    const dragDropArea = document.getElementById('file-upload-area');
+    const fileName = document.getElementById('file-name');
+
+    if (coverImageInput && dragDropArea) {
+        dragDropArea.addEventListener('click', function() {
+            coverImageInput.click();
+        });
+        
+        coverImageInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                fileName.textContent = this.files[0].name;
+                fileName.classList.remove('hidden');
+                dragDropArea.classList.add('border-indigo-500', 'bg-indigo-50');
+                dragDropArea.innerHTML = `
+                    <i class="fas fa-check-circle text-4xl text-green-500 mb-4"></i>
+                    <p class="text-gray-700 font-semibold">File Selected</p>
+                    <div id="file-name" class="mt-3 text-sm text-indigo-600 font-medium">${this.files[0].name}</div>
+                    <p class="text-xs text-gray-400 mt-2">Click to change file</p>
+                `;
+                
+                // Update the event listener for the new content
+                const newDragDropArea = document.getElementById('file-upload-area');
+                newDragDropArea.addEventListener('click', function() {
+                    coverImageInput.click();
+                });
             }
         });
+
+        // Drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dragDropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dragDropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dragDropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dragDropArea.classList.add('border-indigo-500', 'bg-indigo-100');
+        }
+
+        function unhighlight() {
+            dragDropArea.classList.remove('border-indigo-500', 'bg-indigo-100');
+        }
+
+        dragDropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            coverImageInput.files = files;
+            
+            if (files.length > 0) {
+                coverImageInput.dispatchEvent(new Event('change'));
+            }
+        }
     }
-    
-    // Auto-calculate available copies if total copies changes (only for update forms)
+
+    // Auto-calculate available copies if total copies changes
     const totalCopiesInput = document.getElementById('id_total_copies');
     const availableCopiesInput = document.getElementById('id_available_copies');
     
     if (totalCopiesInput && availableCopiesInput) {
         totalCopiesInput.addEventListener('change', function() {
-            if (parseInt(availableCopiesInput.value) > parseInt(this.value)) {
-                availableCopiesInput.value = this.value;
+            const total = parseInt(this.value) || 0;
+            const available = parseInt(availableCopiesInput.value) || 0;
+            
+            if (available > total) {
+                availableCopiesInput.value = total;
             }
         });
         
-        // Also validate on available copies change
         availableCopiesInput.addEventListener('change', function() {
-            if (parseInt(this.value) > parseInt(totalCopiesInput.value)) {
-                alert("Available copies cannot exceed total copies. Adjusting value.");
-                this.value = totalCopiesInput.value;
+            const total = parseInt(totalCopiesInput.value) || 0;
+            const available = parseInt(this.value) || 0;
+            
+            if (available > total) {
+                this.value = total;
+                // Show a temporary warning
+                const warning = document.createElement('div');
+                warning.className = 'mt-2 text-sm text-red-600 flex items-center';
+                warning.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>Available copies adjusted to match total copies';
+                this.parentNode.appendChild(warning);
+                setTimeout(() => warning.remove(), 3000);
             }
         });
     }
 
-    // Form submission handling with loading spinner
+    // Form submission with loading state
     const form = document.getElementById('book-form');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            const submitButton = document.getElementById('submit-button');
-            if (submitButton) {
-                // Store original button HTML
-                const originalButtonHTML = submitButton.innerHTML;
-                
-                // Show loading state with appropriate text
-                const actionText = "{% if form.instance.pk %}Updating{% else %}Adding{% endif %}";
-                submitButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i> ${actionText}...`;
-                submitButton.disabled = true;
-                
-                // Let the form submit normally - the spinner will show until the page redirects
-            }
-        });
-    }
+    const submitButton = document.getElementById('submit-button');
+    const buttonText = document.getElementById('button-text');
     
-    // Scroll to Top Button Functionality
-    const scrollButton = document.getElementById('scroll-to-top');
-    
-    if (scrollButton) {
-        // Show button when scrolling down
-        window.addEventListener('scroll', function() {
-            if (window.pageYOffset > 300) {
-                scrollButton.style.display = 'block';
-            } else {
-                scrollButton.style.display = 'none';
-            }
-        });
-        
-        // Scroll to top when clicked
-        scrollButton.addEventListener('click', function() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+    if (form && submitButton && buttonText) {
+        form.addEventListener('submit', function() {
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i> Processing...';
+            submitButton.disabled = true;
+            submitButton.classList.remove('hover:scale-105');
         });
     }
 });

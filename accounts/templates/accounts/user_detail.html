@@ -1,129 +1,249 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ viewed_user.get_full_name }} - Profile - UniLib{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="row">
-        <!-- Profile Card -->
-        <div class="col-lg-4 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center p-4">
-                    <div class="position-relative mx-auto" style="width: 150px;">
-                        <img class="rounded-circle img-thumbnail mb-3" 
-                            src="{{ viewed_user.profile_picture.url|default:'/static/images/default_profile.png' }}" 
-                            width="150" 
-                            height="150"
-                            alt="Profile picture">
-                        <span class="position-absolute bottom-0 end-0 p-2 bg-{% if viewed_user.is_active %}success{% else %}danger{% endif %} rounded-circle border border-3 border-white">
-                            <i class="fas fa-circle text-white" style="font-size: 0.5rem;"></i>
-                        </span>
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Floating Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 text-indigo-200 opacity-40 animate-float">
+            <i class="fas fa-user-circle text-6xl"></i>
+        </div>
+        <div class="absolute top-40 right-20 text-blue-200 opacity-30 animate-float-delayed">
+            <i class="fas fa-id-card text-4xl"></i>
+        </div>
+        <div class="absolute bottom-40 left-20 text-purple-200 opacity-25 animate-float">
+            <i class="fas fa-chart-bar text-5xl"></i>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto relative z-10">
+        <!-- Breadcrumb -->
+        <div class="flex items-center space-x-4 text-gray-600 mb-8">
+            <a href="{% url 'dashboard' %}" class="flex items-center text-gray-600 hover:text-indigo-600 transition-colors">
+                <i class="fas fa-home mr-2"></i> Dashboard
+            </a>
+            <span class="text-gray-400">/</span>
+            <a href="{% url 'user-list' %}" class="flex items-center text-gray-600 hover:text-indigo-600 transition-colors">
+                <i class="fas fa-users mr-2"></i> Users
+            </a>
+            <span class="text-gray-400">/</span>
+            <span class="flex items-center text-indigo-600">
+                <i class="fas fa-user mr-2"></i> Profile
+            </span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Profile Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl p-6">
+                    <!-- Profile Header -->
+                    <div class="text-center mb-6">
+                        <div class="relative mx-auto mb-4" style="width: 150px;">
+                            <img class="rounded-2xl border-4 border-white shadow-lg" 
+                                src="{{ viewed_user.get_profile_picture|default:'/static/images/default_profile.png' }}" 
+                                width="150" 
+                                height="150"
+                                alt="Profile picture">
+                            <span class="absolute -bottom-2 -right-2 w-8 h-8 bg-{% if viewed_user.is_active %}green-500{% else %}red-500{% endif %} rounded-full border-4 border-white flex items-center justify-center">
+                                <i class="fas fa-circle text-white text-xs"></i>
+                            </span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ viewed_user.get_full_name }}</h2>
+                        <p class="text-gray-600 mb-4">{{ viewed_user.get_role_display }}</p>
+                        
+                        <div class="flex flex-col space-y-3">
+                            <a href="{% url 'user-update' viewed_user.pk %}" 
+                               class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center">
+                                <i class="fas fa-edit mr-3"></i> Edit Profile
+                            </a>
+                            <a href="{% url 'user-list' %}" 
+                               class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center">
+                                <i class="fas fa-arrow-left mr-3"></i> Back to Users
+                            </a>
+                        </div>
                     </div>
-                    <h3 class="mb-2">{{ viewed_user.get_full_name }}</h3>  <!-- Changed to viewed_user -->
-                    <p class="text-muted mb-3">{{ viewed_user.get_role_display }}</p>  <!-- Changed to viewed_user -->
-                    
-                    <div class="d-flex justify-content-center gap-2 mb-3">
-                        <a href="{% url 'user-update' viewed_user.pk %}" class="btn btn-sm btn-outline-primary">  <!-- Changed to viewed_user -->
-                            <i class="fas fa-edit me-1"></i> Edit Profile
+
+                    <!-- Quick Stats -->
+                    <div class="space-y-4">
+                        <div class="bg-indigo-50 rounded-2xl p-4 text-center">
+                            <div class="text-2xl font-bold text-indigo-600 mb-1">{{ active_borrows|default:0 }}</div>
+                            <div class="text-sm text-indigo-700">Active Borrows</div>
+                        </div>
+                        
+                        <div class="bg-green-50 rounded-2xl p-4 text-center">
+                            <div class="text-2xl font-bold text-green-600 mb-1">{{ total_borrows|default:0 }}</div>
+                            <div class="text-sm text-green-700">Total Borrows</div>
+                        </div>
+                        
+                        <div class="bg-red-50 rounded-2xl p-4 text-center">
+                            <div class="text-2xl font-bold text-red-600 mb-1">{{ overdue|default:0 }}</div>
+                            <div class="text-sm text-red-700">Overdue Books</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="mt-6 bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-bolt mr-2 text-yellow-500"></i> Quick Actions
+                    </h3>
+                    <div class="space-y-3">
+                        <a href="{% url 'borrow-list' %}?user={{ viewed_user.id }}" 
+                           class="flex items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors group">
+                            <i class="fas fa-book text-gray-400 group-hover:text-indigo-600 mr-3"></i>
+                            <span class="text-gray-700 group-hover:text-indigo-600">View Borrow History</span>
                         </a>
-                        <a href="{% url 'user-list' %}" class="btn btn-sm btn-outline-secondary">
-                            <i class="fas fa-arrow-left me-1"></i> Back
+                        <a href="{% url 'fine-list' %}?user={{ viewed_user.id }}" 
+                           class="flex items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors group">
+                            <i class="fas fa-money-bill-wave text-gray-400 group-hover:text-green-600 mr-3"></i>
+                            <span class="text-gray-700 group-hover:text-green-600">View Fines</span>
                         </a>
+                        {% if user.is_admin or user.is_librarian %}
+                        <a href="{% url 'user-delete' viewed_user.pk %}" 
+                           class="flex items-center p-3 bg-red-50 hover:bg-red-100 rounded-xl transition-colors group">
+                            <i class="fas fa-trash-alt text-red-400 group-hover:text-red-600 mr-3"></i>
+                            <span class="text-red-700 group-hover:text-red-600">Delete Account</span>
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Details Card -->
-        <div class="col-lg-8">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-primary text-white py-3">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-id-card me-3"></i>
-                        <h4 class="mb-0">User Details</h4>
+            <!-- Main Content -->
+            <div class="lg:col-span-3">
+                <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 py-6 px-8">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                            <div>
+                                <h2 class="text-2xl font-bold text-white mb-2">User Profile Details</h2>
+                                <p class="text-indigo-100">Complete information about {{ viewed_user.get_full_name }}</p>
+                            </div>
+                            <div class="mt-4 md:mt-0">
+                                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-white/20 text-white">
+                                    <i class="fas {% if viewed_user.is_active %}fa-check-circle{% else %}fa-times-circle{% endif %} mr-2"></i>
+                                    {% if viewed_user.is_active %}Active{% else %}Inactive{% endif %} Account
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="card-body">
-                    <div class="row g-4">
-                        <!-- Personal Information -->
-                        <div class="col-md-6">
-                            <div class="p-3 bg-light rounded">
-                                <h5 class="d-flex align-items-center mb-3">
-                                    <i class="fas fa-user-circle text-primary me-2"></i>
-                                    Personal Information
-                                </h5>
-                                <dl class="row mb-0">
-                                    <dt class="col-sm-4">Email</dt>
-                                    <dd class="col-sm-8">{{ viewed_user.email }}</dd>  <!-- Changed to viewed_user -->
-                                    
-                                    <dt class="col-sm-4">University ID</dt>
-                                    <dd class="col-sm-8">{{ viewed_user.university_id }}</dd>  <!-- Changed to viewed_user -->
-                                    
-                                    <dt class="col-sm-4">Phone</dt>
-                                    <dd class="col-sm-8">{{ viewed_user.phone|default:"Not provided" }}</dd>  <!-- Changed to viewed_user -->
-                                </dl>
-                            </div>
-                        </div>
-                        
-                        <!-- Account Information -->
-                        <div class="col-md-6">
-                            <div class="p-3 bg-light rounded">
-                                <h5 class="d-flex align-items-center mb-3">
-                                    <i class="fas fa-cog text-primary me-2"></i>
-                                    Account Information
-                                </h5>
-                                <dl class="row mb-0">
-                                    <dt class="col-sm-4">Joined</dt>
-                                    <dd class="col-sm-8">{{ viewed_user.date_joined|date:"M d, Y" }}</dd>  <!-- Changed to viewed_user -->
-                                    
-                                    <dt class="col-sm-4">Last Login</dt>
-                                    <dd class="col-sm-8">{{ viewed_user.last_login|date:"M d, Y"|default:"Never" }}</dd>  <!-- Changed to viewed_user -->
-                                    
-                                    <dt class="col-sm-4">Status</dt>
-                                    <dd class="col-sm-8">
-                                        <span class="badge bg-{% if viewed_user.is_active %}success{% else %}danger{% endif %}">  <!-- Changed to viewed_user -->
-                                            {% if viewed_user.is_active %}Active{% else %}Inactive{% endif %}  <!-- Changed to viewed_user -->
-                                        </span>
-                                    </dd>
-                                </dl>
-                            </div>
-                        </div>
-                        
-                        <!-- Additional Sections -->
-                        <div class="col-12">
-                            <div class="p-3 bg-light rounded">
-                                <h5 class="d-flex align-items-center mb-3">
-                                    <i class="fas fa-book text-primary me-2"></i>
-                                    Library Activity
-                                </h5>
-                                <div class="row text-center">
-                                    <div class="col-4">
-                                        <div class="p-2">
-                                            <h4 class="text-primary mb-0">{{ active_borrows }}</h4>
-                                            <small class="text-muted">Current Borrows</small>
+
+                    <!-- Content -->
+                    <div class="p-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Personal Information -->
+                            <div class="space-y-6">
+                                <div class="bg-gray-50 rounded-2xl p-6">
+                                    <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                                        <i class="fas fa-user-circle mr-2 text-indigo-600"></i>
+                                        Personal Information
+                                    </h4>
+                                    <div class="space-y-4">
+                                        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+                                            <span class="text-gray-600 font-medium">Full Name</span>
+                                            <span class="text-gray-900 font-semibold">{{ viewed_user.get_full_name }}</span>
+                                        </div>
+                                        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+                                            <span class="text-gray-600 font-medium">Email</span>
+                                            <span class="text-gray-900 font-semibold">{{ viewed_user.email }}</span>
+                                        </div>
+                                        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+                                            <span class="text-gray-600 font-medium">University ID</span>
+                                            <span class="text-gray-900 font-semibold">{{ viewed_user.university_id }}</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600 font-medium">Phone</span>
+                                            <span class="text-gray-900 font-semibold">{{ viewed_user.phone|default:"Not provided" }}</span>
                                         </div>
                                     </div>
-                                    <div class="col-4">
-                                        <div class="p-2">
-                                            <h4 class="text-primary mb-0">{{ total_borrows }}</h4>
-                                            <small class="text-muted">Total Borrows</small>
+                                </div>
+
+                                <!-- Contact Information -->
+                                <div class="bg-gray-50 rounded-2xl p-6">
+                                    <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                                        <i class="fas fa-map-marker-alt mr-2 text-indigo-600"></i>
+                                        Contact Information
+                                    </h4>
+                                    <div class="space-y-3">
+                                        <div class="flex items-start">
+                                            <i class="fas fa-map-marker-alt text-gray-400 mt-1 mr-3"></i>
+                                            <div>
+                                                <p class="text-gray-600 font-medium">Address</p>
+                                                <p class="text-gray-900">{{ viewed_user.address|default:"Not provided" }}</p>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-4">
-                                        <div class="p-2">
-                                            <h4 class="text-primary mb-0">{{ overdue }}</h4>
-                                            <small class="text-muted">Overdue</small>
+                                </div>
+                            </div>
+
+                            <!-- Account Information -->
+                            <div class="space-y-6">
+                                <div class="bg-gray-50 rounded-2xl p-6">
+                                    <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                                        <i class="fas fa-cog mr-2 text-indigo-600"></i>
+                                        Account Information
+                                    </h4>
+                                    <div class="space-y-4">
+                                        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+                                            <span class="text-gray-600 font-medium">Role</span>
+                                            <span class="text-gray-900 font-semibold">{{ viewed_user.get_role_display }}</span>
+                                        </div>
+                                        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+                                            <span class="text-gray-600 font-medium">Joined Date</span>
+                                            <span class="text-gray-900 font-semibold">{{ viewed_user.date_joined|date:"M d, Y" }}</span>
+                                        </div>
+                                        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+                                            <span class="text-gray-600 font-medium">Last Login</span>
+                                            <span class="text-gray-900 font-semibold">{{ viewed_user.last_login|date:"M d, Y H:i"|default:"Never" }}</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600 font-medium">Account Status</span>
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {% if viewed_user.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                                <i class="fas {% if viewed_user.is_active %}fa-check-circle{% else %}fa-times-circle{% endif %} mr-1"></i>
+                                                {% if viewed_user.is_active %}Active{% else %}Inactive{% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Library Activity Summary -->
+                                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6">
+                                    <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                                        <i class="fas fa-chart-bar mr-2 text-indigo-600"></i>
+                                        Library Activity Summary
+                                    </h4>
+                                    <div class="grid grid-cols-3 gap-4">
+                                        <div class="text-center p-4 bg-white rounded-xl shadow-sm">
+                                            <div class="text-2xl font-bold text-indigo-600">{{ active_borrows|default:0 }}</div>
+                                            <div class="text-sm text-gray-600">Active</div>
+                                        </div>
+                                        <div class="text-center p-4 bg-white rounded-xl shadow-sm">
+                                            <div class="text-2xl font-bold text-green-600">{{ total_borrows|default:0 }}</div>
+                                            <div class="text-sm text-gray-600">Total</div>
+                                        </div>
+                                        <div class="text-center p-4 bg-white rounded-xl shadow-sm">
+                                            <div class="text-2xl font-bold text-red-600">{{ overdue|default:0 }}</div>
+                                            <div class="text-sm text-gray-600">Overdue</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="card-footer bg-transparent border-top-0 py-3">
-                    <div class="d-flex justify-content-end gap-2">
-                        <a href="{% url 'user-delete' viewed_user.pk %}" class="btn btn-outline-danger">  <!-- Changed to viewed_user -->
-                            <i class="fas fa-trash-alt me-1"></i> Delete Account
-                        </a>
+
+                        <!-- Recent Activity -->
+                        <div class="mt-8 bg-white border border-gray-200 rounded-2xl p-6">
+                            <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-history mr-2 text-indigo-600"></i>
+                                Recent Activity
+                            </h4>
+                            <div class="text-center py-8">
+                                <i class="fas fa-chart-line text-4xl text-gray-300 mb-4"></i>
+                                <p class="text-gray-500">Activity tracking coming soon</p>
+                                <p class="text-sm text-gray-400">User activity and borrowing history will be displayed here</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -134,31 +254,59 @@
 
 {% block extra_css %}
 <style>
-    .card {
-        border: none;
-        border-radius: 0.5rem;
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
     }
     
-    .img-thumbnail {
-        border: 1px solid #dee2e6;
-        padding: 0.25rem;
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
     }
     
-    dl.row dt {
-        font-weight: 500;
-        color: #6c757d;
-    }
-    
-    dl.row dd {
-        margin-bottom: 0.75rem;
-    }
-    
-    .bg-light {
-        background-color: #f8f9fa !important;
-    }
-    
-    .card-footer {
-        background-color: rgba(0, 0, 0, 0.03);
+    .animate-float-delayed {
+        animation: float 8s ease-in-out infinite;
+        animation-delay: 2s;
     }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add hover effects to cards
+    const cards = document.querySelectorAll('.bg-gray-50.rounded-2xl');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+
+    // Add click animation to quick action links
+    const quickActions = document.querySelectorAll('.bg-gray-50.rounded-xl');
+    quickActions.forEach(action => {
+        action.addEventListener('click', function() {
+            this.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 150);
+        });
+    });
+
+    // Add loading animation to stat cards
+    const statCards = document.querySelectorAll('.bg-white.rounded-xl');
+    statCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 200);
+    });
+});
+</script>
 {% endblock %}

@@ -1,103 +1,202 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Book - UniLib{% endblock %}
 
 {% block content %}
-<div class="delete-confirmation-container">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-lg">
-                <div class="card-header bg-danger text-white py-3">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-exclamation-triangle fa-xl me-3"></i>
-                            <div>
-                                <h3 class="mb-0">Confirm Book Deletion</h3>
-                                <small class="opacity-85">This action cannot be undone</small>
-                            </div>
+<div class="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Floating Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 text-red-200 opacity-40 animate-float">
+            <i class="fas fa-exclamation-triangle text-6xl"></i>
+        </div>
+        <div class="absolute top-40 right-20 text-orange-200 opacity-30 animate-float-delayed">
+            <i class="fas fa-trash-alt text-4xl"></i>
+        </div>
+        <div class="absolute bottom-40 left-20 text-red-200 opacity-25 animate-float">
+            <i class="fas fa-book text-5xl"></i>
+        </div>
+        <div class="absolute bottom-20 right-10 text-orange-200 opacity-20 animate-float-delayed">
+            <i class="fas fa-times-circle text-6xl"></i>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto relative z-10">
+        <!-- Page Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 font-serif mb-4">
+                <i class="fas fa-exclamation-triangle mr-3 text-red-600"></i>
+                Confirm Book Deletion
+            </h1>
+            <p class="text-gray-600 text-lg">This action cannot be undone</p>
+        </div>
+
+        <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+            <!-- Card Header -->
+            <div class="bg-gradient-to-r from-red-600 to-orange-600 py-6 px-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="flex items-center mb-4 md:mb-0">
+                        <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
+                            <i class="fas fa-trash-alt text-white text-xl"></i>
                         </div>
-                        <a href="{% url 'book-detail' object.pk %}" class="btn btn-sm btn-outline-light">
-                            <i class="fas fa-times"></i> Cancel
-                        </a>
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">Delete "{{ object.title }}"</h2>
+                            <p class="text-red-100">Permanent removal from library system</p>
+                        </div>
                     </div>
+                    <a href="{% url 'book-detail' object.pk %}" class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 flex items-center">
+                        <i class="fas fa-times mr-3"></i> Cancel
+                    </a>
                 </div>
-                
-                <div class="card-body p-4">
-                    <div class="row">
-                        <!-- Left Column - Book Details -->
-                        <div class="col-md-6">
-                            <div class="book-details p-3 h-100">
-                                <div class="d-flex flex-column h-100">
-                                    {% if object.cover_image %}
-                                    <img src="{{ object.cover_image.url }}" 
-                                         class="rounded mb-3 mx-auto" 
-                                         style="max-height: 200px; width: auto;"
-                                         alt="Book cover">
-                                    {% else %}
-                                    <div class="book-cover-placeholder mb-3 d-flex align-items-center justify-content-center bg-light rounded mx-auto" 
-                                         style="width: 140px; height: 200px;">
-                                        <i class="fas fa-book-open fa-2x text-muted"></i>
+            </div>
+
+            <!-- Card Content -->
+            <div class="p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Left Column - Book Details -->
+                    <div class="space-y-6">
+                        <div class="text-center">
+                            {% if object.cover_image %}
+                            <img src="{{ object.cover_image.url }}" 
+                                 class="rounded-2xl shadow-lg mx-auto mb-4 max-h-64 w-auto" 
+                                 alt="Book cover">
+                            {% else %}
+                            <div class="w-48 h-64 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 shadow-lg mx-auto mb-4 flex items-center justify-center">
+                                <i class="fas fa-book-open text-5xl text-gray-400"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <h3 class="text-2xl font-bold text-gray-800 mb-2">"{{ object.title }}"</h3>
+                            <p class="text-gray-600 mb-4">by {{ object.author }}</p>
+                            
+                            <div class="flex flex-wrap justify-center gap-2">
+                                {% if object.category %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+                                    <i class="fas fa-tag mr-1"></i> {{ object.category.name }}
+                                </span>
+                                {% endif %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                                    <i class="fas fa-barcode mr-1"></i> {{ object.isbn|default:"No ISBN" }}
+                                </span>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {% if object.available_copies > 0 %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    <i class="fas {% if object.available_copies > 0 %}fa-check-circle{% else %}fa-times-circle{% endif %} mr-1"></i>
+                                    {{ object.available_copies }} available
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats -->
+                        <div class="bg-gray-50 rounded-2xl p-6">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-chart-bar mr-2 text-indigo-600"></i> Book Statistics
+                            </h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="text-center p-3 bg-white rounded-xl shadow-sm">
+                                    <div class="text-2xl font-bold text-indigo-600">0</div>
+                                    <div class="text-sm text-gray-600">Active Borrows</div>
+                                </div>
+                                <div class="text-center p-3 bg-white rounded-xl shadow-sm">
+                                    <div class="text-2xl font-bold text-indigo-600">0</div>
+                                    <div class="text-sm text-gray-600">Total Borrows</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Warnings and Actions -->
+                    <div class="space-y-6">
+                        <!-- Critical Warning -->
+                        <div class="bg-red-50 border-l-4 border-red-500 rounded-r-xl p-6">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-circle text-red-500 text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-bold text-red-800">Critical Warning: Permanent Action</h3>
+                                    <p class="mt-2 text-red-700">This book will be permanently removed from the library system. This action cannot be undone.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Impact Summary -->
+                        <div class="space-y-4">
+                            <h4 class="text-xl font-bold text-gray-800 flex items-center">
+                                <i class="fas fa-exclamation-triangle mr-3 text-orange-500"></i>
+                                Deletion Consequences
+                            </h4>
+                            
+                            <div class="space-y-3">
+                                <div class="flex items-start p-3 bg-white rounded-xl border border-gray-200 hover:border-red-200 transition-colors">
+                                    <i class="fas fa-book text-red-500 mt-1 mr-4"></i>
+                                    <div>
+                                        <h5 class="font-semibold text-gray-800">Removed from Catalog</h5>
+                                        <p class="text-sm text-gray-600 mt-1">Book will disappear from all catalogs, search results, and browsing interfaces</p>
                                     </div>
-                                    {% endif %}
-                                    
-                                    <h4 class="text-center mb-2">"{{ object.title }}"</h4>
-                                    <p class="text-muted text-center mb-3">by {{ object.author }}</p>
-                                    
-                                    <div class="mt-auto">
-                                        <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
-                                            <span class="badge bg-primary">{{ object.category.name }}</span>
-                                            <span class="badge bg-secondary">ISBN: {{ object.isbn }}</span>
-                                            <span class="badge bg-{% if object.available_copies > 0 %}success{% else %}danger{% endif %}">
-                                                {{ object.available_copies }} available
-                                            </span>
-                                        </div>
+                                </div>
+                                
+                                <div class="flex items-start p-3 bg-white rounded-xl border border-gray-200 hover:border-red-200 transition-colors">
+                                    <i class="fas fa-exchange-alt text-red-500 mt-1 mr-4"></i>
+                                    <div>
+                                        <h5 class="font-semibold text-gray-800">Borrowing Records Deleted</h5>
+                                        <p class="text-sm text-gray-600 mt-1">All borrowing history and records associated with this book will be permanently erased</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start p-3 bg-white rounded-xl border border-gray-200 hover:border-red-200 transition-colors">
+                                    <i class="fas fa-heart text-red-500 mt-1 mr-4"></i>
+                                    <div>
+                                        <h5 class="font-semibold text-gray-800">User Data Removed</h5>
+                                        <p class="text-sm text-gray-600 mt-1">Book will be removed from all user favorites, reading lists, and personal collections</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start p-3 bg-white rounded-xl border border-gray-200 hover:border-red-200 transition-colors">
+                                    <i class="fas fa-history text-red-500 mt-1 mr-4"></i>
+                                    <div>
+                                        <h5 class="font-semibold text-gray-800">Historical Data Lost</h5>
+                                        <p class="text-sm text-gray-600 mt-1">All analytics, usage statistics, and historical data will be permanently deleted</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- Right Column - Warning and Actions -->
-                        <div class="col-md-6">
-                            <div class="alert alert-danger mb-4">
-                                <div class="d-flex">
-                                    <i class="fas fa-exclamation-circle fa-lg me-3 mt-1"></i>
-                                    <div>
-                                        <h4 class="alert-heading mb-2">Warning: Permanent Action</h4>
-                                        <p class="mb-0">This will permanently remove the book from the library system.</p>
-                                    </div>
+
+                        <!-- Confirmation Form -->
+                        <form method="POST" class="mt-6" id="delete-form">
+                            {% csrf_token %}
+                            <div class="bg-gray-50 rounded-2xl p-6">
+                                <div class="flex items-center mb-4">
+                                    <input type="checkbox" id="confirm-delete" class="w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500">
+                                    <label for="confirm-delete" class="ml-3 text-sm font-medium text-gray-700">
+                                        I understand this action is permanent and cannot be undone
+                                    </label>
                                 </div>
-                            </div>
-                            
-                            <div class="impact-summary mb-4">
-                                <h5 class="fw-bold mb-3">Deletion Consequences:</h5>
-                                <ul class="list-unstyled">
-                                    <li class="mb-3 d-flex">
-                                        <i class="fas fa-book text-danger mt-1 me-3"></i>
-                                        <div>Book will be removed from all catalogs and search results</div>
-                                    </li>
-                                    <li class="mb-3 d-flex">
-                                        <i class="fas fa-exchange-alt text-danger mt-1 me-3"></i>
-                                        <div>All borrowing records will be permanently deleted</div>
-                                    </li>
-                                    <li class="mb-3 d-flex">
-                                        <i class="fas fa-heart text-danger mt-1 me-3"></i>
-                                        <div>Removed from all user favorites and reading lists</div>
-                                    </li>
-                                    <li class="mb-3 d-flex">
-                                        <i class="fas fa-history text-danger mt-1 me-3"></i>
-                                        <div>All historical data will be erased</div>
-                                    </li>
-                                </ul>
-                            </div>
-                            
-                            <form method="POST" class="mt-4" id="delete-form">
-                                {% csrf_token %}
-                                <div class="d-flex justify-content-end gap-3">
-                                    <button type="submit" class="btn btn-danger px-4 py-2" id="submit-button">
-                                        <i class="fas fa-trash-alt me-2"></i> Confirm Deletion
+                                
+                                <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                                    <a href="{% url 'book-detail' object.pk %}" class="bg-gray-500 hover:bg-gray-600 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center order-2 sm:order-1">
+                                        <i class="fas fa-times mr-3"></i> Cancel
+                                    </a>
+                                    <button type="submit" 
+                                            class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none order-1 sm:order-2"
+                                            id="submit-button"
+                                            disabled>
+                                        <i class="fas fa-trash-alt mr-3"></i> 
+                                        <span id="button-text">Confirm Deletion</span>
                                     </button>
                                 </div>
-                            </form>
-                        </div>
+                            </div>
+                        </form>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Warning -->
+        <div class="mt-8 bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-orange-200">
+            <div class="flex items-center">
+                <i class="fas fa-shield-alt text-orange-500 text-2xl mr-4"></i>
+                <div>
+                    <h4 class="font-semibold text-gray-800">Administrative Action Required</h4>
+                    <p class="text-gray-600 mt-1">This deletion requires administrative privileges. Please ensure this action is authorized before proceeding.</p>
                 </div>
             </div>
         </div>
@@ -107,69 +206,37 @@
 
 {% block extra_css %}
 <style>
-    .delete-confirmation-container {
-        padding: 2rem 0;
-        max-width: 1200px;
-        margin: 0 auto;
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
     }
     
-    .card {
-        border-radius: 0.5rem;
-        overflow: hidden;
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
     }
     
-    .book-cover-placeholder {
-        border: 1px solid #dee2e6;
+    .animate-float-delayed {
+        animation: float 8s ease-in-out infinite;
+        animation-delay: 2s;
     }
     
-    .btn-danger {
-        transition: all 0.2s ease;
-        min-width: 180px;
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
     }
     
-    .btn-danger:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+    .pulse-warning {
+        animation: pulse 2s ease-in-out infinite;
     }
     
-    .alert-danger {
-        border-left: 4px solid #dc3545;
+    /* Custom checkbox styling */
+    input[type="checkbox"] {
+        border-radius: 0.25rem;
     }
     
-    /* Loading spinner */
-    .fa-spinner {
-        animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    
-    /* Button state transitions */
-    #submit-button {
-        transition: all 0.3s ease;
-    }
-    
-    #submit-button[disabled] {
-        opacity: 0.8;
-        transform: scale(0.98);
-    }
-    
-    @media (max-width: 768px) {
-        .row > [class*="col-"] {
-            padding-right: calc(var(--bs-gutter-x) * .5);
-            padding-left: calc(var(--bs-gutter-x) * .5);
-            margin-top: var(--bs-gutter-y);
-        }
-        
-        .d-flex.justify-content-end {
-            justify-content: center !important;
-        }
-        
-        .btn-danger {
-            width: 100%;
-        }
+    input[type="checkbox"]:checked {
+        background-color: #dc2626;
+        border-color: #dc2626;
     }
 </style>
 {% endblock %}
@@ -177,31 +244,61 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Form submission with loading spinner and delay
+    const confirmCheckbox = document.getElementById('confirm-delete');
+    const submitButton = document.getElementById('submit-button');
+    const buttonText = document.getElementById('button-text');
     const form = document.getElementById('delete-form');
+
+    // Enable/disable submit button based on checkbox
+    if (confirmCheckbox && submitButton) {
+        confirmCheckbox.addEventListener('change', function() {
+            submitButton.disabled = !this.checked;
+        });
+    }
+
+    // Form submission with loading state
+    if (form && submitButton) {
+        form.addEventListener('submit', function(e) {
+            if (!confirmCheckbox.checked) {
+                e.preventDefault();
+                return;
+            }
+
+            // Show loading state
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i> Deleting Book...';
+            submitButton.disabled = true;
+            
+            // Add a small delay to show the loading state
+            setTimeout(() => {
+                // Form will submit normally after this
+            }, 1000);
+        });
+    }
+
+    // Add confirmation dialog for extra safety
     if (form) {
         form.addEventListener('submit', function(e) {
-            const submitButton = document.getElementById('submit-button');
-            if (submitButton) {
-                // Store original button content
-                const originalContent = submitButton.innerHTML;
-                
-                // Show loading state
-                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Deleting...';
-                submitButton.disabled = true;
-                
-                // Add delay to see the spinner (demo only)
+            if (!confirm('Are you absolutely sure you want to permanently delete this book? This action cannot be undone.')) {
                 e.preventDefault();
-                setTimeout(function() {
-                    // Submit the form after delay
-                    form.submit();
-                }, 2000); // 2 second delay
-                
-                // In production, remove the e.preventDefault() and setTimeout
-                // and just let the form submit normally
+                // Reset button state
+                if (submitButton && buttonText) {
+                    submitButton.innerHTML = '<i class="fas fa-trash-alt mr-3"></i><span id="button-text">Confirm Deletion</span>';
+                    submitButton.disabled = !confirmCheckbox.checked;
+                }
             }
         });
     }
+
+    // Add hover effects to warning items
+    const warningItems = document.querySelectorAll('.flex.items-start.p-3');
+    warningItems.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(4px)';
+        });
+        item.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0)';
+        });
+    });
 });
 </script>
 {% endblock %}

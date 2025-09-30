@@ -1,112 +1,180 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}User Management - UniLib{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <!-- Page Header with perfectly centered search -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
-        <!-- Title Section -->
-        <div class="order-1 order-md-1 text-center text-md-start mb-3 mb-md-0">
-            <h2 class="mb-0">
-                <i class="fas fa-users-cog me-2 text-primary"></i>
-                User Management
-            </h2>
-            <p class="text-muted mb-0">Manage all system users and their permissions</p>
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Floating Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 text-indigo-200 opacity-40 animate-float">
+            <i class="fas fa-users-cog text-6xl"></i>
         </div>
-        
-        <!-- Search Box - Perfectly Centered -->
-        <div class="order-3 order-md-2 flex-grow-1 mx-md-4 my-3 my-md-0" style="max-width: 500px;">
-            <form method="get" action="{% url 'user-list' %}">
-                <div class="input-group">
-                    <input type="text" 
-                           class="form-control" 
-                           name="search" 
-                           placeholder="Search by name, email, role or ID..." 
-                           value="{{ search_query|default:'' }}">
-                    <button class="btn btn-primary" type="submit">
-                        <i class="fas fa-search me-1"></i> Search
-                    </button>
-                    {% if search_query %}
-                    <a href="{% url 'user-list' %}" class="btn btn-outline-secondary">
-                        <i class="fas fa-times me-1"></i> Clear
-                    </a>
-                    {% endif %}
-                </div>
-            </form>
+        <div class="absolute top-40 right-20 text-blue-200 opacity-30 animate-float-delayed">
+            <i class="fas fa-user-friends text-4xl"></i>
         </div>
-        
-        <!-- Add New User Button -->
-        <div class="order-2 order-md-3 flex-shrink-0 text-center text-md-end">
-            <a href="{% url 'user-create' %}" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i> Add New User
-            </a>
+        <div class="absolute bottom-40 left-20 text-purple-200 opacity-25 animate-float">
+            <i class="fas fa-id-card text-5xl"></i>
         </div>
     </div>
 
-    <!-- Rest of your content remains exactly the same -->
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <!-- Table content remains unchanged -->
-                    <thead class="bg-light">
+    <div class="max-w-7xl mx-auto relative z-10">
+        <!-- Page Header -->
+        <div class="flex flex-col lg:flex-row justify-between items-center mb-8">
+            <div class="text-center lg:text-left mb-6 lg:mb-0">
+                <h1 class="text-4xl font-bold text-gray-800 font-serif mb-4">
+                    <i class="fas fa-users-cog mr-3 text-indigo-600"></i>
+                    User Management
+                </h1>
+                <div class="flex items-center justify-center lg:justify-start space-x-4 text-gray-600">
+                    <a href="{% url 'dashboard' %}" class="flex items-center text-gray-600 hover:text-indigo-600 transition-colors">
+                        <i class="fas fa-home mr-2"></i> Dashboard
+                    </a>
+                    <span class="text-gray-400">/</span>
+                    <span class="flex items-center text-indigo-600">
+                        <i class="fas fa-users mr-2"></i> Users
+                    </span>
+                </div>
+            </div>
+            <a href="{% url 'user-create' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center">
+                <i class="fas fa-plus mr-3"></i> Add New User
+            </a>
+        </div>
+
+        <!-- Search and Stats Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Search Box -->
+            <div class="lg:col-span-2">
+                <form method="get" action="{% url 'user-list' %}" class="relative">
+                    <div class="relative">
+                        <input type="text" 
+                               name="search" 
+                               class="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300" 
+                               placeholder="Search by name, email, role or ID..." 
+                               value="{{ search_query|default:'' }}">
+                        <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <button type="submit" class="absolute right-3 top-1/2 transform -translate-y-1/2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1 rounded-lg transition-colors">
+                            Search
+                        </button>
+                    </div>
+                    {% if search_query %}
+                    <div class="mt-2 flex items-center">
+                        <span class="text-sm text-gray-600">Search results for: "{{ search_query }}"</span>
+                        <a href="{% url 'user-list' %}" class="ml-2 text-sm text-red-600 hover:text-red-700 flex items-center">
+                            <i class="fas fa-times mr-1"></i> Clear
+                        </a>
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-2 gap-4 lg:col-span-2">
+                <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl p-4 text-center">
+                    <div class="text-sm text-gray-600">Total Users</div>
+                    <div class="text-2xl font-bold text-indigo-600">{{ users|length }}</div>
+                </div>
+                <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl p-4 text-center">
+                    <div class="text-sm text-gray-600">Active Users</div>
+                    <div class="text-2xl font-bold text-green-600 ">{{ users|length }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+            <!-- Table Header -->
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 py-6 px-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white mb-2">System Users</h2>
+                        <p class="text-indigo-100">Manage all library system users and their permissions</p>
+                    </div>
+                    <div class="mt-4 md:mt-0">
+                        <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-white/20 text-white">
+                            <i class="fas fa-users mr-2"></i>
+                            {{ users|length }} user{{ users|pluralize }} found
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Content -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <th class="ps-4">User</th>
-                            <th>Contact</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th class="text-end pe-4">Actions</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">User</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Contact</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Role</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="bg-white divide-y divide-gray-200">
                         {% for user in users %}
-                        <tr>
-                            <td class="ps-4">
-                                <div class="d-flex align-items-center">
+                        <tr class="hover:bg-gray-50 transition-colors duration-200">
+                            <!-- User Column -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
                                     <img src="{{ user.get_profile_picture }}" 
-                                         class="rounded-circle me-3" 
-                                         width="40" 
-                                         height="40" 
+                                         class="w-10 h-10 rounded-xl object-cover border-2 border-gray-200 mr-4" 
                                          alt="Profile">
                                     <div>
-                                        <h6 class="mb-0">{{ user.get_full_name }}</h6>
-                                        <small class="text-muted">ID: {{ user.university_id }}</small>
+                                        <div class="text-sm font-semibold text-gray-900">{{ user.get_full_name }}</div>
+                                        <div class="text-xs text-gray-500">ID: {{ user.university_id }}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td>
-                                <div class="d-flex flex-column">
-                                    <span>{{ user.email }}</span>
-                                    <small class="text-muted">{{ user.phone|default:"No phone" }}</small>
-                                </div>
+                            
+                            <!-- Contact Column -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ user.email }}</div>
+                                <div class="text-xs text-gray-500">{{ user.phone|default:"No phone" }}</div>
                             </td>
-                            <td>
-                                <span class="badge bg-{% if user.is_admin %}danger{% elif user.is_librarian %}info{% else %}secondary{% endif %}">
+                            
+                            <!-- Role Column -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
+                                    {% if user.is_admin %}bg-red-100 text-red-800
+                                    {% elif user.is_librarian %}bg-blue-100 text-blue-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    <i class="fas 
+                                        {% if user.is_admin %}fa-crown
+                                        {% elif user.is_librarian %}fa-book
+                                        {% else %}fa-user{% endif %} mr-1 text-xs"></i>
                                     {{ user.get_role_display }}
                                 </span>
                             </td>
-                            <td>
-                                <span class="badge bg-{% if user.is_active %}success{% else %}danger{% endif %}">
+                            
+                            <!-- Status Column -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
+                                    {% if user.is_active %}bg-green-100 text-green-800
+                                    {% else %}bg-red-100 text-red-800{% endif %}">
+                                    <i class="fas fa-circle mr-1 text-xs"></i>
                                     {% if user.is_active %}Active{% else %}Inactive{% endif %}
                                 </span>
                             </td>
-                            <td class="text-end pe-4">
-                                <div class="btn-group" role="group">
+                            
+                            <!-- Actions Column -->
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex justify-end space-x-2">
                                     <a href="{% url 'user-detail' user.pk %}" 
-                                       class="btn btn-sm btn-outline-primary"
-                                       data-bs-toggle="tooltip" 
-                                       title="View Details">
+                                       class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 p-2 rounded-lg transition-colors duration-200"
+                                       data-tooltip="View Details">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     <a href="{% url 'user-update' user.pk %}" 
-                                       class="btn btn-sm btn-outline-secondary"
-                                       data-bs-toggle="tooltip" 
-                                       title="Edit User">
+                                       class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg transition-colors duration-200"
+                                       data-tooltip="Edit User">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <a href="{% url 'user-delete' user.pk %}" 
-                                       class="btn btn-sm btn-outline-danger"
-                                       data-bs-toggle="tooltip" 
-                                       title="Delete User">
+                                       class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition-colors duration-200"
+                                       data-tooltip="Delete User">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </div>
@@ -114,18 +182,21 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="5" class="text-center py-4">
-                                <div class="d-flex flex-column align-items-center justify-content-center">
-                                    <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
+                            <td colspan="5" class="px-6 py-12 text-center">
+                                <div class="flex flex-col items-center justify-center">
+                                    <i class="fas fa-user-slash text-5xl text-gray-300 mb-4"></i>
                                     {% if search_query %}
-                                        <h5 class="text-muted">No users found matching "{{ search_query }}"</h5>
-                                        <p class="text-muted mb-0">Try a different search term</p>
-                                        <a href="{% url 'user-list' %}" class="btn btn-outline-primary mt-3">
-                                            <i class="fas fa-undo me-2"></i> Show all users
+                                        <h3 class="text-lg font-semibold text-gray-700 mb-2">No users found</h3>
+                                        <p class="text-gray-500 mb-4">No users matching "{{ search_query }}" were found.</p>
+                                        <a href="{% url 'user-list' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center">
+                                            <i class="fas fa-undo mr-2"></i> Show all users
                                         </a>
                                     {% else %}
-                                        <h5 class="text-muted">No Users Found</h5>
-                                        <p class="text-muted mb-0">Add new users to get started</p>
+                                        <h3 class="text-lg font-semibold text-gray-700 mb-2">No Users Found</h3>
+                                        <p class="text-gray-500 mb-4">Get started by adding your first user to the system.</p>
+                                        <a href="{% url 'user-create' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center">
+                                            <i class="fas fa-plus mr-2"></i> Add First User
+                                        </a>
                                     {% endif %}
                                 </div>
                             </td>
@@ -134,129 +205,100 @@
                     </tbody>
                 </table>
             </div>
-        </div>
-        
-        {% if is_paginated %}
-        <div class="card-footer bg-white border-top-0">
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center mb-0">
-                    {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="First">
-                            <span aria-hidden="true">&laquo;&laquo;</span>
-                        </a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                    {% endif %}
 
-                    {% for num in page_obj.paginator.page_range %}
-                    {% if page_obj.number == num %}
-                    <li class="page-item active"><a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a></li>
-                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                    <li class="page-item"><a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a></li>
-                    {% endif %}
-                    {% endfor %}
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="bg-gray-50 border-t border-gray-200 px-6 py-4">
+                <nav class="flex items-center justify-between">
+                    <div class="text-sm text-gray-700">
+                        Showing <span class="font-semibold">{{ page_obj.start_index }}</span> to 
+                        <span class="font-semibold">{{ page_obj.end_index }}</span> of 
+                        <span class="font-semibold">{{ page_obj.paginator.count }}</span> users
+                    </div>
+                    <div class="flex space-x-2">
+                        {% if page_obj.has_previous %}
+                        <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}" 
+                           class="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" 
+                           class="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                        {% endif %}
 
-                    {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                            <span class="px-3 py-2 bg-indigo-600 border border-indigo-600 rounded-lg text-sm font-medium text-white">
+                                {{ num }}
+                            </span>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}" 
+                               class="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
+                                {{ num }}
+                            </a>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" 
+                           class="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-angle-right"></i>
                         </a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Last">
-                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}" 
+                           class="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-angle-double-right"></i>
                         </a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </nav>
+                        {% endif %}
+                    </div>
+                </nav>
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Perfectly centered header layout */
-    @media (min-width: 768px) {
-        .d-flex > .mx-md-4 {
-            margin-left: 1.5rem !important;
-            margin-right: 1.5rem !important;
-        }
-        .order-md-2 {
-            order: 2 !important;
-        }
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
     }
     
-    /* Mobile responsive adjustments */
-    @media (max-width: 767.98px) {
-        .d-flex {
-            gap: 1rem !important;
-        }
-        .order-1 { order: 1 !important; }
-        .order-2 { order: 2 !important; }
-        .order-3 { order: 3 !important; }
-        .my-3 {
-            margin-top: 1rem !important;
-            margin-bottom: 1rem !important;
-        }
-    }
-
-    /* Search box styling */
-    .input-group {
-        width: 100%;
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
     }
     
-    /* Table styles remain unchanged */
-    .card {
-        border-radius: 0.5rem;
-        overflow: hidden;
+    .animate-float-delayed {
+        animation: float 8s ease-in-out infinite;
+        animation-delay: 2s;
     }
     
-    .table th {
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.5px;
-        padding: 1rem;
+    [data-tooltip] {
+        position: relative;
     }
     
-    .table td {
-        padding: 1rem;
-        vertical-align: middle;
+    [data-tooltip]:before {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 4px 8px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        border-radius: 4px;
+        font-size: 12px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        z-index: 10;
     }
     
-    .table-hover tbody tr:hover {
-        background-color: rgba(67, 97, 238, 0.05);
-    }
-    
-    .badge {
-        font-weight: 500;
-        padding: 0.35em 0.65em;
-    }
-    
-    .btn-group .btn {
-        border-radius: 0.25rem !important;
-    }
-    
-    .btn-group .btn:first-child {
-        border-top-right-radius: 0 !important;
-        border-bottom-right-radius: 0 !important;
-    }
-    
-    .btn-group .btn:last-child {
-        border-top-left-radius: 0 !important;
-        border-bottom-left-radius: 0 !important;
-    }
-    
-    .btn-group .btn:not(:first-child):not(:last-child) {
-        border-radius: 0 !important;
+    [data-tooltip]:hover:before {
+        opacity: 1;
     }
 </style>
 {% endblock %}
@@ -264,11 +306,37 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
+    // Add loading animation to table rows
+    const tableRows = document.querySelectorAll('tbody tr');
+    tableRows.forEach((row, index) => {
+        row.style.opacity = '0';
+        row.style.transform = 'translateX(-20px)';
+        
+        setTimeout(() => {
+            row.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            row.style.opacity = '1';
+            row.style.transform = 'translateX(0)';
+        }, index * 100);
     });
+
+    // Add hover effects to action buttons
+    const actionButtons = document.querySelectorAll('a[data-tooltip]');
+    actionButtons.forEach(button => {
+        button.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.1)';
+        });
+        button.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+
+    // Auto-focus on search input
+    const searchInput = document.querySelector('input[name="search"]');
+    if (searchInput && !searchInput.value) {
+        setTimeout(() => {
+            searchInput.focus();
+        }, 300);
+    }
 });
 </script>
 {% endblock %}

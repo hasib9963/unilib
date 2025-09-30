@@ -1,52 +1,173 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}
     {% if form.instance.pk %}Update {{ form.instance.name }}{% else %}Create New Category{% endif %} - UniLib
 {% endblock %}
 
 {% block content %}
-<div class="container py-4 animate__animated animate__fadeIn">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary bg-opacity-10 border-0 py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="mb-0">
-                            <i class="fas fa-tag me-2"></i>
-                            {% if form.instance.pk %}Update Category{% else %}Create New Category{% endif %}
-                        </h3>
-                        <a href="{% if form.instance.pk %}{% url 'category-detail' form.instance.pk %}{% else %}{% url 'category-list' %}{% endif %}" 
-                           class="btn btn-sm btn-outline-secondary">
-                            <i class="fas fa-times"></i>
-                        </a>
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Floating Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 text-indigo-200 opacity-40 animate-float">
+            <i class="fas fa-tag text-6xl"></i>
+        </div>
+        <div class="absolute top-40 right-20 text-blue-200 opacity-30 animate-float-delayed">
+            <i class="fas fa-edit text-4xl"></i>
+        </div>
+        <div class="absolute bottom-40 left-20 text-purple-200 opacity-25 animate-float">
+            <i class="fas fa-plus-circle text-5xl"></i>
+        </div>
+    </div>
+
+    <div class="max-w-2xl mx-auto relative z-10">
+        <!-- Page Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 font-serif mb-4">
+                <i class="fas {% if form.instance.pk %}fa-edit{% else %}fa-plus-circle{% endif %} mr-3 text-indigo-600"></i>
+                {% if form.instance.pk %}Update Category{% else %}Create New Category{% endif %}
+            </h1>
+            <div class="flex items-center justify-center space-x-4 text-gray-600">
+                <a href="{% url 'dashboard' %}" class="flex items-center text-gray-600 hover:text-indigo-600 transition-colors">
+                    <i class="fas fa-home mr-2"></i> Dashboard
+                </a>
+                <span class="text-gray-400">/</span>
+                <a href="{% url 'category-list' %}" class="flex items-center text-gray-600 hover:text-indigo-600 transition-colors">
+                    <i class="fas fa-tags mr-2"></i> Categories
+                </a>
+                <span class="text-gray-400">/</span>
+                <span class="flex items-center text-indigo-600">
+                    <i class="fas {% if form.instance.pk %}fa-edit{% else %}fa-plus{% endif %} mr-2"></i> 
+                    {% if form.instance.pk %}Edit{% else %}Create{% endif %}
+                </span>
+            </div>
+        </div>
+
+        <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+            <!-- Card Header -->
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 py-6 px-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
+                            <i class="fas {% if form.instance.pk %}fa-edit{% else %}fa-plus{% endif %} text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">
+                                {% if form.instance.pk %}"{{ form.instance.name }}"{% else %}New Category{% endif %}
+                            </h2>
+                            <p class="text-indigo-100">
+                                {% if form.instance.pk %}Update category information{% else %}Create a new book category{% endif %}
+                            </p>
+                        </div>
                     </div>
+                    <a href="{% if form.instance.pk %}{% url 'category-detail' form.instance.pk %}{% else %}{% url 'category-list' %}{% endif %}" 
+                       class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 flex items-center">
+                        <i class="fas fa-times mr-3"></i> Cancel
+                    </a>
                 </div>
-                
-                <div class="card-body">
-                    <form method="POST" class="needs-validation" novalidate id="category-form">
-                        {% csrf_token %}
-                        
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-12">
-                                {{ form.name|as_crispy_field }}
+            </div>
+
+            <!-- Form Content -->
+            <div class="p-8">
+                <form method="POST" id="category-form">
+                    {% csrf_token %}
+                    
+                    <!-- Category Information -->
+                    <div class="space-y-6">
+                        <!-- Name Field -->
+                        <div class="space-y-2">
+                            <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-tag mr-2 text-indigo-600"></i>
+                                Category Name
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <div class="relative">
+                                {{ form.name }}
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-heading text-gray-400"></i>
+                                </div>
+                                {% if form.name.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.name.errors.0 }}
+                                    </div>
+                                {% endif %}
                             </div>
-                            <div class="col-md-12">
-                                {{ form.description|as_crispy_field }}
+                            <p class="text-sm text-gray-500">Enter a unique name for the category (e.g., "Science Fiction", "Computer Science")</p>
+                        </div>
+
+                        <!-- Description Field -->
+                        <div class="space-y-2">
+                            <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-align-left mr-2 text-indigo-600"></i>
+                                Description
+                            </label>
+                            <div class="relative">
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.description.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <p class="text-sm text-gray-500">Optional: Describe the types of books that belong to this category</p>
+                        </div>
+
+                        <!-- Preview Section -->
+                        <div class="bg-gray-50 rounded-2xl p-6 mt-6">
+                            <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-eye mr-2 text-indigo-600"></i> Category Preview
+                            </h4>
+                            <div class="flex items-center space-x-4">
+                                <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                                    <i class="fas fa-tag text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <h5 id="preview-name" class="font-semibold text-gray-800 text-lg">
+                                        {{ form.instance.name|default:"Category Name" }}
+                                    </h5>
+                                    <p id="preview-description" class="text-gray-600 text-sm">
+                                        {{ form.instance.description|default:"Category description will appear here..." }}
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                        
-                        <div class="d-flex justify-content-between border-top pt-4">
-                            <a href="{% if form.instance.pk %}{% url 'category-detail' form.instance.pk %}{% else %}{% url 'category-list' %}{% endif %}" 
-                               class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i> Cancel
-                            </a>
-                            <button type="submit" class="btn btn-primary" id="submit-button">
-                                <i class="fas fa-save me-2"></i> 
-                                {% if form.instance.pk %}Update{% else %}Create{% endif %} Category
-                            </button>
-                        </div>
-                    </form>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4 pt-8 border-t border-gray-200 mt-8">
+                        <a href="{% if form.instance.pk %}{% url 'category-detail' form.instance.pk %}{% else %}{% url 'category-list' %}{% endif %}" 
+                           class="bg-gray-500 hover:bg-gray-600 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center">
+                            <i class="fas fa-times mr-3"></i> Cancel
+                        </a>
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center" id="submit-button">
+                            <i class="fas fa-save mr-3"></i> 
+                            <span id="button-text">{% if form.instance.pk %}Update Category{% else %}Create Category{% endif %}</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="mt-8 bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-blue-200">
+            <div class="flex items-start">
+                <i class="fas fa-lightbulb text-yellow-500 text-2xl mr-4 mt-1"></i>
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-2">Category Management Tips</h4>
+                    <ul class="text-gray-600 space-y-2">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mr-2 mt-1 text-xs"></i>
+                            Use clear, descriptive names that users will easily understand
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mr-2 mt-1 text-xs"></i>
+                            Keep categories broad enough to include multiple related books
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mr-2 mt-1 text-xs"></i>
+                            Avoid creating too many similar categories to prevent confusion
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -56,32 +177,18 @@
 
 {% block extra_css %}
 <style>
-    /* Loading spinner animation */
-    .fa-spinner {
-        animation: spin 0.8s linear infinite;
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
     }
     
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
     }
     
-    /* Button state transitions */
-    #submit-button {
-        transition: all 0.3s ease;
-        position: relative;
-    }
-    
-    #submit-button[disabled] {
-        opacity: 0.8;
-        transform: scale(0.98);
-    }
-    
-    /* Form validation styling */
-    .was-validated .form-control:valid,
-    .was-validated .form-control:invalid {
-        background-position: right calc(0.375em + 0.1875rem) center;
-        padding-right: 2.25rem;
+    .animate-float-delayed {
+        animation: float 8s ease-in-out infinite;
+        animation-delay: 2s;
     }
 </style>
 {% endblock %}
@@ -89,43 +196,128 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Form validation
-    const forms = document.querySelectorAll('.needs-validation');
-    
-    Array.from(forms).forEach(function(form) {
-        form.addEventListener('submit', function(event) {
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            
-            form.classList.add('was-validated');
-        }, false);
-    });
+    // Add Tailwind classes to form fields
+    const nameInput = document.getElementById('{{ form.name.id_for_label }}');
+    const descriptionTextarea = document.getElementById('{{ form.description.id_for_label }}');
 
-    // Enhanced form submission with loading spinner
-    const form = document.getElementById('category-form');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            const submitButton = document.getElementById('submit-button');
-            if (submitButton) {
-                // Change button state to loading
-                const originalText = submitButton.innerHTML;
-                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing...';
-                submitButton.disabled = true;
-                
-                // For demo purposes - add a delay to see the animation
-                // Remove this setTimeout in production
-                setTimeout(function() {
-                    submitButton.innerHTML = originalText;
-                    submitButton.disabled = false;
-                }, 3000);
-                
-                // In production, you would let the form submit normally
-                // The spinner will show until the page reloads
+    if (nameInput) {
+        nameInput.classList.add('w-full', 'pl-10', 'pr-4', 'py-3', 'border-2', 'border-gray-300', 'rounded-xl', 'focus:ring-2', 'focus:ring-indigo-500', 'focus:border-indigo-500', 'transition-all', 'duration-300', 'focus:transform', 'focus:-translate-y-1');
+        nameInput.placeholder = 'Enter category name (e.g., Science Fiction)';
+    }
+
+    if (descriptionTextarea) {
+        descriptionTextarea.classList.add('w-full', 'px-4', 'py-3', 'border-2', 'border-gray-300', 'rounded-xl', 'focus:ring-2', 'focus:ring-indigo-500', 'focus:border-indigo-500', 'transition-all', 'duration-300', 'focus:transform', 'focus:-translate-y-1');
+        descriptionTextarea.style.minHeight = '100px';
+        descriptionTextarea.placeholder = 'Enter category description (optional)...';
+    }
+
+    // Real-time preview update
+    if (nameInput) {
+        nameInput.addEventListener('input', function() {
+            const previewName = document.getElementById('preview-name');
+            if (previewName) {
+                previewName.textContent = this.value || 'Category Name';
             }
         });
     }
+
+    if (descriptionTextarea) {
+        descriptionTextarea.addEventListener('input', function() {
+            const previewDescription = document.getElementById('preview-description');
+            if (previewDescription) {
+                previewDescription.textContent = this.value || 'Category description will appear here...';
+            }
+        });
+    }
+
+    // Form validation
+    const form = document.getElementById('category-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            // Validate name field
+            if (nameInput && !nameInput.value.trim()) {
+                isValid = false;
+                nameInput.classList.add('border-red-500');
+                // Add error message if not exists
+                if (!nameInput.nextElementSibling || !nameInput.nextElementSibling.classList.contains('text-red-600')) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'mt-1 text-sm text-red-600 flex items-center';
+                    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>Category name is required';
+                    nameInput.parentNode.appendChild(errorDiv);
+                }
+            } else if (nameInput) {
+                nameInput.classList.remove('border-red-500');
+                // Remove error message if exists
+                if (nameInput.nextElementSibling && nameInput.nextElementSibling.classList.contains('text-red-600')) {
+                    nameInput.nextElementSibling.remove();
+                }
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+                
+                // Add shake animation to invalid fields
+                if (nameInput && !nameInput.value.trim()) {
+                    nameInput.classList.add('animate-shake');
+                    setTimeout(() => {
+                        nameInput.classList.remove('animate-shake');
+                    }, 500);
+                }
+            } else {
+                // Form is valid, show loading state
+                const submitButton = document.getElementById('submit-button');
+                const buttonText = document.getElementById('button-text');
+                
+                if (submitButton && buttonText) {
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i> Processing...';
+                    submitButton.disabled = true;
+                    submitButton.classList.remove('hover:scale-105');
+                }
+            }
+        });
+    }
+
+    // Add character counter for description
+    if (descriptionTextarea) {
+        const charCounter = document.createElement('div');
+        charCounter.className = 'text-xs text-gray-500 text-right mt-1';
+        charCounter.textContent = `0/500 characters`;
+        descriptionTextarea.parentNode.appendChild(charCounter);
+
+        descriptionTextarea.addEventListener('input', function() {
+            const currentLength = this.value.length;
+            charCounter.textContent = `${currentLength}/500 characters`;
+            
+            if (currentLength > 500) {
+                charCounter.classList.add('text-red-500');
+            } else {
+                charCounter.classList.remove('text-red-500');
+            }
+        });
+    }
+
+    // Auto-focus on name field
+    if (nameInput) {
+        setTimeout(() => {
+            nameInput.focus();
+        }, 300);
+    }
 });
+
+// Add shake animation keyframes
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+    .animate-shake {
+        animation: shake 0.5s ease-in-out;
+    }
+`;
+document.head.appendChild(style);
 </script>
 {% endblock %}

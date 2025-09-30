@@ -1,132 +1,296 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Add New User{% endblock %}
+{% block title %}Add New User - UniLib{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-lg border-0 rounded-lg">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="text-center font-weight-light my-2">
-                        <i class="fas fa-user-plus me-2"></i> Add New User
-                    </h3>
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Floating Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 text-indigo-200 opacity-40 animate-float">
+            <i class="fas fa-user-plus text-6xl"></i>
+        </div>
+        <div class="absolute top-40 right-20 text-blue-200 opacity-30 animate-float-delayed">
+            <i class="fas fa-user-circle text-4xl"></i>
+        </div>
+        <div class="absolute bottom-40 left-20 text-purple-200 opacity-25 animate-float">
+            <i class="fas fa-id-card text-5xl"></i>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto relative z-10">
+        <!-- Page Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 font-serif mb-4">
+                <i class="fas fa-user-plus mr-3 text-indigo-600"></i>
+                Add New User
+            </h1>
+            <div class="flex items-center justify-center space-x-4 text-gray-600">
+                <a href="{% url 'dashboard' %}" class="flex items-center text-gray-600 hover:text-indigo-600 transition-colors">
+                    <i class="fas fa-home mr-2"></i> Dashboard
+                </a>
+                <span class="text-gray-400">/</span>
+                <a href="{% url 'user-list' %}" class="flex items-center text-gray-600 hover:text-indigo-600 transition-colors">
+                    <i class="fas fa-users mr-2"></i> Users
+                </a>
+                <span class="text-gray-400">/</span>
+                <span class="flex items-center text-indigo-600">
+                    <i class="fas fa-plus mr-2"></i> Add User
+                </span>
+            </div>
+        </div>
+
+        <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+            <!-- Card Header -->
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 py-6 px-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
+                            <i class="fas fa-user-plus text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">Create New User Account</h2>
+                            <p class="text-indigo-100">Add a new member to the library system</p>
+                        </div>
+                    </div>
+                    <a href="{% url 'user-list' %}" class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 flex items-center">
+                        <i class="fas fa-times mr-3"></i> Cancel
+                    </a>
                 </div>
-                <div class="card-body">
-                    <form method="post" enctype="multipart/form-data" novalidate id="user-form">
-                        {% csrf_token %}
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-floating mb-3 mb-md-0">
-                                    {{ form.username }}
-                                    <label for="{{ form.username.id_for_label }}">Username</label>
-                                    {% if form.username.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.username.errors.0 }}
+            </div>
+
+            <!-- Form Content -->
+            <div class="p-8">
+                <form method="post" enctype="multipart/form-data" id="user-form">
+                    {% csrf_token %}
+                    
+                    <!-- Account Information Section -->
+                    <div class="mb-8 border-l-4 border-indigo-500 pl-6">
+                        <h5 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-user-circle text-indigo-600"></i>
+                            </div>
+                            Account Information
+                        </h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="relative">
+                                {{ form.username }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 flex items-center justify-center h-full">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                {% if form.username.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.username.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <p class="mt-1 text-xs text-gray-500">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</p>
+                            </div>
+                            <div class="relative">
+                                {{ form.university_id }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 flex items-center justify-center h-full">
+                                    <i class="fas fa-id-card"></i>
+                                </div>
+                                {% if form.university_id.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.university_id.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Personal Information Section -->
+                    <div class="mb-8 border-l-4 border-indigo-500 pl-6">
+                        <h5 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-user text-indigo-600"></i>
+                            </div>
+                            Personal Information
+                        </h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="relative">
+                                {{ form.first_name }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 flex items-center justify-center h-full">
+                                    <i class="fas fa-signature"></i>
+                                </div>
+                                {% if form.first_name.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.first_name.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="relative">
+                                {{ form.last_name }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 flex items-center justify-center h-full">
+                                    <i class="fas fa-signature"></i>
+                                </div>
+                                {% if form.last_name.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.last_name.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information Section -->
+                    <div class="mb-8 border-l-4 border-indigo-500 pl-6">
+                        <h5 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-address-card text-indigo-600"></i>
+                            </div>
+                            Contact Information
+                        </h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="relative">
+                                {{ form.email }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 flex items-center justify-center h-full">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                {% if form.email.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.email.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="relative">
+                                {{ form.phone }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 flex items-center justify-center h-full">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                {% if form.phone.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.phone.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="relative md:col-span-2">
+                                <input type="text" 
+                                       name="{{ form.address.name }}" 
+                                       id="{{ form.address.id_for_label }}" 
+                                       value="{{ form.address.value|default:'' }}" 
+                                       class="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 focus:transform focus:-translate-y-1" 
+                                       placeholder="Enter address">
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 flex items-center justify-center h-full">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                {% if form.address.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.address.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Section -->
+                    <div class="mb-8 border-l-4 border-indigo-500 pl-6">
+                        <h5 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-shield-alt text-indigo-600"></i>
+                            </div>
+                            Security & Role
+                        </h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="relative md:col-span-2">
+                                {{ form.role }}
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 flex items-center justify-center h-full">
+                                    <i class="fas fa-user-tag"></i>
+                                </div>
+                                {% if form.role.errors %}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.role.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="md:col-span-2">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="relative">
+                                        <div class="relative">
+                                            {{ form.password1 }}
+                                            <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 flex items-center justify-center h-full">
+                                                <i class="fas fa-lock"></i>
+                                            </div>
+                                            <button type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-indigo-600 transition-colors toggle-password" data-target="password1">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
                                         </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-floating">
-                                    {{ form.university_id }}
-                                    <label for="{{ form.university_id.id_for_label }}">University ID</label>
-                                    {% if form.university_id.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.university_id.errors.0 }}
+                                        {% if form.password1.errors %}
+                                            <div class="mt-1 text-sm text-red-600 flex items-center">
+                                                <i class="fas fa-exclamation-circle mr-1"></i>{{ form.password1.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                        <div class="mt-2 text-xs text-gray-500 space-y-1">
+                                            <div class="flex items-center" id="length-check">
+                                                <i class="fas fa-circle text-gray-300 mr-2 text-xs"></i>
+                                                At least 8 characters
+                                            </div>
+                                            <div class="flex items-center" id="number-check">
+                                                <i class="fas fa-circle text-gray-300 mr-2 text-xs"></i>
+                                                Contains a number
+                                            </div>
                                         </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-floating mb-3 mb-md-0">
-                                    {{ form.first_name }}
-                                    <label for="{{ form.first_name.id_for_label }}">First Name</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-floating">
-                                    {{ form.last_name }}
-                                    <label for="{{ form.last_name.id_for_label }}">Last Name</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-floating mb-3">
-                            {{ form.email }}
-                            <label for="{{ form.email.id_for_label }}">Email Address</label>
-                            {% if form.email.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.email.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-floating mb-3 mb-md-0 position-relative password-toggle-container">
-                                    {{ form.password1 }}
-                                    <label for="{{ form.password1.id_for_label }}">Password</label>
-                                    <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y pe-3 toggle-password" aria-label="Toggle password visibility" aria-pressed="false">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    {% if form.password1.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.password1.errors.0 }}
+                                    </div>
+                                    <div class="relative">
+                                        <div class="relative">
+                                            {{ form.password2 }}
+                                            <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 flex items-center justify-center h-full">
+                                                <i class="fas fa-lock"></i>
+                                            </div>
+                                            <button type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-indigo-600 transition-colors toggle-password" data-target="password2">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
                                         </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-floating position-relative password-toggle-container">
-                                    {{ form.password2 }}
-                                    <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
-                                    <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y pe-3 toggle-password" aria-label="Toggle password visibility" aria-pressed="false">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    {% if form.password2.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.password2.errors.0 }}
-                                        </div>
-                                    {% endif %}
+                                        {% if form.password2.errors %}
+                                            <div class="mt-1 text-sm text-red-600 flex items-center">
+                                                <i class="fas fa-exclamation-circle mr-1"></i>{{ form.password2.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                        <p class="mt-2 text-xs text-gray-500">Enter the same password as before, for verification.</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-floating mb-3 mb-md-0">
-                                    {{ form.role }}
-                                    <label for="{{ form.role.id_for_label }}">Role</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-floating">
-                                    {{ form.phone }}
-                                    <label for="{{ form.phone.id_for_label }}">Phone Number</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-floating mb-3">
-                            {{ form.address }}
-                            <label for="{{ form.address.id_for_label }}">Address</label>
-                        </div>
-                        
-                        <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
-                            <a href="{% url 'user-list' %}" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left me-1"></i> Back to Users
-                            </a>
-                            <button type="submit" class="btn btn-primary" id="submit-button">
-                                <i class="fas fa-save me-1"></i> Add User
-                            </button>
-                        </div>
-                    </form>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4 pt-6 border-t border-gray-200">
+                        <a href="{% url 'user-list' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center">
+                            <i class="fas fa-arrow-left mr-3"></i> Back to Users
+                        </a>
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center" id="submit-button">
+                            <i class="fas fa-user-plus mr-3"></i> 
+                            <span id="button-text">Create User Account</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="mt-8 bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-blue-200">
+            <div class="flex items-start">
+                <i class="fas fa-lightbulb text-yellow-500 text-2xl mr-4 mt-1"></i>
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-2">User Creation Tips</h4>
+                    <ul class="text-gray-600 space-y-2">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mr-2 mt-1 text-xs"></i>
+                            Choose a unique username that's easy to remember
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mr-2 mt-1 text-xs"></i>
+                            Assign appropriate roles based on user responsibilities
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mr-2 mt-1 text-xs"></i>
+                            Use strong passwords with a mix of letters, numbers, and symbols
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mr-2 mt-1 text-xs"></i>
+                            Verify email addresses to ensure proper communication
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -136,62 +300,18 @@
 
 {% block extra_css %}
 <style>
-    /* Password field container */
-    .password-toggle-container {
-        position: relative;
-    }
-
-    /* Eye toggle button */
-    .toggle-password {
-        position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #6c757d;
-        background: none;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-        z-index: 3;
-        width: 20px;
-        height: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .toggle-password:hover {
-        color: #4361ee;
-        text-decoration: none;
-    }
-
-    .toggle-password i {
-        font-size: 1.1rem;
-    }
-
-    /* Form floating label adjustments */
-    .form-floating > .form-control {
-        padding-right: 2.5rem;
-    }
-
-    /* Loading spinner */
-    .fa-spinner {
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
     }
     
-    /* Button state transitions */
-    #submit-button {
-        transition: all 0.3s ease;
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
     }
     
-    #submit-button[disabled] {
-        opacity: 0.8;
-        transform: scale(0.98);
+    .animate-float-delayed {
+        animation: float 8s ease-in-out infinite;
+        animation-delay: 2s;
     }
 </style>
 {% endblock %}
@@ -199,71 +319,158 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Password visibility toggle
+    // Add Tailwind classes to form fields and set placeholders
+    const textInputs = document.querySelectorAll('input:not([type="file"]):not([type="checkbox"]):not([type="radio"])');
+    const selects = document.querySelectorAll('select');
+    
+    // Apply styles to all text inputs and set placeholders
+    textInputs.forEach(input => {
+        input.classList.add('w-full', 'pl-12', 'pr-4', 'py-3', 'border-2', 'border-gray-300', 'rounded-xl', 'focus:ring-2', 'focus:ring-indigo-500', 'focus:border-indigo-500', 'transition-all', 'duration-300', 'focus:transform', 'focus:-translate-y-1');
+        
+        // Set appropriate placeholder based on field name
+        const fieldName = input.name;
+        if (fieldName.includes('username')) {
+            input.placeholder = 'Enter username';
+        } else if (fieldName.includes('university_id')) {
+            input.placeholder = 'Enter university ID';
+        } else if (fieldName.includes('first_name')) {
+            input.placeholder = 'Enter first name';
+        } else if (fieldName.includes('last_name')) {
+            input.placeholder = 'Enter last name';
+        } else if (fieldName.includes('email')) {
+            input.placeholder = 'Enter email address';
+        } else if (fieldName.includes('phone')) {
+            input.placeholder = 'Enter phone number';
+        } else if (fieldName.includes('password1')) {
+            input.placeholder = 'Enter password';
+        } else if (fieldName.includes('password2')) {
+            input.placeholder = 'Confirm password';
+        } else if (fieldName.includes('address')) {
+            input.placeholder = 'Enter address';
+        }
+    });
+    
+    // Apply styles to select
+    selects.forEach(select => {
+        select.classList.add('w-full', 'pl-12', 'pr-4', 'py-3', 'border-2', 'border-gray-300', 'rounded-xl', 'focus:ring-2', 'focus:ring-indigo-500', 'focus:border-indigo-500', 'transition-all', 'duration-300', 'focus:transform', 'focus:-translate-y-1', 'appearance-none');
+    });
+
+    // Password visibility toggle
     const toggleButtons = document.querySelectorAll('.toggle-password');
     
     toggleButtons.forEach(button => {
         button.addEventListener('click', function() {
-            const input = this.parentElement.querySelector('input');
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(`id_password${targetId}`);
             const icon = this.querySelector('i');
-            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
             
-            input.setAttribute('type', type);
-            icon.classList.toggle('fa-eye');
-            icon.classList.toggle('fa-eye-slash');
-            this.setAttribute('aria-pressed', type === 'text');
-            this.style.color = type === 'text' ? '#4361ee' : '#6c757d';
+            if (input) {
+                const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                input.setAttribute('type', type);
+                icon.classList.toggle('fa-eye');
+                icon.classList.toggle('fa-eye-slash');
+                this.style.color = type === 'text' ? '#4f46e5' : '#9ca3af';
+            }
         });
     });
 
-    // 2. Form submission handling with delay
-    const form = document.getElementById('user-form');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            const submitButton = document.getElementById('submit-button');
-            if (submitButton) {
-                // Store original button content
-                const originalContent = submitButton.innerHTML;
-                
-                // Show loading state
-                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Adding...';
-                submitButton.disabled = true;
-                
-                // Add delay to see the spinner (demo only)
-                e.preventDefault();
-                setTimeout(function() {
-                    // Submit the form after delay
-                    form.submit();
-                }, 2000); // 2 second delay
-                
-                // In production, remove the e.preventDefault() and setTimeout
-                // and just let the form submit normally
+    // Password strength indicator
+    const password1Input = document.getElementById('id_password1');
+    if (password1Input) {
+        password1Input.addEventListener('input', function() {
+            const password = this.value;
+            const lengthCheck = document.getElementById('length-check');
+            const numberCheck = document.getElementById('number-check');
+            
+            // Length check
+            if (password.length >= 8) {
+                lengthCheck.innerHTML = '<i class="fas fa-check-circle text-green-500 mr-2 text-xs"></i>At least 8 characters';
+            } else {
+                lengthCheck.innerHTML = '<i class="fas fa-circle text-gray-300 mr-2 text-xs"></i>At least 8 characters';
+            }
+            
+            // Number check
+            if (/\d/.test(password)) {
+                numberCheck.innerHTML = '<i class="fas fa-check-circle text-green-500 mr-2 text-xs"></i>Contains a number';
+            } else {
+                numberCheck.innerHTML = '<i class="fas fa-circle text-gray-300 mr-2 text-xs"></i>Contains a number';
             }
         });
     }
 
-    // Add Bootstrap classes to form fields
-    const inputs = document.querySelectorAll('input, select, textarea');
-    inputs.forEach(input => {
-        input.classList.add('form-control');
-        
-        // Add is-invalid class if field has errors
-        if (input.nextElementSibling && input.nextElementSibling.classList.contains('invalid-feedback')) {
-            input.classList.add('is-invalid');
-        }
-    });
+    // Form validation and submission
+    const form = document.getElementById('user-form');
+    const submitButton = document.getElementById('submit-button');
+    const buttonText = document.getElementById('button-text');
     
-    // Special handling for select elements
-    const selects = document.querySelectorAll('select');
-    selects.forEach(select => {
-        select.classList.add('form-select');
-    });
-    
-    // Textarea specific styling
-    const textareas = document.querySelectorAll('textarea');
-    textareas.forEach(textarea => {
-        textarea.style.minHeight = '100px';
-    });
+    if (form && submitButton && buttonText) {
+        form.addEventListener('submit', function(e) {
+            // Basic validation
+            let isValid = true;
+            const requiredFields = form.querySelectorAll('input[required], select[required]');
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.classList.add('border-red-500');
+                    
+                    // Add error message if not exists
+                    if (!field.nextElementSibling || !field.nextElementSibling.classList.contains('text-red-600')) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'mt-1 text-sm text-red-600 flex items-center';
+                        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>This field is required';
+                        field.parentNode.appendChild(errorDiv);
+                    }
+                } else {
+                    field.classList.remove('border-red-500');
+                    // Remove error message if exists
+                    if (field.nextElementSibling && field.nextElementSibling.classList.contains('text-red-600')) {
+                        field.nextElementSibling.remove();
+                    }
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                return;
+            }
+
+            // Show loading state
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i> Creating User...';
+            submitButton.disabled = true;
+            submitButton.classList.remove('hover:scale-105');
+        });
+    }
+
+    // Auto-focus on first field
+    const firstInput = form.querySelector('input:not([type="hidden"])');
+    if (firstInput) {
+        setTimeout(() => {
+            firstInput.focus();
+        }, 300);
+    }
+
+    // Real-time validation for email format
+    const emailInput = document.getElementById('id_email');
+    if (emailInput) {
+        emailInput.addEventListener('blur', function() {
+            const email = this.value;
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                this.classList.add('border-red-500');
+                if (!this.nextElementSibling || !this.nextElementSibling.classList.contains('text-red-600')) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'mt-1 text-sm text-red-600 flex items-center';
+                    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>Please enter a valid email address';
+                    this.parentNode.appendChild(errorDiv);
+                }
+            } else if (email) {
+                this.classList.remove('border-red-500');
+                if (this.nextElementSibling && this.nextElementSibling.classList.contains('text-red-600')) {
+                    this.nextElementSibling.remove();
+                }
+            }
+        });
+    }
 });
 </script>
 {% endblock %}
