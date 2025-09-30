@@ -1,187 +1,17 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load crispy_forms_tags %}
 
 {% block title %}Login - UniLib{% endblock %}
 
-{% block content %}
-<div class="login-container mb-5">  <!-- Added mb-5 class for bottom margin -->
-    <div class="row g-0 vh-100">
-        <!-- Left Side - Branding (45% width) -->
-        <div class="col-lg-5 d-none d-lg-flex login-brand-side">
-            <div class="login-brand-content w-100 px-4">
-                <div class="brand-animation">
-                    <div class="book-shelf">
-                        <div class="book book-1"></div>
-                        <div class="book book-2"></div>
-                        <div class="book book-3"></div>
-                        <div class="shelf"></div>
-                    </div>
-                    <div class="floating-icons">
-                        <i class="fas fa-atom"></i>
-                        <i class="fas fa-microscope"></i>
-                        <i class="fas fa-palette"></i>
-                    </div>
-                </div>
-                
-                <h1 class="brand-title">UniLib</h1>
-                <p class="brand-subtitle">Your Gateway to Academic Excellence</p>
-                
-                <div class="brand-features">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-database"></i>
-                        </div>
-                        <div class="feature-text">
-                            <h5>500,000+ Resources</h5>
-                            <p>Books, journals, and research papers</p>
-                        </div>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <div class="feature-text">
-                            <h5>24/7 Access</h5>
-                            <p>Available whenever you need it</p>
-                        </div>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-bell"></i>
-                        </div>
-                        <div class="feature-text">
-                            <h5>Personalized Alerts</h5>
-                            <p>Get notified about new content</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="brand-footer">
-                    <div class="trust-badge">
-                        <i class="fas fa-shield-alt"></i>
-                        <span>Secure Academic Platform</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Right Side - Form (55% width) -->
-        <div class="col-lg-7 login-form-side">
-            <div class="d-flex align-items-center justify-content-center h-100">
-                <div class="login-form-container mx-auto" style="max-width: 480px;">
-                    <div class="login-form-header">
-                        <h2>Welcome Back</h2>
-                        <p class="text-muted">Sign in to continue to your account</p>
-                    </div>
-                    
-                    <div class="login-form-card">
-                        <form method="POST" class="login-form" id="login-form">
-                            {% csrf_token %}
-                            
-                            {% if form.non_field_errors %}
-                            <div class="alert alert-danger alert-dismissible fade show">
-                                <i class="fas fa-exclamation-circle me-2"></i>
-                                {% for error in form.non_field_errors %}
-                                    {{ error }}
-                                {% endfor %}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                            {% endif %}
-                            
-                            <div class="mb-3 form-floating">
-                                <input type="text" name="username" class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
-                                       id="id_username" placeholder=" " required autofocus>
-                                <label for="id_username">Email or Username</label>
-                                {% if form.username.errors %}
-                                <div class="invalid-feedback">
-                                    {% for error in form.username.errors %}
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="mb-3 form-floating password-field">
-                                <input type="password" name="password" class="form-control {% if form.password.errors %}is-invalid{% endif %}" 
-                                       id="id_password" placeholder=" " required>
-                                <label for="id_password">Password</label>
-                                <button type="button" class="btn btn-link toggle-password" aria-label="Toggle password visibility">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                {% if form.password.errors %}
-                                <div class="invalid-feedback">
-                                    {% for error in form.password.errors %}
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="rememberMe" name="remember_me">
-                                    <label class="form-check-label" for="rememberMe">Remember me</label>
-                                </div>
-                                <a href="{% url 'password_reset' %}" class="text-primary">Forgot password?</a>
-                            </div>
-                            
-                            <button type="submit" class="btn btn-primary w-100 py-3 mb-3" id="submit-button">
-                                <i class="fas fa-sign-in-alt me-2"></i> Sign In
-                            </button>
-                            
-                            <div class="text-center mt-4">
-                                <p class="text-muted">Don't have an account? 
-                                    <a href="{% url 'register' %}" class="text-primary fw-bold">Sign up</a>
-                                </p>
-                            </div>
-                        </form>
-                    </div>
-                    
-                    <div class="login-footer text-center mt-4">
-                        <p class="small text-muted">
-                            By continuing, you agree to our 
-                            <a href="#" class="text-primary">Terms</a> and 
-                            <a href="#" class="text-primary">Privacy Policy</a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
 {% block extra_css %}
 <style>
-    :root {
-        --login-primary: #4361ee;
-        --login-primary-dark: #3a56d4;
-        --login-light: #f8f9fa;
-        --login-dark: #212529;
-        --login-border: #dee2e6;
-        --login-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
-        --login-text-muted: #6c757d;
-    }
-    
-    body {
-        background-color: var(--login-light);
-        font-family: 'Poppins', sans-serif;
-        overflow-x: hidden;
-    }
-    
     .login-container {
         min-height: 100vh;
-        margin-bottom: 3rem; /* Added margin to prevent footer overlap */
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
     
-    /* Branding Side (45%) */
     .login-brand-side {
-        background: linear-gradient(135deg, #3a0ca3 0%, #4361ee 100%);
-        padding: 3rem;
-        color: white;
+        background: linear-gradient(135deg, rgba(58, 12, 163, 0.9) 0%, rgba(67, 97, 238, 0.9) 100%);
         position: relative;
         overflow: hidden;
     }
@@ -202,41 +32,24 @@
         100% { transform: rotate(360deg); }
     }
     
-    .login-brand-content {
-        max-width: 100%;
-        text-align: center;
-        position: relative;
-        z-index: 1;
-        padding: 0 2rem;
-    }
-    
     /* Book Animation */
-    .brand-animation {
-        position: relative;
-        height: 150px;
-        margin-bottom: 2rem;
-    }
-    
     .book-shelf {
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 200px;
+        position: relative;
         height: 120px;
+        margin-bottom: 2rem;
     }
     
     .book {
         position: absolute;
         background: white;
-        border-radius: 2px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-radius: 4px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     
     .book-1 {
         width: 30px;
         height: 90px;
-        left: 20px;
+        left: 20%;
         bottom: 0;
         background: #ff9a9e;
         transform: rotate(2deg);
@@ -246,7 +59,7 @@
     .book-2 {
         width: 40px;
         height: 100px;
-        left: 80px;
+        left: 45%;
         bottom: 0;
         background: #fad0c4;
         animation: book-float 5s ease-in-out infinite 0.5s;
@@ -255,7 +68,7 @@
     .book-3 {
         width: 35px;
         height: 95px;
-        left: 140px;
+        left: 70%;
         bottom: 0;
         background: #a18cd1;
         transform: rotate(-2deg);
@@ -265,10 +78,10 @@
     .shelf {
         position: absolute;
         bottom: -5px;
-        left: 0;
-        width: 100%;
-        height: 10px;
-        background: rgba(255,255,255,0.2);
+        left: 10%;
+        width: 80%;
+        height: 8px;
+        background: rgba(255,255,255,0.3);
         border-radius: 2px;
     }
     
@@ -293,19 +106,19 @@
     }
     
     .floating-icons i:nth-child(1) {
-        top: 10%;
+        top: 20%;
         left: 20%;
         animation-delay: 0s;
     }
     
     .floating-icons i:nth-child(2) {
-        top: 30%;
-        right: 15%;
+        top: 40%;
+        right: 20%;
         animation-delay: -5s;
     }
     
     .floating-icons i:nth-child(3) {
-        bottom: 20%;
+        bottom: 30%;
         left: 50%;
         animation-delay: -8s;
     }
@@ -316,276 +129,254 @@
         100% { transform: translateY(0) rotate(360deg); opacity: 0.1; }
     }
     
-    /* Brand Text */
-    .brand-title {
-        font-family: 'Playfair Display', serif;
-        font-size: 2.5rem;
-        margin-bottom: 0.5rem;
-        font-weight: 700;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .brand-subtitle {
-        font-size: 1.1rem;
-        opacity: 0.9;
-        margin-bottom: 2.5rem;
-        font-weight: 300;
-    }
-    
-    /* Feature Cards */
-    .brand-features {
-        max-width: 400px;
-        margin: 0 auto 2rem;
-    }
-    
     .feature-card {
-        display: flex;
-        align-items: center;
         background: rgba(255,255,255,0.1);
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        text-align: left;
-        backdrop-filter: blur(5px);
+        backdrop-filter: blur(10px);
         border: 1px solid rgba(255,255,255,0.2);
         transition: all 0.3s ease;
     }
     
     .feature-card:hover {
         transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-    
-    .feature-icon {
-        width: 50px;
-        height: 50px;
-        background: rgba(255,255,255,0.2);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 1rem;
-        font-size: 1.2rem;
-        flex-shrink: 0;
-    }
-    
-    .feature-text h5 {
-        font-size: 1rem;
-        margin-bottom: 0.25rem;
-        font-weight: 500;
-    }
-    
-    .feature-text p {
-        font-size: 0.85rem;
-        opacity: 0.8;
-        margin: 0;
-        font-weight: 300;
-    }
-    
-    /* Brand Footer */
-    .brand-footer {
-        margin-top: 2rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
     
     .trust-badge {
-        display: inline-flex;
-        align-items: center;
         background: rgba(255,255,255,0.1);
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.85rem;
-    }
-    
-    .trust-badge i {
-        margin-right: 0.5rem;
-        color: #4cc9f0;
-    }
-    
-    /* Form Side (55%) */
-    .login-form-side {
-        background-color: white;
-        display: flex;
-        padding: 2rem;
-    }
-    
-    .login-form-container {
-        width: 100%;
-        max-width: 480px;
-        margin-left: 3rem;
-    }
-    
-    .login-form-header {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    
-    .login-form-header h2 {
-        font-family: 'Playfair Display', serif;
-        color: var(--login-dark);
-        margin-bottom: 0.5rem;
-        font-size: 1.8rem;
-    }
-    
-    .login-form-header p {
-        color: var(--login-text-muted);
-        font-size: 1rem;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255,255,255,0.2);
     }
     
     .login-form-card {
-        background: white;
-        border-radius: 0.5rem;
-        padding: 2rem;
-        box-shadow: var(--login-shadow);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
     }
     
-    /* Form Elements */
-    .form-floating {
-        position: relative;
-        margin-bottom: 1.5rem;
+    .form-input {
+        transition: all 0.3s ease;
+        border: 2px solid #e5e7eb;
     }
     
-    .form-floating label {
-        color: var(--login-text-muted);
-        padding: 1rem 0.75rem;
-        transition: all 0.2s ease;
+    .form-input:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        transform: translateY(-2px);
     }
     
-    .form-control {
-        height: calc(3.5rem + 2px);
-        padding: 1rem 0.75rem;
-        border-radius: 0.375rem;
-        border: 1px solid var(--login-border);
-        transition: all 0.2s ease;
+    .password-toggle {
+        transition: all 0.3s ease;
     }
     
-    .form-control:focus {
-        border-color: var(--login-primary);
-        box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.15);
-    }
-    
-    /* Password Field */
-    .password-field {
-        position: relative;
-    }
-    
-    .password-field .form-control {
-        padding-right: 2.5rem;
-    }
-    
-    .toggle-password {
-        position: absolute;
-        right: 0.75rem;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        color: var(--login-text-muted);
-        cursor: pointer;
-        z-index: 5;
-        padding: 0.5rem;
-        font-size: 1rem;
-    }
-    
-    .toggle-password:hover {
-        color: var(--login-primary);
-    }
-    
-    .btn-primary {
-        background-color: var(--login-primary);
-        border-color: var(--login-primary);
-        padding: 0.75rem;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        font-size: 1rem;
-    }
-    
-    .btn-primary:hover {
-        background-color: var(--login-primary-dark);
-        border-color: var(--login-primary-dark);
-        transform: translateY(-1px);
-    }
-    
-    .btn-primary:active {
-        transform: translateY(0);
-    }
-    
-    .form-check-input:checked {
-        background-color: var(--login-primary);
-        border-color: var(--login-primary);
-    }
-    
-    .alert-danger {
-        background-color: rgba(220, 53, 69, 0.1);
-        border-color: rgba(220, 53, 69, 0.2);
-        color: #dc3545;
-        padding: 0.75rem 1rem;
-        border-radius: 0.375rem;
-    }
-    
-    .invalid-feedback {
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-        display: block;
-    }
-    
-    /* Loading spinner */
-    .fa-spinner {
-        animation: spin 1s linear infinite;
+    .password-toggle:hover {
+        color: #4f46e5;
+        transform: scale(1.1);
     }
     
     @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
-    
-    /* Button state transitions */
-    #submit-button {
-        transition: all 0.3s ease;
-    }
-    
-    #submit-button[disabled] {
-        opacity: 0.8;
-        transform: scale(0.98);
-    }
-    
-    /* Responsive Adjustments */
-    @media (max-width: 992px) {
-        .login-brand-side,
-        .login-form-side {
-            width: 100% !important;
-            flex: 0 0 100%;
-        }
-        
-        .login-brand-side {
-            height: auto;
-            padding: 3rem 1rem;
-        }
-        
-        .login-form-side {
-            padding: 3rem 1.5rem;
-        }
-        
-        .login-form-container {
-            margin-left: 0;
-            max-width: 100%;
-        }
-        
-        .brand-title {
-            font-size: 2rem;
-        }
-        
-        .brand-subtitle {
-            font-size: 1rem;
-        }
-    }
 </style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container flex items-center justify-center py-8">
+    <div class="max-w-7xl w-full mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-12 bg-white rounded-3xl shadow-2xl overflow-hidden">
+            <!-- Left Side - Branding -->
+            <div class="lg:col-span-5 login-brand-side p-8 lg:p-12 text-white hidden lg:block">
+                <div class="flex flex-col justify-between h-full relative z-10">
+                    <div class="text-center">
+                        <!-- Book Animation -->
+                        <div class="book-shelf mb-8">
+                            <div class="book book-1"></div>
+                            <div class="book book-2"></div>
+                            <div class="book book-3"></div>
+                            <div class="shelf"></div>
+                        </div>
+                        
+                        <!-- Floating Icons -->
+                        <div class="floating-icons">
+                            <i class="fas fa-atom"></i>
+                            <i class="fas fa-microscope"></i>
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        
+                        <h1 class="text-4xl font-bold font-serif mb-4">UniLib</h1>
+                        <p class="text-xl text-indigo-100 mb-12">Your Gateway to Academic Excellence</p>
+                        
+                        <!-- Features -->
+                        <div class="space-y-6 max-w-md mx-auto">
+                            <div class="feature-card rounded-2xl p-6 flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-database text-lg"></i>
+                                </div>
+                                <div class="text-left">
+                                    <h3 class="font-semibold text-lg">500,000+ Resources</h3>
+                                    <p class="text-indigo-100 text-sm">Books, journals, and research papers</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-card rounded-2xl p-6 flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-clock text-lg"></i>
+                                </div>
+                                <div class="text-left">
+                                    <h3 class="font-semibold text-lg">24/7 Access</h3>
+                                    <p class="text-indigo-100 text-sm">Available whenever you need it</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-card rounded-2xl p-6 flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-bell text-lg"></i>
+                                </div>
+                                <div class="text-left">
+                                    <h3 class="font-semibold text-lg">Personalized Alerts</h3>
+                                    <p class="text-indigo-100 text-sm">Get notified about new content</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Trust Badge -->
+                    <div class="text-center mt-8">
+                        <div class="trust-badge inline-flex items-center space-x-2 px-4 py-2 rounded-full">
+                            <i class="fas fa-shield-alt text-blue-300"></i>
+                            <span class="text-sm">Secure Academic Platform</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side - Form -->
+            <div class="lg:col-span-7 p-8 lg:p-12">
+                <div class="max-w-md mx-auto">
+                    <!-- Header -->
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold text-gray-900 font-serif mb-2">Welcome Back</h2>
+                        <p class="text-gray-600">Sign in to continue to your account</p>
+                    </div>
+
+                    <!-- Login Form -->
+                    <div class="login-form-card rounded-2xl p-8">
+                        <form method="POST" class="space-y-6" id="login-form">
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                            <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+                                <div class="flex items-start">
+                                    <i class="fas fa-exclamation-triangle text-red-500 mt-1 mr-3 flex-shrink-0"></i>
+                                    <div class="text-sm text-red-700">
+                                        {% for error in form.non_field_errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Username/Email Field -->
+                            <div class="space-y-2">
+                                <label for="id_username" class="block text-sm font-medium text-gray-700">
+                                    Email or Username
+                                </label>
+                                <div class="relative">
+                                    <input type="text" 
+                                           name="username" 
+                                           id="id_username"
+                                           class="w-full px-12 py-3 form-input rounded-xl"
+                                           placeholder="Enter your email or username"
+                                           required
+                                           autofocus>
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-user text-gray-400"></i>
+                                    </div>
+                                </div>
+                                {% if form.username.errors %}
+                                <div class="text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>{{ form.username.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Password Field -->
+                            <div class="space-y-2">
+                                <label for="id_password" class="block text-sm font-medium text-gray-700">
+                                    Password
+                                </label>
+                                <div class="relative">
+                                    <input type="password" 
+                                           name="password" 
+                                           id="id_password"
+                                           class="w-full px-12 py-3 form-input rounded-xl pr-12"
+                                           placeholder="Enter your password"
+                                           required>
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-lock text-gray-400"></i>
+                                    </div>
+                                    <button type="button" class="password-toggle absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                {% if form.password.errors %}
+                                <div class="text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>{{ form.password.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Remember Me & Forgot Password -->
+                            <div class="flex items-center justify-between">
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="remember_me" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                    <span class="ml-2 text-sm text-gray-700">Remember me</span>
+                                </label>
+                                <a href="{% url 'password_reset' %}" class="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+                                    Forgot password?
+                                </a>
+                            </div>
+                            
+                            <!-- Submit Button -->
+                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center" id="submit-button">
+                                <i class="fas fa-sign-in-alt mr-3"></i>
+                                Sign In
+                            </button>
+                            
+                            <!-- Sign Up Link -->
+                            <div class="text-center">
+                                <p class="text-gray-600">
+                                    Don't have an account? 
+                                    <a href="{% url 'register' %}" class="text-indigo-600 hover:text-indigo-700 font-semibold">
+                                        Sign up
+                                    </a>
+                                </p>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div class="text-center mt-6">
+                        <p class="text-sm text-gray-500">
+                            By continuing, you agree to our 
+                            <a href="#" class="text-indigo-600 hover:text-indigo-700">Terms</a> and 
+                            <a href="#" class="text-indigo-600 hover:text-indigo-700">Privacy Policy</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Toggle password visibility
-    const togglePassword = document.querySelector('.toggle-password');
+    const togglePassword = document.querySelector('.password-toggle');
     const passwordInput = document.getElementById('id_password');
     
     if (togglePassword && passwordInput) {
@@ -595,56 +386,29 @@ document.addEventListener('DOMContentLoaded', function() {
             const icon = this.querySelector('i');
             icon.classList.toggle('fa-eye');
             icon.classList.toggle('fa-eye-slash');
+            this.classList.toggle('text-indigo-500', type === 'text');
         });
     }
     
     // Auto-focus username field
     const usernameField = document.getElementById('id_username');
-    if (usernameField) {
-        usernameField.focus();
-    }
+    if (usernameField) usernameField.focus();
     
-    // Form validation
+    // Form submission handling
     const form = document.getElementById('login-form');
     if (form) {
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', function() {
             const submitButton = document.getElementById('submit-button');
-            
-            // Show loading state
             if (submitButton) {
-                const originalContent = submitButton.innerHTML;
-                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Signing In...';
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i> Signing In...';
                 submitButton.disabled = true;
-                
-                // Add delay to see the spinner (demo only)
-                {% comment %} e.preventDefault();
-                setTimeout(function() {
-                    // Submit the form after delay
-                    form.submit();
-                }, 2000); // 2 second delay {% endcomment %}
+                submitButton.classList.remove('hover:scale-105');
             }
-            
-            // Validate required fields
-            const fields = form.querySelectorAll('input[required]');
-            fields.forEach(field => {
-                if (!field.value) {
-                    field.classList.add('is-invalid');
-                }
-            });
-        });
-        
-        // Clear validation errors when typing
-        form.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', function() {
-                if (this.classList.contains('is-invalid')) {
-                    this.classList.remove('is-invalid');
-                }
-            });
         });
     }
     
     // Remember me functionality
-    const rememberMe = document.getElementById('rememberMe');
+    const rememberMe = document.querySelector('input[name="remember_me"]');
     const username = document.getElementById('id_username');
     
     if (rememberMe && username) {
