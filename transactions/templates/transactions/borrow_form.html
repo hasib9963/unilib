@@ -4,104 +4,334 @@
 {% block title %}Borrow {{ book.title }} - UniLib{% endblock %}
 
 {% block content %}
-<div class="container py-4 animate__animated animate__fadeIn">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-sm border-0" style="border-top: 4px solid #4361ee;">
-                <div class="card-header bg-primary text-white py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="mb-0">
-                            <i class="fas fa-book-open me-2"></i>Borrow "{{ book.title|truncatechars:25 }}"
-                        </h3>
-                        <a href="{% url 'book-detail' book.pk %}" class="btn btn-sm btn-light">
-                            <i class="fas fa-times text-primary"></i>
-                        </a>
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Floating Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 text-blue-200 opacity-40 animate-float">
+            <i class="fas fa-book-open text-6xl"></i>
+        </div>
+        <div class="absolute top-40 right-20 text-indigo-200 opacity-30 animate-float-delayed">
+            <i class="fas fa-calendar-alt text-4xl"></i>
+        </div>
+        <div class="absolute bottom-40 left-20 text-blue-200 opacity-25 animate-float">
+            <i class="fas fa-exchange-alt text-5xl"></i>
+        </div>
+        <div class="absolute bottom-20 right-10 text-indigo-200 opacity-20 animate-float-delayed">
+            <i class="fas fa-user-check text-6xl"></i>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto relative z-10">
+        <!-- Page Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 font-serif mb-4">
+                <i class="fas fa-book-open mr-3 text-indigo-600"></i>
+                Borrow Book
+            </h1>
+            <p class="text-gray-600 text-lg">Confirm your book borrowing details</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Book Information Card -->
+            <div class="lg:col-span-1">
+                <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+                    <!-- Card Header -->
+                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 py-6 px-8">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
+                                <i class="fas fa-book text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-white">Book Details</h2>
+                                <p class="text-blue-100">Selected for borrowing</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Book Content -->
+                    <div class="p-6">
+                        <!-- Book Cover -->
+                        <div class="text-center mb-6">
+                            {% if book.cover_image %}
+                            <img src="{{ book.cover_image.url }}" 
+                                 class="w-32 h-48 object-cover rounded-2xl shadow-lg mx-auto border-4 border-white"
+                                 alt="{{ book.title }}">
+                            {% else %}
+                            <div class="w-32 h-48 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center mx-auto border-4 border-white">
+                                <i class="fas fa-book-open text-blue-400 text-4xl"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Book Information -->
+                        <div class="space-y-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-2 text-center">{{ book.title }}</h3>
+                                <p class="text-gray-600 text-center mb-4">by {{ book.author }}</p>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center p-3 bg-blue-50 rounded-xl">
+                                    <span class="text-sm font-medium text-gray-700">ISBN</span>
+                                    <span class="text-sm text-gray-600 font-mono">{{ book.isbn|default:"N/A" }}</span>
+                                </div>
+                                
+                                <div class="flex justify-between items-center p-3 bg-green-50 rounded-xl">
+                                    <span class="text-sm font-medium text-gray-700">Available Copies</span>
+                                    <span class="text-sm font-semibold text-green-600">{{ book.available_copies }}</span>
+                                </div>
+                                
+                                <div class="flex justify-between items-center p-3 bg-purple-50 rounded-xl">
+                                    <span class="text-sm font-medium text-gray-700">Category</span>
+                                    <span class="text-sm text-gray-600">{{ book.category.name|default:"General" }}</span>
+                                </div>
+                                
+                                <div class="flex justify-between items-center p-3 bg-amber-50 rounded-xl">
+                                    <span class="text-sm font-medium text-gray-700">Publication Date</span>
+                                    <span class="text-sm text-gray-600">{{ book.publication_date|default:"N/A" }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Quick Actions -->
+                            <div class="mt-6">
+                                <a href="{% url 'book-detail' book.pk %}" 
+                                   class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                                    <i class="fas fa-info-circle mr-3"></i> View Full Details
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="card-body">
-                    <form method="POST" class="needs-validation" novalidate id="borrow-form">
-                        {% csrf_token %}
-                        
-                        {% if book.cover_image %}
-                        <div class="text-center mb-4">
-                            <img src="{{ book.cover_image.url }}" class="img-thumbnail shadow-sm" alt="{{ book.title }}" style="max-height: 200px; border-color: #e1e7fc;">
-                        </div>
-                        {% endif %}
-                        
-                        <div class="mb-4 p-3 rounded" style="background-color: #f8f9fe;">
-                            {{ form|crispy }}
-                        </div>
-                        
-                        <div class="d-flex justify-content-between border-top pt-4">
-                            <a href="{% url 'book-detail' book.pk %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i> Cancel
-                            </a>
-                            <button type="submit" class="btn btn-success px-4" id="submit-button" style="background-color: #4cc9f0; border-color: #4cc9f0;">
-                                <i class="fas fa-book-open me-2"></i> <span id="button-text">Confirm Borrow</span>
-                            </button>
-                        </div>
-                    </form>
+            </div>
+
+            <!-- Borrow Form Card -->
+            <div class="lg:col-span-1">
+                <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+                    <!-- Form Header -->
+                    <div class="bg-gradient-to-r from-indigo-600 to-blue-600 py-6 px-8">
+                        <h2 class="text-2xl font-bold text-white flex items-center">
+                            <i class="fas fa-calendar-check mr-3"></i>
+                            Borrowing Details
+                        </h2>
+                        <p class="text-indigo-100 mt-2">Set your preferred return date and confirm</p>
+                    </div>
+
+                    <!-- Form Content -->
+                    <div class="p-8">
+                        <form method="POST" id="borrow-form">
+                            {% csrf_token %}
+                            
+                            <!-- User Information -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                                    <i class="fas fa-user text-indigo-600 mr-2"></i>
+                                    Borrower Information
+                                </label>
+                                <div class="bg-gray-50 rounded-2xl p-4 border-2 border-gray-200">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
+                                            <i class="fas fa-user-graduate text-indigo-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-gray-800">{{ user.get_full_name }}</h4>
+                                            <p class="text-sm text-gray-600">{{ user.university_id }} • {{ user.get_role_display }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form Fields -->
+                            <div class="space-y-6">
+                                {% for field in form %}
+                                <div class="mb-4">
+                                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                                        <i class="fas fa-{% if field.name == 'return_date' %}calendar-alt{% else %}sticky-note{% endif %} text-indigo-600 mr-2"></i>
+                                        {{ field.label }}
+                                    </label>
+                                    <div class="relative">
+                                        {{ field }}
+                                        {% if field.name == 'return_date' %}
+                                        <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                            <i class="fas fa-calendar"></i>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% if field.help_text %}
+                                    <p class="mt-2 text-sm text-gray-500 flex items-center">
+                                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                                        {{ field.help_text }}
+                                    </p>
+                                    {% endif %}
+                                    {% if field.errors %}
+                                    <div class="mt-2 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-2"></i>
+                                        {{ field.errors.0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Terms and Conditions -->
+                            <div class="mt-6 p-4 bg-amber-50 rounded-2xl border-l-4 border-amber-500">
+                                <div class="flex items-start">
+                                    <i class="fas fa-exclamation-triangle text-amber-600 mt-1 mr-3"></i>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800 mb-2">Borrowing Terms</h4>
+                                        <ul class="text-sm text-gray-600 space-y-1">
+                                            <li>• Books must be returned by the due date to avoid fines</li>
+                                            <li>• Maximum borrowing period is 7 days</li>
+                                            <li>• Books in high demand may have shorter loan periods</li>
+                                            <li>• You are responsible for the book's condition</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8 pt-6 border-t border-gray-200">
+                                <a href="{% url 'book-detail' book.pk %}" 
+                                   class="bg-gray-500 hover:bg-gray-600 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center w-full sm:w-auto">
+                                    <i class="fas fa-arrow-left mr-3"></i> Cancel
+                                </a>
+                                <button type="submit" 
+                                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center w-full sm:w-auto"
+                                        id="submit-button">
+                                    <i class="fas fa-book-open mr-3"></i> 
+                                    <span id="button-text">Confirm Borrow</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="mt-8 bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-blue-200">
+            <div class="flex items-start">
+                <i class="fas fa-question-circle text-blue-500 text-2xl mr-4 mt-1"></i>
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-2">Need Help?</h4>
+                    <p class="text-gray-600">
+                        If you have any questions about borrowing this book or need to extend your loan period, 
+                        please contact the library staff at 
+                        <a href="mailto:library@unilib.edu" class="text-blue-600 hover:text-blue-700 font-medium">library@unilib.edu</a> 
+                        or visit the circulation desk.
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_css %}
 <style>
-    .card {
-        overflow: hidden;
-    }
-    .form-control:focus {
-        border-color: #4361ee;
-        box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
-    }
-    .btn-success:hover {
-        background-color: #3aa8d8 !important;
-        border-color: #3aa8d8 !important;
-    }
-    /* Loading spinner */
-    .fa-spinner {
-        animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Set default return date (14 days from now)
-    const returnDateField = document.getElementById('id_return_date');
-    if (returnDateField && !returnDateField.value) {
-        const today = new Date();
-        const returnDate = new Date(today.setDate(today.getDate() + 14));
-        returnDateField.valueAsDate = returnDate;
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
     }
     
-    // Add nice date picker styling
-    returnDateField?.classList.add('form-control', 'bg-white');
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .animate-float-delayed {
+        animation: float 8s ease-in-out infinite;
+        animation-delay: 2s;
+    }
 
-    // Form submission handling
+    /* Form field styling */
+    input, select, textarea {
+        width: 100%;
+        padding: 12px 16px 12px 48px;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background-color: white;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        transform: translateY(-2px);
+    }
+
+    /* Date input specific styling */
+    input[type="date"] {
+        background-color: white;
+        cursor: pointer;
+    }
+
+    /* Remove crispy forms default styling */
+    .form-control {
+        border: 2px solid #e5e7eb !important;
+        border-radius: 12px !important;
+        padding: 12px 16px 12px 48px !important;
+    }
+
+    .form-control:focus {
+        border-color: #4f46e5 !important;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1) !important;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default return date (7 days from now for all users)
+    const returnDateField = document.querySelector('input[type="date"]');
+    if (returnDateField && !returnDateField.value) {
+        const today = new Date();
+        const returnDate = new Date(today.setDate(today.getDate() + 7));
+        
+        // Format date as YYYY-MM-DD
+        const formattedDate = returnDate.toISOString().split('T')[0];
+        returnDateField.value = formattedDate;
+    }
+
+    // Add focus effects to form fields
+    const formInputs = document.querySelectorAll('input, select, textarea');
+    formInputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('ring-2', 'ring-indigo-200', 'rounded-xl');
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.classList.remove('ring-2', 'ring-indigo-200', 'rounded-xl');
+        });
+    });
+
+    // Form submission with loading state
     const form = document.getElementById('borrow-form');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            const submitButton = document.getElementById('submit-button');
-            const buttonText = document.getElementById('button-text');
-            
-            if (submitButton && buttonText) {
-                // Change button content to spinner and disable
-                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing...';
-                submitButton.disabled = true;
-                
-                // Optional: Add a small delay to ensure the UI updates before form submission
-                {% comment %} setTimeout(() => {
-                    form.submit();
-                }, 100); {% endcomment %}
-            }
+    const submitButton = document.getElementById('submit-button');
+    const buttonText = document.getElementById('button-text');
+    
+    if (form && submitButton && buttonText) {
+        form.addEventListener('submit', function() {
+            // Show loading state
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i> Processing Request...';
+            submitButton.disabled = true;
+            submitButton.classList.remove('hover:scale-105');
         });
     }
+
+    // REMOVED the JavaScript date validation - let Django form validation handle it
+
+    // Add hover effects to cards
+    const cards = document.querySelectorAll('.bg-white\\/95');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
 });
 </script>
 {% endblock %}

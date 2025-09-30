@@ -3,212 +3,372 @@
 {% block title %}Fines - UniLib{% endblock %}
 
 {% block content %}
-<div class="container py-4 animate__animated animate__fadeIn">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="mb-0">
-                <i class="fas fa-money-bill-wave me-2 text-primary"></i>Fines
-            </h2>
-            <p class="text-muted mb-0">
-                {% if request.user.is_admin or request.user.is_librarian %}
-                    All fines in the system
-                {% else %}
-                    Your outstanding and paid fines
-                {% endif %}
-            </p>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Floating Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 text-blue-200 opacity-40 animate-float">
+            <i class="fas fa-money-bill-wave text-6xl"></i>
         </div>
-        <div class="d-flex align-items-center">
-            <span class="badge bg-warning text-dark me-3">
-                <i class="fas fa-exclamation-circle me-1"></i> Pending: ${{ total_pending_fines }}
-            </span>
-            <span class="badge bg-success">
-                <i class="fas fa-check-circle me-1"></i> Paid: ${{ total_paid_fines }}
-            </span>
+        <div class="absolute top-40 right-20 text-indigo-200 opacity-30 animate-float-delayed">
+            <i class="fas fa-coins text-4xl"></i>
+        </div>
+        <div class="absolute bottom-40 left-20 text-gray-200 opacity-25 animate-float">
+            <i class="fas fa-credit-card text-5xl"></i>
+        </div>
+        <div class="absolute bottom-20 right-10 text-blue-200 opacity-20 animate-float-delayed">
+            <i class="fas fa-receipt text-6xl"></i>
         </div>
     </div>
-    
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            {% if request.user.is_admin or request.user.is_librarian %}
-                            <th class="ps-4">Borrower</th>
-                            {% endif %}
-                            <th>Book</th>
-                            <th>Due Date</th>
-                            <th>Overdue Days</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                            {% if request.user.is_admin or request.user.is_librarian %}
-                            <th class="pe-4 text-end">Actions</th>
-                            {% endif %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for fine in fines %}
-                        <tr class="{% if fine.is_paid %}bg-success-10{% else %}bg-warning-10{% endif %}">
-                            {% if request.user.is_admin or request.user.is_librarian %}
-                            <td class="ps-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar avatar-sm me-2">
-                                        <i class="fas fa-user text-primary"></i>
-                                    </div>
-                                    {{ fine.user.get_full_name }}
-                                </div>
-                            </td>
-                            {% endif %}
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    {% if fine.borrow.book.cover_image %}
-                                    <img src="{{ fine.borrow.book.cover_image.url }}" 
-                                         class="rounded me-3" 
-                                         alt="{{ fine.borrow.book.title }}"
-                                         style="width: 40px; height: 60px; object-fit: cover;">
-                                    {% else %}
-                                    <div class="rounded bg-light d-flex align-items-center justify-content-center me-3" 
-                                         style="width: 40px; height: 60px;">
-                                        <i class="fas fa-book text-muted"></i>
-                                    </div>
-                                    {% endif %}
-                                    <div>
-                                        <a href="{% url 'book-detail' fine.borrow.book.pk %}" 
-                                           class="text-primary fw-bold text-decoration-none">
-                                            {{ fine.borrow.book.title|truncatechars:30 }}
-                                        </a>
-                                        <p class="small text-muted mb-0">{{ fine.borrow.book.author }}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>{{ fine.borrow.due_date|date:"M d, Y" }}</td>
-                            <td>
-                                {% if fine.borrow.is_overdue %}
-                                <span class="badge bg-danger">
-                                    {{ fine.borrow.overdue_days }} days
-                                </span>
-                                {% else %}
-                                <span class="badge bg-success">On time</span>
-                                {% endif %}
-                            </td>
-                            <td class="fw-bold">${{ fine.amount }}</td>
-                            <td>
-                                {% if fine.is_paid %}
-                                <span class="badge bg-success bg-opacity-10 text-success">
-                                    <i class="fas fa-check-circle me-1"></i> Paid
-                                </span>
-                                {% else %}
-                                <span class="badge bg-warning bg-opacity-10 text-dark">
-                                    <i class="fas fa-exclamation-circle me-1"></i> Pending
-                                </span>
-                                {% endif %}
-                            </td>
-                            <td>{{ fine.created_at|date:"M d, Y" }}</td>
-                            {% if request.user.is_admin or request.user.is_librarian %}
-                            <td class="pe-4 text-end">
-                                {% if not fine.is_paid %}
-                                <a href="{% url 'pay-fine' fine.pk %}" 
-                                   class="btn btn-sm btn-success"
-                                   data-bs-toggle="tooltip" 
-                                   title="Mark as paid">
-                                    <i class="fas fa-money-bill-wave me-1"></i> Pay
-                                </a>
-                                {% endif %}
-                            </td>
-                            {% endif %}
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="{% if request.user.is_admin or request.user.is_librarian %}8{% else %}6{% endif %}" class="text-center py-5">
-                                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                                <h5 class="text-muted">No fines found</h5>
-                                <p class="text-muted">All fines are cleared</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+
+    <div class="max-w-7xl mx-auto relative z-10">
+        <!-- Page Header -->
+        <div class="flex flex-col lg:flex-row justify-between items-center mb-8">
+            <div class="text-center lg:text-left mb-6 lg:mb-0">
+                <h1 class="text-4xl font-bold text-gray-800 font-serif mb-4">
+                    <i class="fas fa-money-bill-wave mr-3 text-indigo-600"></i>
+                    Fines Management
+                </h1>
+                <p class="text-gray-600 text-lg">
+                    {% if request.user.is_admin or request.user.is_librarian %}
+                        All fines in the system
+                    {% else %}
+                        Your outstanding and paid fines
+                    {% endif %}
+                </p>
+            </div>
+            <div class="flex space-x-4">
+                <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-4 flex space-x-6">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-red-600">${{ total_pending_fines }}</div>
+                        <div class="text-sm text-gray-600">Pending</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-600">${{ total_paid_fines }}</div>
+                        <div class="text-sm text-gray-600">Paid</div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    
-    {% if is_paginated %}
-    <nav aria-label="Page navigation" class="mt-4">
-        <ul class="pagination justify-content-center">
-            {% if page_obj.has_previous %}
-            <li class="page-item">
-                <a class="page-link" href="?page=1" aria-label="First">
-                    <i class="fas fa-angle-double-left"></i>
-                </a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
-                    <i class="fas fa-angle-left"></i>
-                </a>
-            </li>
-            {% endif %}
-            
-            {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-            <li class="page-item active">
-                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-            </li>
-            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-            </li>
-            {% endif %}
-            {% endfor %}
-            
-            {% if page_obj.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
-                    <i class="fas fa-angle-right"></i>
-                </a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
-                    <i class="fas fa-angle-double-right"></i>
-                </a>
-            </li>
-            {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
-</div>
 
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Total Fines -->
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Fines</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ fines|length }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">All fine records</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                        <i class="fas fa-money-bill-wave text-blue-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Fines -->
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Pending Fines</p>
+                        <h3 class="text-2xl font-bold text-red-600 mt-2">{{ total_pending_fines }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">Awaiting payment</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
+                        <i class="fas fa-clock text-red-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paid Fines -->
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Paid Fines</p>
+                        <h3 class="text-2xl font-bold text-green-600 mt-2">{{ total_paid_fines }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">Successfully paid</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fines Table Card -->
+        <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+            <!-- Card Header -->
+            <div class="bg-gradient-to-r from-indigo-600 to-blue-600 py-6 px-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
+                            <i class="fas fa-receipt text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">Fine Records</h2>
+                            <p class="text-indigo-100">
+                                {% if request.user.is_admin or request.user.is_librarian %}
+                                    All fines in the system
+                                {% else %}
+                                    Your fine history
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-indigo-100">
+                        Showing {{ fines|length }} records
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Content -->
+            <div class="p-6">
+                {% if fines %}
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b-2 border-gray-200">
+                                {% if request.user.is_admin or request.user.is_librarian %}
+                                <th class="pb-4 text-left font-semibold text-gray-700">Borrower</th>
+                                {% endif %}
+                                <th class="pb-4 text-left font-semibold text-gray-700">Book</th>
+                                <th class="pb-4 text-left font-semibold text-gray-700">Due Date</th>
+                                <th class="pb-4 text-left font-semibold text-gray-700">Overdue Days</th>
+                                <th class="pb-4 text-left font-semibold text-gray-700">Amount</th>
+                                <th class="pb-4 text-left font-semibold text-gray-700">Status</th>
+                                <th class="pb-4 text-left font-semibold text-gray-700">Created</th>
+                                {% if request.user.is_admin or request.user.is_librarian %}
+                                <th class="pb-4 text-right font-semibold text-gray-700">Actions</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            {% for fine in fines %}
+                            <tr class="hover:bg-gray-50 transition-colors duration-200 {% if fine.is_paid %}bg-green-50{% else %}bg-yellow-50{% endif %}">
+                                <!-- Borrower Column -->
+                                {% if request.user.is_admin or request.user.is_librarian %}
+                                <td class="py-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                                            <i class="fas fa-user text-indigo-600 text-sm"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-gray-800">{{ fine.user.get_full_name }}</p>
+                                            <p class="text-sm text-gray-600">{{ fine.user.university_id }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                {% endif %}
+
+                                <!-- Book Column -->
+                                <td class="py-4">
+                                    <div class="flex items-center space-x-4">
+                                        {% if fine.borrow.book.cover_image %}
+                                        <img src="{{ fine.borrow.book.cover_image.url }}" 
+                                             class="w-12 h-16 object-cover rounded-xl shadow-sm border"
+                                             alt="{{ fine.borrow.book.title }}">
+                                        {% else %}
+                                        <div class="w-12 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center border">
+                                            <i class="fas fa-book text-blue-400"></i>
+                                        </div>
+                                        {% endif %}
+                                        <div class="min-w-0 flex-1">
+                                            <a href="{% url 'book-detail' fine.borrow.book.pk %}" 
+                                               class="font-semibold text-gray-800 hover:text-indigo-600 transition-colors line-clamp-2">
+                                                {{ fine.borrow.book.title }}
+                                            </a>
+                                            <p class="text-sm text-gray-600 mt-1">{{ fine.borrow.book.author }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Due Date Column -->
+                                <td class="py-4">
+                                    <p class="text-gray-700">{{ fine.borrow.due_date|date:"M d, Y" }}</p>
+                                    <p class="text-sm text-gray-500">{{ fine.borrow.due_date|timesince }} ago</p>
+                                </td>
+
+                                <!-- Overdue Days Column -->
+                                <td class="py-4">
+                                    {% if fine.borrow.is_overdue %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                        <i class="fas fa-clock mr-2"></i>
+                                        {{ fine.borrow.overdue_days }} days
+                                    </span>
+                                    {% else %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-check mr-2"></i> On time
+                                    </span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Amount Column -->
+                                <td class="py-4">
+                                    <p class="text-xl font-bold text-gray-800">${{ fine.amount }}</p>
+                                </td>
+
+                                <!-- Status Column -->
+                                <td class="py-4">
+                                    {% if fine.is_paid %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-check-circle mr-2"></i> Paid
+                                    </span>
+                                    {% else %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                        <i class="fas fa-exclamation-circle mr-2"></i> Pending
+                                    </span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Created Date Column -->
+                                <td class="py-4">
+                                    <p class="text-gray-700">{{ fine.created_at|date:"M d, Y" }}</p>
+                                    <p class="text-sm text-gray-500">{{ fine.created_at|timesince }} ago</p>
+                                </td>
+
+                                <!-- Actions Column -->
+                                {% if request.user.is_admin or request.user.is_librarian %}
+                                <td class="py-4 text-right">
+                                    {% if not fine.is_paid %}
+                                    <a href="{% url 'pay-fine' fine.pk %}" 
+                                       class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center"
+                                       data-bs-toggle="tooltip" 
+                                       title="Mark as paid">
+                                        <i class="fas fa-money-bill-wave mr-2"></i> Pay
+                                    </a>
+                                    {% else %}
+                                    <span class="text-gray-400 text-sm">Completed</span>
+                                    {% endif %}
+                                </td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                {% else %}
+                <div class="text-center py-12">
+                    <div class="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-check-circle text-green-400 text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-600 mb-3">No Fines Found</h3>
+                    <p class="text-gray-500 text-lg mb-6">All fines are cleared. Great job!</p>
+                    <a href="{% url 'book-list' %}" 
+                       class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center mx-auto w-fit">
+                        <i class="fas fa-book mr-3"></i> Browse Books
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="border-t border-gray-200 px-8 py-6">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm text-gray-700">
+                        Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </p>
+                    <div class="flex space-x-2">
+                        {% if page_obj.has_previous %}
+                        <a href="?page=1" 
+                           class="bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center border border-gray-200">
+                            <i class="fas fa-angle-double-left mr-2"></i> First
+                        </a>
+                        <a href="?page={{ page_obj.previous_page_number }}" 
+                           class="bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center border border-gray-200">
+                            <i class="fas fa-angle-left mr-2"></i> Previous
+                        </a>
+                        {% endif %}
+
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" 
+                           class="bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center border border-gray-200">
+                            Next <i class="fas fa-angle-right ml-2"></i>
+                        </a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}" 
+                           class="bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center border border-gray-200">
+                            Last <i class="fas fa-angle-double-right ml-2"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
 <style>
-    .bg-success-10 {
-        background-color: rgba(25, 135, 84, 0.05) !important;
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
     }
-    .bg-warning-10 {
-        background-color: rgba(255, 193, 7, 0.05) !important;
+    
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
     }
-    .avatar {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: rgba(67, 97, 238, 0.1);
+    
+    .animate-float-delayed {
+        animation: float 8s ease-in-out infinite;
+        animation-delay: 2s;
     }
-    .avatar-sm {
-        width: 24px;
-        height: 24px;
+    
+    .hover-lift {
+        transition: all 0.3s ease;
     }
-    .table-hover tbody tr:hover {
-        background-color: rgba(67, 97, 238, 0.03) !important;
+    
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 </style>
+{% endblock %}
 
+{% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Add hover effects to table rows
+    const tableRows = document.querySelectorAll('tbody tr');
+    tableRows.forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(5px)';
+        });
+        row.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0)';
+        });
+    });
+
     // Initialize tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Add loading animation to action buttons
+    const actionButtons = document.querySelectorAll('a[href*="pay-fine"]');
+    actionButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+            this.disabled = true;
+            
+            // Reset after 3 seconds if still on page (fallback)
+            setTimeout(() => {
+                this.innerHTML = originalText;
+                this.disabled = false;
+            }, 3000);
+        });
     });
 });
 </script>

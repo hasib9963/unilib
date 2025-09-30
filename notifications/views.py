@@ -1,10 +1,6 @@
-# notifications/views.py
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Notification
-
-
 from django.core.paginator import Paginator
 
 @login_required
@@ -15,9 +11,17 @@ def notification_list(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
+    # Calculate counts
+    unread_count = request.user.notifications.filter(is_read=False).count()
+    total_count = request.user.notifications.count()
+    read_count = total_count - unread_count
+    
     return render(request, 'notifications/notification_list.html', {
         'notifications': page_obj,
-        'has_next': page_obj.has_next()
+        'has_next': page_obj.has_next(),
+        'unread_count': unread_count,
+        'read_count': read_count,
+        'total_count': total_count
     })
 
 @login_required

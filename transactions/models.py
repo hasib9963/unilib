@@ -17,11 +17,6 @@ class Borrow(models.Model):
     
     def __str__(self):
         return f"{self.user} borrowed {self.book}"
-    
-    # def save(self, *args, **kwargs):
-    #     if not self.pk:  # New borrow
-    #         self.book.available_copies -= 1
-    #         self.book.save()
 
     def save(self, *args, **kwargs):
         if not self.pk:  # New borrow
@@ -70,22 +65,6 @@ class Borrow(models.Model):
     def has_unpaid_fine(self):
         """Check if there's an unpaid fine associated with this borrow"""
         return hasattr(self, 'fine') and not self.fine.is_paid
-    
-    # def check_and_create_fine(self):
-    #     """Check if book is overdue and create fine if needed"""
-    #     if self.is_overdue and not hasattr(self, 'fine'):
-    #         # Calculate fine amount - $50 fixed fine for overdue
-    #         fine_amount = 50
-            
-    #         # Create fine only if it doesn't exist
-    #         Fine.objects.get_or_create(
-    #             borrow=self,
-    #             defaults={
-    #                 'user': self.user,
-    #                 'amount': fine_amount,
-    #                 'is_paid': False
-    #             }
-    #         )
 
     def check_and_create_fine(self):
         """Check if book is overdue and create fine if needed"""
@@ -163,11 +142,6 @@ class Fine(models.Model):
     def __str__(self):
         return f"Fine of ${self.amount} for {self.borrow}"
     
-    # def pay_fine(self):
-    #     if not self.is_paid:
-    #         self.is_paid = True
-    #         self.paid_at = timezone.now()
-    #         self.save()
 
     def pay_fine(self):
         if not self.is_paid:
@@ -205,6 +179,7 @@ class Reservation(models.Model):
         ('COMPLETED', 'Completed'),
     ], default='PENDING')
     notified_at = models.DateTimeField(null=True, blank=True)
+    cancelled_at = models.DateTimeField(null=True, blank=True)
     
     def __str__(self):
         return f"{self.user} reserved {self.book}"

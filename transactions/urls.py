@@ -1,4 +1,6 @@
 from django.urls import path
+from transactions.views import ReservationCancelView
+from accounts import views
 from .views import (
     BorrowCreateView, BorrowListView, ReturnBookView,
     FineListView, PayFineView,
@@ -18,4 +20,5 @@ urlpatterns = [
     # Reservation URLs
     path('reservations/', ReservationListView.as_view(), name='reservation-list'),
     path('reservations/new/<int:pk>/', ReservationCreateView.as_view(), name='book-reserve'),
+    path('reservations/cancel/<int:pk>/', ReservationCancelView.as_view(), name='reservation-cancel'),
 ]

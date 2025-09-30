@@ -4,143 +4,203 @@
 {% block title %}Return "{{ object.book.title }}" - UniLib{% endblock %}
 
 {% block content %}
-<div class="container py-4 animate__animated animate__fadeIn">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-sm" style="border-top: 4px solid #28a745;">
-                <div class="card-header bg-success text-white py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="mb-0">
-                            <i class="fas fa-book-return me-2"></i>Return "{{ object.book.title|truncatechars:25 }}"
-                        </h3>
-                        <a href="{% url 'borrow-list' %}" class="btn btn-sm btn-light">
-                            <i class="fas fa-times text-success"></i>
-                        </a>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Floating Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 text-blue-200 opacity-40 animate-float">
+            <i class="fas fa-book-return text-6xl"></i>
+        </div>
+        <div class="absolute top-40 right-20 text-indigo-200 opacity-30 animate-float-delayed">
+            <i class="fas fa-exchange-alt text-4xl"></i>
+        </div>
+        <div class="absolute bottom-40 left-20 text-gray-200 opacity-25 animate-float">
+            <i class="fas fa-check-circle text-5xl"></i>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto relative z-10">
+        <!-- Page Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 font-serif mb-4">
+                <i class="fas fa-book-return mr-3 text-indigo-600"></i>
+                Return "{{ object.book.title }}"
+            </h1>
+            <p class="text-gray-600 text-lg">Complete the book return process</p>
+        </div>
+
+        <!-- Main Card -->
+        <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+            <!-- Card Header -->
+            <div class="bg-gradient-to-r from-green-600 to-emerald-600 py-6 px-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
+                            <i class="fas fa-book-return text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">Book Return Process</h2>
+                            <p class="text-green-100">Complete the return for "{{ object.book.title|truncatechars:30 }}"</p>
+                        </div>
+                    </div>
+                    <a href="{% url 'borrow-list' %}" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 flex items-center">
+                        <i class="fas fa-times mr-2"></i> Cancel
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card Content -->
+            <div class="p-8">
+                <!-- Status Alert -->
+                {% if has_unpaid_fine %}
+                <div class="bg-amber-50 border-l-4 border-amber-500 rounded-r-2xl p-6 mb-8">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-amber-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-bold text-amber-800">Unpaid Fine Detected!</h3>
+                            <p class="mt-2 text-amber-700">
+                                <strong>Fine Amount:</strong> ${{ fine_amount|floatformat:2 }}
+                            </p>
+                            {% if request.user == object.user %}
+                            <p class="mt-1 text-amber-700">You haven't paid the fine yet. You can still return the book, but please settle your fine soon.</p>
+                            {% else %}
+                            <p class="mt-1 text-amber-700"><strong>{{ object.user.get_full_name }}</strong> hasn't paid the fine yet.</p>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
-                
-                <div class="card-body">
-                    <!-- Fine Status Alert -->
-                    {% if has_unpaid_fine %}
-                    <div class="alert alert-warning mb-4">
-                        <div class="d-flex">
-                            <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
-                            <div class="w-100">
-                                <h5 class="alert-heading">Unpaid Fine Detected!</h5>
-                                <p class="mb-2">
-                                    <strong>Fine Amount:</strong> ${{ fine_amount|floatformat:2 }}
-                                </p>
-                                {% if request.user == object.user %}
-                                <p class="mb-0">You haven't paid the fine yet. You can still return the book, but please settle your fine soon.</p>
-                                {% else %}
-                                <p class="mb-0"><strong>{{ object.user.get_full_name }}</strong> hasn't paid the fine yet.</p>
-                                {% endif %}
-                            </div>
+                {% elif fine_exists and fine_paid %}
+                <div class="bg-green-50 border-l-4 border-green-500 rounded-r-2xl p-6 mb-8">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-bold text-green-800">Fine Paid</h3>
+                            {% if request.user == object.user %}
+                            <p class="mt-2 text-green-700">Your fine has been paid. You can proceed with returning the book.</p>
+                            {% else %}
+                            <p class="mt-2 text-green-700">User <strong>{{ object.user.get_full_name }}</strong> has paid the fine.</p>
+                            {% endif %}
                         </div>
                     </div>
-                    {% elif fine_exists and fine_paid %}
-                    <div class="alert alert-info mb-4">
-                        <div class="d-flex">
-                            <i class="fas fa-check-circle fa-2x me-3 text-success"></i>
-                            <div class="w-100">
-                                <h5 class="alert-heading">Fine Paid</h5>
-                                {% if request.user == object.user %}
-                                <p class="mb-0">Your fine has been paid. You can proceed with returning the book.</p>
-                                {% else %}
-                                <p class="mb-0">User <strong>{{ object.user.get_full_name }}</strong> has paid the fine.</p>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
+                </div>
+                {% endif %}
 
-                    <!-- Borrow Details Section -->
-                    <div class="alert alert-info mb-4">
-                        <div class="d-flex">
-                            <i class="fas fa-info-circle fa-2x me-3"></i>
-                            <div class="w-100">
-                                <h5 class="alert-heading">Borrow Details</h5>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <p><strong>Borrower:</strong> {{ object.user.get_full_name }}</p>
-                                        <p><strong>Borrow Date:</strong> {{ object.issue_date|date:"M d, Y" }}</p>
+                <!-- Book & Borrow Information -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <!-- Book Information -->
+                    <div class="space-y-6">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center border-b pb-3">
+                            <i class="fas fa-book mr-3 text-indigo-600"></i>
+                            Book Details
+                        </h3>
+                        
+                        <div class="flex items-start space-x-4">
+                            {% if object.book.cover_image %}
+                            <img src="{{ object.book.cover_image.url }}" 
+                                 class="w-24 h-32 object-cover rounded-xl shadow-lg border" 
+                                 alt="{{ object.book.title }}">
+                            {% else %}
+                            <div class="w-24 h-32 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl shadow-lg border flex items-center justify-center">
+                                <i class="fas fa-book-open text-indigo-400 text-2xl"></i>
+                            </div>
+                            {% endif %}
+                            <div class="flex-1">
+                                <h4 class="text-lg font-bold text-gray-800">{{ object.book.title }}</h4>
+                                <p class="text-gray-600 mb-3">by {{ object.book.author }}</p>
+                                <div class="grid grid-cols-2 gap-2 text-sm">
+                                    <div class="flex items-center text-gray-600">
+                                        <i class="fas fa-tag mr-2 text-gray-400"></i>
+                                        {{ object.book.category.name }}
                                     </div>
-                                    <div class="col-md-6">
-                                        <p class="{% if object.is_overdue %}text-danger fw-bold{% endif %}">
-                                            <strong>Due Date:</strong> {{ object.due_date|date:"M d, Y" }}
-                                            {% if object.is_overdue %}
-                                            <span class="badge bg-danger ms-2">Overdue: {{ object.overdue_days }} days</span>
-                                            {% endif %}
-                                        </p>
-                                        {% if fine_exists %}
-                                        <p class="{% if not fine_paid %}text-warning fw-bold{% else %}text-success{% endif %}">
-                                            <strong>Fine Status:</strong> 
-                                            {% if fine_paid %}
-                                                <span class="badge bg-success">Paid</span>
-                                            {% else %}
-                                                <span class="badge bg-warning">Unpaid - ${{ fine_amount|floatformat:2 }}</span>
-                                            {% endif %}
-                                        </p>
-                                        {% else %}
-                                        <p><strong>Fine Status:</strong> <span class="badge bg-success">No Fine</span></p>
-                                        {% endif %}
+                                    <div class="flex items-center text-gray-600">
+                                        <i class="fas fa-barcode mr-2 text-gray-400"></i>
+                                        {{ object.book.isbn|default:"-" }}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Book Information Section -->
-                    <div class="card mb-4 shadow-sm">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-4 text-center">
-                                    {% if object.book.cover_image %}
-                                    <img src="{{ object.book.cover_image.url }}" 
-                                         class="img-fluid rounded mb-3" 
-                                         alt="{{ object.book.title }}"
-                                         style="max-height: 200px;">
-                                    {% else %}
-                                    <div class="bg-light rounded d-flex align-items-center justify-content-center mb-3" 
-                                         style="height: 200px;">
-                                        <i class="fas fa-book-open fa-3x text-muted"></i>
-                                    </div>
+                    <!-- Borrow Information -->
+                    <div class="space-y-6">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center border-b pb-3">
+                            <i class="fas fa-user-clock mr-3 text-indigo-600"></i>
+                            Borrow Details
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="font-medium text-gray-700">Borrower</span>
+                                <span class="font-semibold text-gray-800">{{ object.user.get_full_name }}</span>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="font-medium text-gray-700">Issued On</span>
+                                <span class="font-semibold text-gray-800">{{ object.issue_date|date:"M d, Y" }}</span>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-3 {% if object.is_overdue %}bg-red-50{% else %}bg-gray-50{% endif %} rounded-lg">
+                                <span class="font-medium text-gray-700">Due Date</span>
+                                <div class="text-right">
+                                    <span class="font-semibold {% if object.is_overdue %}text-red-600{% else %}text-gray-800{% endif %}">
+                                        {{ object.due_date|date:"M d, Y" }}
+                                    </span>
+                                    {% if object.is_overdue %}
+                                    <p class="text-sm text-red-500 mt-1">{{ object.overdue_days }} days overdue</p>
                                     {% endif %}
                                 </div>
-                                <div class="col-md-8">
-                                    <h4>{{ object.book.title }}</h4>
-                                    <p class="text-muted">by {{ object.book.author }}</p>
-                                    <hr>
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <p><strong>ISBN:</strong> {{ object.book.isbn|default:"-" }}</p>
-                                            <p><strong>Category:</strong> {{ object.book.category.name }}</p>
-                                        </div>
-                                        <div class="col-6">
-                                            <p><strong>Publisher:</strong> {{ object.book.publisher|default:"-" }}</p>
-                                            <p><strong>Published:</strong> {{ object.book.publication_date|date:"Y" }}</p>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-blue-50 rounded-xl p-4 text-center border border-blue-100">
+                        <div class="text-2xl font-bold text-blue-600">{{ active_borrows_count }}</div>
+                        <div class="text-sm text-blue-700 font-medium">Active Borrows</div>
+                    </div>
+                    <div class="bg-red-50 rounded-xl p-4 text-center border border-red-100">
+                        <div class="text-2xl font-bold text-red-600">{{ overdue_borrows_count }}</div>
+                        <div class="text-sm text-red-700 font-medium">Overdue Books</div>
+                    </div>
+                    <div class="bg-green-50 rounded-xl p-4 text-center border border-green-100">
+                        <div class="text-2xl font-bold text-green-600">{{ returned_borrows_count }}</div>
+                        <div class="text-sm text-green-700 font-medium">Returned Books</div>
+                    </div>
+                    <div class="bg-purple-50 rounded-xl p-4 text-center border border-purple-100">
+                        <div class="text-2xl font-bold text-purple-600">{{ total_borrows_count }}</div>
+                        <div class="text-sm text-purple-700 font-medium">Total Borrows</div>
+                    </div>
+                </div>
+
+                <!-- Return Form -->
+                <div class="border-t pt-8">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-clipboard-check mr-3 text-green-600"></i>
+                        Return Details
+                    </h3>
                     
-                    <!-- Return Form Section -->
-                    <form method="POST" class="needs-validation" novalidate id="return-form">
+                    <form method="POST" id="return-form">
                         {% csrf_token %}
                         
-                        <div class="mb-4 p-3 rounded" style="background-color: #f0f9f2;">
-                            <h5 class="mb-3"><i class="fas fa-clipboard-check me-2"></i>Return Details</h5>
+                        <div class="space-y-6">
                             {{ form|crispy }}
                         </div>
                         
-                        <div class="d-flex justify-content-between border-top pt-4">
-                            <a href="{% url 'borrow-list' %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i> Back to Borrows
+                        <div class="flex flex-col sm:flex-row gap-4 mt-8 pt-6 border-t">
+                            <a href="{% url 'borrow-list' %}" 
+                               class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 flex items-center justify-center order-2 sm:order-1">
+                                <i class="fas fa-arrow-left mr-3"></i> Back to Borrows
                             </a>
-                            <button type="submit" class="btn btn-success px-4" id="submit-button">
-                                <i class="fas fa-check-circle me-2"></i> <span id="button-text">
+                            <button type="submit" 
+                                    class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center flex-1 order-1 sm:order-2"
+                                    id="submit-button">
+                                <i class="fas fa-check-circle mr-3 text-lg"></i> 
+                                <span id="button-text">
                                     {% if has_unpaid_fine %}Return Book (Fine Unpaid){% else %}Confirm Return{% endif %}
                                 </span>
                             </button>
@@ -151,58 +211,49 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_css %}
 <style>
-    .card {
-        overflow: hidden;
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
     }
-    .form-control:focus {
-        border-color: #28a745;
-        box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+    
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
     }
-    .btn-success:hover {
-        background-color: #218838;
-        border-color: #218838;
+    
+    .animate-float-delayed {
+        animation: float 8s ease-in-out infinite;
+        animation-delay: 2s;
     }
+
     .fa-book-return:before {
         content: "\f716";
     }
-    .alert-info {
-        background-color: #e6f3ff;
-        border-color: #b8daff;
-        color: #004085;
-    }
+
     /* Loading spinner */
     .fa-spinner {
         animation: spin 1s linear infinite;
     }
+    
     @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
-</style>
 
+    /* Form styling */
+    .form-control:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Add form validation
-    const forms = document.querySelectorAll('.needs-validation');
-    
-    Array.from(forms).forEach(function(form) {
-        form.addEventListener('submit', function(event) {
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            form.classList.add('was-validated');
-        }, false);
-    });
-    
-    // Highlight overdue notice if exists
-    const overdueBadge = document.querySelector('.badge.bg-danger');
-    if (overdueBadge) {
-        overdueBadge.classList.add('animate__animated', 'animate__pulse');
-    }
-
     // Form submission handling for loading spinner
     const form = document.getElementById('return-form');
     if (form) {
@@ -212,8 +263,18 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (submitButton && buttonText) {
                 // Change button content to spinner and disable
-                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing...';
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i> Processing Return...';
                 submitButton.disabled = true;
+            }
+        });
+    }
+
+    // Add confirmation for return with unpaid fine
+    const submitButton = document.getElementById('submit-button');
+    if (submitButton && {{ has_unpaid_fine|yesno:"true,false" }}) {
+        submitButton.addEventListener('click', function(e) {
+            if (!confirm('You have an unpaid fine of ${{ fine_amount|floatformat:2 }}. Are you sure you want to return this book without paying the fine first?')) {
+                e.preventDefault();
             }
         });
     }

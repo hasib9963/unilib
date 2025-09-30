@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from django.utils import timezone
 from datetime import timedelta
+from django.views.generic import View
 
 from django.db.models import Sum
 from .models import Borrow, Fine, Reservation
@@ -31,7 +32,7 @@ class BorrowCreateView(LoginRequiredMixin, CreateView):
         return {
             'book': book,
             'user': self.request.user,
-            'due_date': timezone.now().date() + timedelta(days=14)
+            'due_date': timezone.now().date() + timedelta(days=7)
         }
 
     def get_form_kwargs(self):
@@ -66,13 +67,13 @@ class BorrowCreateView(LoginRequiredMixin, CreateView):
         book_url = reverse('book-detail', kwargs={'pk': book.pk})
 
         # Notify borrower
-        notify(borrower, f"You borrowed '{book.title}'", url=book_url)
+        notify(borrower, f"You borrowed '{book.title}'", type='Borrowed Book', url=book_url)
 
         # Notify all staff (except the borrower if they are staff)
         staff_users = User.objects.filter(role__in=[User.Role.ADMIN, User.Role.LIBRARIAN])
         for staff in staff_users:
             if staff != borrower:
-                notify(staff, f"{borrower.get_full_name()} borrowed '{book.title}'", url=book_url)
+                notify(staff, f"{borrower.get_full_name()} borrowed '{book.title}'",  type='Borrowed Book', url=book_url)
 
         # Email to borrower
         subject = f"You borrowed '{book.title}'"
@@ -93,6 +94,31 @@ class BorrowCreateView(LoginRequiredMixin, CreateView):
         return reverse_lazy('book-detail', kwargs={'pk': self.kwargs['pk']})
 
 from django.db.models import Q
+
+# class BorrowListView(LoginRequiredMixin, ListView):
+#     model = Borrow
+#     template_name = 'transactions/borrow_list.html'
+#     context_object_name = 'borrows'
+#     paginate_by = 10
+
+#     def get_queryset(self):
+#         user = self.request.user
+#         queryset = Borrow.objects.all().order_by('-issue_date')
+#         search_query = self.request.GET.get('search', '').strip()
+        
+#         if search_query:
+#             queryset = queryset.filter(
+#                 Q(book__title__icontains=search_query) |
+#                 Q(book__author__icontains=search_query) |
+#                 Q(user__first_name__icontains=search_query) |
+#                 Q(user__last_name__icontains=search_query) |
+#                 Q(user__email__icontains=search_query) |
+#                 Q(user__university_id__icontains=search_query)
+#             )
+        
+#         if user.role in [User.Role.ADMIN, User.Role.LIBRARIAN]:
+#             return queryset
+#         return queryset.filter(user=user)
 
 class BorrowListView(LoginRequiredMixin, ListView):
     model = Borrow
@@ -115,10 +141,44 @@ class BorrowListView(LoginRequiredMixin, ListView):
                 Q(user__university_id__icontains=search_query)
             )
         
+        # Apply status filter
+        status_filter = self.request.GET.get('status', '')
+        if status_filter == 'active':
+            queryset = queryset.filter(is_returned=False)
+        elif status_filter == 'overdue':
+            queryset = queryset.filter(is_returned=False, due_date__lt=timezone.now().date())
+        elif status_filter == 'returned':
+            queryset = queryset.filter(is_returned=True)
+        
         if user.role in [User.Role.ADMIN, User.Role.LIBRARIAN]:
             return queryset
         return queryset.filter(user=user)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        
+        # Get base queryset for statistics (considering user role)
+        if user.role in [User.Role.ADMIN, User.Role.LIBRARIAN]:
+            base_queryset = Borrow.objects.all()
+        else:
+            base_queryset = Borrow.objects.filter(user=user)
+        
+        # Calculate statistics based on user role
+        total_borrows_count = base_queryset.count()
+        active_borrows_count = base_queryset.filter(is_returned=False).count()
+        overdue_borrows_count = base_queryset.filter(is_returned=False, due_date__lt=timezone.now().date()).count()
+        returned_borrows_count = base_queryset.filter(is_returned=True).count()
+        
+        # Add statistics to context
+        context.update({
+            'total_borrows_count': total_borrows_count,
+            'active_borrows_count': active_borrows_count,
+            'overdue_borrows_count': overdue_borrows_count,
+            'returned_borrows_count': returned_borrows_count,
+        })
+        
+        return context
 
 class ReturnBookView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Borrow
@@ -134,17 +194,34 @@ class ReturnBookView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         borrow = self.get_object()
+        user = self.request.user
         
         # Get fine information
         fine_exists = hasattr(borrow, 'fine')
         fine_amount = borrow.fine.amount if fine_exists else 0
         fine_paid = borrow.fine.is_paid if fine_exists else True  # True if no fine
         
+
+        if user.role in [User.Role.ADMIN, User.Role.LIBRARIAN]:
+            base_queryset = Borrow.objects.all()
+        else:
+            base_queryset = Borrow.objects.filter(user=user)
+        
+        total_borrows_count = base_queryset.count()
+        active_borrows_count = base_queryset.filter(is_returned=False).count()
+        overdue_borrows_count = base_queryset.filter(is_returned=False, due_date__lt=timezone.now().date()).count()
+        returned_borrows_count = base_queryset.filter(is_returned=True).count()
+        
         context.update({
             'fine_exists': fine_exists,
             'fine_amount': fine_amount,
             'fine_paid': fine_paid,
             'has_unpaid_fine': borrow.has_unpaid_fine,
+
+            'total_borrows_count': total_borrows_count,
+            'active_borrows_count': active_borrows_count,
+            'overdue_borrows_count': overdue_borrows_count,
+            'returned_borrows_count': returned_borrows_count,
         })
         return context
 
@@ -173,13 +250,13 @@ class ReturnBookView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             messages.success(self.request, 'Book returned successfully!')
 
         # Notify borrower
-        notify(borrower, f"You returned '{book.title}'", url=book_url)
+        notify(borrower, f"You returned '{book.title}'", type='Returned Book', url=book_url)
 
         # Notify all staff
         staff_users = User.objects.filter(role__in=[User.Role.ADMIN, User.Role.LIBRARIAN])
         for staff in staff_users:
             if staff != borrower:
-                notify(staff, f"{borrower.get_full_name()} returned '{book.title}'", url=book_url)
+                notify(staff, f"{borrower.get_full_name()} returned '{book.title}'",  type='Returned Book', url=book_url)
 
         # Email to borrower
         subject = f"You returned '{book.title}'"
@@ -357,3 +434,72 @@ class ReservationListView(LoginRequiredMixin, ListView):
         if self.request.user.is_admin or self.request.user.is_librarian:
             return Reservation.objects.all().order_by('-reservation_date')
         return self.request.user.reservations.all().order_by('-reservation_date')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        reservations = self.get_queryset()
+        
+        context['pending_count'] = reservations.filter(status='PENDING').count()
+        context['available_count'] = reservations.filter(status='AVAILABLE').count()
+        context['completed_count'] = reservations.filter(status='COMPLETED').count()
+        context['cancelled_count'] = reservations.filter(status='CANCELLED').count()
+        
+        return context
+class ReservationCancelView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        reservation = get_object_or_404(Reservation, pk=pk)
+        
+        # Check if user has permission to cancel this reservation
+        if not (request.user.is_admin or request.user.is_librarian or reservation.user == request.user):
+            messages.error(request, "You don't have permission to cancel this reservation.")
+            return redirect('reservation-list')
+        
+        if reservation.status in ['COMPLETED', 'CANCELLED']:
+            messages.warning(request, "This reservation cannot be cancelled.")
+            return redirect('reservation-list')
+        
+        # Store old status for notification
+        old_status = reservation.status
+        reservation.status = 'CANCELLED'
+        reservation.save()
+        
+        # Create notifications
+        book_url = reverse('book-detail', kwargs={'pk': reservation.book.pk})
+        reservation_url = reverse('reservation-list')
+        
+        # Notify the user who made the reservation
+        notify(reservation.user,
+            f"Your reservation for '{reservation.book.title}' has been cancelled.",
+            type='RES_CANCEL',
+            url=reservation_url)
+        
+        # Notify staff (excluding the user who cancelled if they're staff)
+        staff_users = User.objects.filter(role__in=[User.Role.ADMIN, User.Role.LIBRARIAN])
+        for staff in staff_users:
+            if staff != request.user:
+                notify(staff,
+                    f"Reservation for '{reservation.book.title}' by {reservation.user.get_full_name()} was cancelled.",
+                    type='RES_CANCEL',
+                    url=reservation_url)
+        
+        # Send email notification to the user
+        subject = f"Reservation Cancelled: {reservation.book.title}"
+        html_content = render_to_string('emails/reservation_cancelled.html', {
+            'user': reservation.user,
+            'book': reservation.book,
+            'reservation': reservation,
+            'cancelled_by': request.user.get_full_name(),
+            'reservation_url': request.build_absolute_uri(reservation_url),
+            'book_url': request.build_absolute_uri(book_url),
+        })
+        
+        try:
+            email = EmailMultiAlternatives(subject, '', to=[reservation.user.email])
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+        except Exception as e:
+            # Log email error but don't break the flow
+            print(f"Email sending failed: {e}")
+        
+        messages.success(request, 'Reservation cancelled successfully.')
+        return redirect('reservation-list')

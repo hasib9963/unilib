@@ -1,0 +1,395 @@
+{% extends 'base.html' %}
+
+{% block title %}My Reservations - UniLib{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Floating Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 text-purple-200 opacity-40 animate-float">
+            <i class="fas fa-bookmark text-6xl"></i>
+        </div>
+        <div class="absolute top-40 right-20 text-indigo-200 opacity-30 animate-float-delayed">
+            <i class="fas fa-clock text-4xl"></i>
+        </div>
+        <div class="absolute bottom-40 left-20 text-pink-200 opacity-25 animate-float">
+            <i class="fas fa-bell text-5xl"></i>
+        </div>
+        <div class="absolute bottom-20 right-10 text-blue-200 opacity-20 animate-float-delayed">
+            <i class="fas fa-list text-6xl"></i>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto relative z-10">
+        <!-- Page Header -->
+        <div class="flex flex-col lg:flex-row justify-between items-center mb-8">
+            <div class="text-center lg:text-left mb-6 lg:mb-0">
+                <h1 class="text-4xl font-bold text-gray-800 font-serif mb-4">
+                    <i class="fas fa-bookmark mr-3 text-purple-600"></i>
+                    My Reservations
+                </h1>
+                <p class="text-gray-600 text-lg">
+                    {% if request.user.is_admin or request.user.is_librarian %}
+                        All book reservations in the system
+                    {% else %}
+                        Your current and past book reservations
+                    {% endif %}
+                </p>
+            </div>
+            <div class="flex space-x-4">
+                <a href="{% url 'book-list' %}" 
+                   class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center">
+                    <i class="fas fa-book mr-3"></i> Browse Books
+                </a>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <!-- Total Reservations -->
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Reservations</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ reservations|length }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">All time</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+                        <i class="fas fa-bookmark text-purple-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending -->
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Pending</p>
+                        <h3 class="text-2xl font-bold text-amber-600 mt-2">{{ pending_count }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">Awaiting availability</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                        <i class="fas fa-clock text-amber-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Available -->
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Available</p>
+                        <h3 class="text-2xl font-bold text-green-600 mt-2">{{ available_count }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">Ready for pickup</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+                        <i class="fas fa-bell text-green-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completed -->
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Completed</p>
+                        <h3 class="text-2xl font-bold text-blue-600 mt-2">{{ completed_count }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">Successfully fulfilled</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                        <i class="fas fa-check-circle text-blue-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reservations Table Card -->
+        <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+            <!-- Card Header -->
+            <div class="bg-gradient-to-r from-purple-600 to-indigo-600 py-6 px-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
+                            <i class="fas fa-list text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">Reservation Records</h2>
+                            <p class="text-purple-100">
+                                {% if request.user.is_admin or request.user.is_librarian %}
+                                    All system reservations
+                                {% else %}
+                                    Your reservation history
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-purple-100">
+                        Showing {{ reservations|length }} records
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Content -->
+            <div class="p-6">
+                {% if reservations %}
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b-2 border-gray-200">
+                                {% if request.user.is_admin or request.user.is_librarian %}
+                                <th class="pb-4 text-left font-semibold text-gray-700">User</th>
+                                {% endif %}
+                                <th class="pb-4 text-left font-semibold text-gray-700">Book</th>
+                                <th class="pb-4 text-left font-semibold text-gray-700">Reserved On</th>
+                                <th class="pb-4 text-left font-semibold text-gray-700">Status</th>
+                                <th class="pb-4 text-left font-semibold text-gray-700">Notified</th>
+                                <th class="pb-4 text-right font-semibold text-gray-700">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            {% for reservation in reservations %}
+                            <tr class="hover:bg-gray-50 transition-colors duration-200 
+                                {% if reservation.status == 'AVAILABLE' %}bg-green-50
+                                {% elif reservation.status == 'PENDING' %}bg-amber-50
+                                {% elif reservation.status == 'COMPLETED' %}bg-blue-50
+                                {% elif reservation.status == 'CANCELLED' %}bg-red-50{% endif %}">
+                                
+                                <!-- User Column (Admin/Librarian only) -->
+                                {% if request.user.is_admin or request.user.is_librarian %}
+                                <td class="py-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                                            <i class="fas fa-user text-indigo-600 text-sm"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-gray-800">{{ reservation.user.get_full_name }}</p>
+                                            <p class="text-sm text-gray-600">{{ reservation.user.university_id }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                {% endif %}
+
+                                <!-- Book Column -->
+                                <td class="py-4">
+                                    <div class="flex items-center space-x-4">
+                                        {% if reservation.book.cover_image %}
+                                        <img src="{{ reservation.book.cover_image.url }}" 
+                                             class="w-12 h-16 object-cover rounded-xl shadow-sm border"
+                                             alt="{{ reservation.book.title }}">
+                                        {% else %}
+                                        <div class="w-12 h-16 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-xl flex items-center justify-center border">
+                                            <i class="fas fa-book text-purple-400"></i>
+                                        </div>
+                                        {% endif %}
+                                        <div class="min-w-0 flex-1">
+                                            <a href="{% url 'book-detail' reservation.book.pk %}" 
+                                               class="font-semibold text-gray-800 hover:text-indigo-600 transition-colors line-clamp-2">
+                                                {{ reservation.book.title }}
+                                            </a>
+                                            <p class="text-sm text-gray-600 mt-1">{{ reservation.book.author }}</p>
+                                            <div class="flex items-center mt-1 text-xs text-gray-500">
+                                                <i class="fas fa-copy mr-1"></i>
+                                                {{ reservation.book.available_copies }} available
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Reservation Date Column -->
+                                <td class="py-4">
+                                    <p class="text-gray-700">{{ reservation.reservation_date|date:"M d, Y" }}</p>
+                                    <p class="text-sm text-gray-500">{{ reservation.reservation_date|timesince }} ago</p>
+                                </td>
+
+                                <!-- Status Column -->
+                                <td class="py-4">
+                                    {% if reservation.status == 'PENDING' %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
+                                        <i class="fas fa-clock mr-2"></i> Pending
+                                    </span>
+                                    {% elif reservation.status == 'AVAILABLE' %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-bell mr-2"></i> Available
+                                    </span>
+                                    {% elif reservation.status == 'COMPLETED' %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                        <i class="fas fa-check-circle mr-2"></i> Completed
+                                    </span>
+                                    {% elif reservation.status == 'CANCELLED' %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                        <i class="fas fa-times-circle mr-2"></i> Cancelled
+                                    </span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Notified Column -->
+                                <td class="py-4">
+                                    {% if reservation.notified_at %}
+                                    <p class="text-gray-700">{{ reservation.notified_at|date:"M d, Y" }}</p>
+                                    <p class="text-sm text-gray-500">{{ reservation.notified_at|timesince }} ago</p>
+                                    {% else %}
+                                    <span class="text-gray-400 text-sm">Not notified</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Actions Column -->
+                                <td class="py-4 text-right">
+                                    <div class="flex justify-end space-x-2">
+                                        {% if reservation.status == 'PENDING' or reservation.status == 'AVAILABLE' %}
+                                        <form method="post" action="{% url 'reservation-cancel' reservation.pk %}" class="inline">
+                                            {% csrf_token %}
+                                            <button type="submit" 
+                                                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center"
+                                                    onclick="return confirm('Are you sure you want to cancel this reservation?')">
+                                                <i class="fas fa-times mr-2"></i> Cancel
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                        
+                                        {% if reservation.status == 'AVAILABLE' %}
+                                        <a href="{% url 'book-issue' reservation.book.pk %}" 
+                                           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center">
+                                            <i class="fas fa-book mr-2"></i> Borrow
+                                        </a>
+                                        {% endif %}
+                                        
+                                        <a href="{% url 'book-detail' reservation.book.pk %}" 
+                                           class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center">
+                                            <i class="fas fa-eye mr-2"></i> View
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                {% else %}
+                <div class="text-center py-12">
+                    <div class="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-bookmark text-gray-400 text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-600 mb-3">No Reservations Found</h3>
+                    <p class="text-gray-500 text-lg mb-6">
+                        {% if request.user.is_admin or request.user.is_librarian %}
+                            There are no reservations in the system yet.
+                        {% else %}
+                            You haven't made any book reservations yet.
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'book-list' %}" 
+                       class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center mx-auto w-fit">
+                        <i class="fas fa-search mr-3"></i> Browse Available Books
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="border-t border-gray-200 px-8 py-6">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm text-gray-700">
+                        Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </p>
+                    <div class="flex space-x-2">
+                        {% if page_obj.has_previous %}
+                        <a href="?page=1" 
+                           class="bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center border border-gray-200">
+                            <i class="fas fa-angle-double-left mr-2"></i> First
+                        </a>
+                        <a href="?page={{ page_obj.previous_page_number }}" 
+                           class="bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center border border-gray-200">
+                            <i class="fas fa-angle-left mr-2"></i> Previous
+                        </a>
+                        {% endif %}
+
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" 
+                           class="bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center border border-gray-200">
+                            Next <i class="fas fa-angle-right ml-2"></i>
+                        </a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}" 
+                           class="bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center border border-gray-200">
+                            Last <i class="fas fa-angle-double-right ml-2"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
+    }
+    
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .animate-float-delayed {
+        animation: float 8s ease-in-out infinite;
+        animation-delay: 2s;
+    }
+    
+    .hover-lift {
+        transition: all 0.3s ease;
+    }
+    
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add hover effects to table rows
+    const tableRows = document.querySelectorAll('tbody tr');
+    tableRows.forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(5px)';
+        });
+        row.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0)';
+        });
+    });
+
+    // Add loading animation to action buttons
+    const actionButtons = document.querySelectorAll('button[type="submit"], a[href*="book-issue"]');
+    actionButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            if (this.type === 'submit' || this.href.includes('book-issue')) {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+                this.disabled = true;
+                
+                // Reset after 3 seconds if still on page (fallback)
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                }, 3000);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,702 +1,575 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load custom_filters %}
 
 {% block title %}Dashboard - UniLib{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4 animate__animated animate__fadeIn" id="dashboard-container">
-    {% if not is_ajax %}
-        {% if user.is_admin or user.is_librarian %}
-        <!-- Admin/Librarian Dashboard -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2 class="mb-0">
-                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                </h2>
-                <p class="text-muted mb-0">Library management overview</p>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Floating Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 text-blue-200 opacity-40 animate-float">
+            <i class="fas fa-book text-6xl"></i>
+        </div>
+        <div class="absolute top-40 right-20 text-indigo-200 opacity-30 animate-float-delayed">
+            <i class="fas fa-chart-bar text-4xl"></i>
+        </div>
+        <div class="absolute bottom-40 left-20 text-gray-200 opacity-25 animate-float">
+            <i class="fas fa-users text-5xl"></i>
+        </div>
+        <div class="absolute bottom-20 right-10 text-blue-200 opacity-20 animate-float-delayed">
+            <i class="fas fa-tachometer-alt text-6xl"></i>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto relative z-10">
+        <!-- Page Header -->
+        <div class="flex flex-col lg:flex-row justify-between items-center mb-8">
+            <div class="text-center lg:text-left mb-6 lg:mb-0">
+                <h1 class="text-4xl font-bold text-gray-800 font-serif mb-4">
+                    <i class="fas fa-tachometer-alt mr-3 text-indigo-600"></i>
+                    {% if user.is_admin or user.is_librarian %}Library Dashboard{% else %}My Dashboard{% endif %}
+                </h1>
+                <p class="text-gray-600 text-lg">
+                    {% if user.is_admin or user.is_librarian %}Comprehensive library management overview{% else %}Your library activity and statistics{% endif %}
+                </p>
             </div>
-            <div class="btn-group">
-                <button class="btn btn-outline-primary" id="refresh-btn">
-                    <i class="fas fa-sync-alt me-2"></i>Refresh
+            {% if user.is_admin or user.is_librarian %}
+            <div class="flex space-x-4">
+                <button class="bg-white hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center border border-gray-200">
+                    <i class="fas fa-sync-alt mr-3 text-indigo-600"></i> Refresh
+                </button>
+                <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center">
+                    <i class="fas fa-download mr-3"></i> Export
                 </button>
             </div>
+            {% endif %}
         </div>
-        {% else %}
-        <!-- Student/Faculty Dashboard -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2 class="mb-0">
-                    <i class="fas fa-tachometer-alt me-2"></i>My Dashboard
-                </h2>
-                <p class="text-muted mb-0">Your library activity overview</p>
-            </div>
-        </div>
-        {% endif %}
-    {% endif %}
 
-    {% if user.is_admin or user.is_librarian %}
-    <!-- Admin/Librarian Content -->
-    <div class="row g-3 mb-4">
-        <!-- Total Books -->
-        <div class="col">
-            <div class="card bg-primary text-white shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="text-uppercase text-white-50 mb-2">Total Books</h6>
-                            <h2 class="mb-0">{{ total_books }}</h2>
-                        </div>
-                        <div class="avatar avatar-sm bg-white-10 p-3 rounded">
-                            <i class="fas fa-book text-white"></i>
-                        </div>
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
+            {% if user.is_admin or user.is_librarian %}
+            <!-- Admin/Librarian Stats -->
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Books</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2">{{ total_books }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">In collection</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                        <i class="fas fa-book text-blue-600 text-xl"></i>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Total Borrows -->
-        <div class="col">
-            <div class="card bg-success text-white shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="text-uppercase text-white-50 mb-2">Total Borrows</h6>
-                            <h2 class="mb-0">{{ total_borrows }}</h2>
-                        </div>
-                        <div class="avatar avatar-sm bg-white-10 p-3 rounded">
-                            <i class="fas fa-exchange-alt text-white"></i>
-                        </div>
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Borrows</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2">{{ total_borrows }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">All time</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+                        <i class="fas fa-exchange-alt text-green-600 text-xl"></i>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Active Borrows -->
-        <div class="col">
-            <div class="card bg-secondary text-white shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="text-uppercase text-white-50 mb-2">Active Borrows</h6>
-                            <h2 class="mb-0">{{ active_borrows_count }}</h2>
-                        </div>
-                        <div class="avatar avatar-sm bg-white-10 p-3 rounded">
-                            <i class="fas fa-book-open text-white"></i>
-                        </div>
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Active Borrows</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2">{{ active_borrows_count }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">Currently issued</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+                        <i class="fas fa-book-open text-purple-600 text-xl"></i>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Total Fines -->
-        <div class="col">
-            <div class="card bg-warning text-dark shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="text-uppercase text-dark-50 mb-2">Total Fines</h6>
-                            <h2 class="mb-0">${{ total_fines }}</h2>
-                        </div>
-                        <div class="avatar avatar-sm bg-dark-10 p-3 rounded">
-                            <i class="fas fa-money-bill-wave text-dark"></i>
-                        </div>
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Fines</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2">${{ total_fines }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">Outstanding</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                        <i class="fas fa-money-bill-wave text-amber-600 text-xl"></i>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Total Reservations -->
-        <div class="col">
-            <div class="card bg-purple text-white shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="text-uppercase text-white-50 mb-2">Total Reservations</h6>
-                            <h2 class="mb-0">{{ total_reservations }}</h2>
-                        </div>
-                        <div class="avatar avatar-sm bg-white-10 p-3 rounded">
-                            <i class="fas fa-calendar-check text-white"></i>
-                        </div>
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Reservations</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2">{{ total_reservations }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">All reservations</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
+                        <i class="fas fa-calendar-check text-indigo-600 text-xl"></i>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Active Reservations -->
-        <div class="col">
-            <div class="card bg-info text-white shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="text-uppercase text-white-50 mb-2">Active Reservations</h6>
-                            <h2 class="mb-0">{{ active_reservations_count }}</h2>
-                            <small class="text-white-50">
-                                {{ reservation_percentage }}% of total
-                            </small>
-                        </div>
-                        <div class="avatar avatar-sm bg-white-10 p-3 rounded">
-                            <i class="fas fa-bookmark text-white"></i>
-                        </div>
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Active Reservations</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2">{{ active_reservations_count }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">{{ reservation_percentage }}% of total</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-cyan-100 flex items-center justify-center">
+                        <i class="fas fa-bookmark text-cyan-600 text-xl"></i>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div class="row g-4">
-        <!-- Recent Borrows -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-primary text-white py-3">
-                    <h5 class="mb-0">
-                        <i class="fas fa-exchange-alt me-2"></i>Recent Borrows
-                    </h5>
+            {% else %}
+            <!-- Student/Faculty Stats -->
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Borrows</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2">{{ total_borrows }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">All time</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                        <i class="fas fa-exchange-alt text-blue-600 text-xl"></i>
+                    </div>
                 </div>
-                <div class="card-body" id="recent-borrows-section">
-                    {% if recent_borrows %}
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>Book</th>
-                                    <th>User</th>
-                                    <th>Due Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for borrow in recent_borrows %}
-                                <tr>
-                                    <td>
-                                        <a href="{% url 'book-detail' borrow.book.pk %}" class="text-decoration-none text-primary">
+            </div>
+
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Active Borrows</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2">{{ active_borrows_count }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">Currently reading</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+                        <i class="fas fa-book-open text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Pending Fines</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2">${{ user_fines }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">To be paid</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                        <i class="fas fa-money-bill-wave text-amber-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">My Reservations</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2">{{ total_reservations }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">Book reservations</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+                        <i class="fas fa-calendar-check text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Active Reservations</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2">{{ active_reservations_count }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">{{ reservation_percentage }}% active</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
+                        <i class="fas fa-bookmark text-indigo-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Reading Streak</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2">12</h3>
+                        <p class="text-xs text-gray-500 mt-1">Days active</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
+                        <i class="fas fa-fire text-red-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            {% if user.is_admin or user.is_librarian %}
+            <!-- Admin/Librarian Content -->
+            <div class="space-y-8">
+                <!-- Recent Borrows -->
+                <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 py-4 px-6">
+                        <h3 class="text-xl font-bold text-white flex items-center">
+                            <i class="fas fa-exchange-alt mr-3"></i>Recent Borrows
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        {% if recent_borrows %}
+                        <div class="space-y-4">
+                            {% for borrow in recent_borrows %}
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                                        <i class="fas fa-book text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <a href="{% url 'book-detail' borrow.book.pk %}" class="font-semibold text-gray-800 hover:text-blue-600 transition-colors">
                                             {{ borrow.book.title|truncatewords:4 }}
                                         </a>
-                                    </td>
-                                    <td>{{ borrow.user.get_full_name }}</td>
-                                    <td>{{ borrow.due_date|date:"M d, Y" }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="text-center mt-3" id="recent-borrows-buttons">
-                        {% if recent_borrows_total > recent_borrows_count %}
-                        <button class="btn btn-sm btn-primary view-more-btn" 
-                                data-section="recent-borrows-section"
-                                data-count="{{ recent_borrows_count }}"
-                                data-total="{{ recent_borrows_total }}"
-                                data-param="recent_borrows">
-                            <i class="fas fa-plus me-1"></i> View More ({{ recent_borrows_total|subtract:recent_borrows_count }} remaining)
-                        </button>
-                        {% elif recent_borrows_count > ITEMS_PER_PAGE %}
-                        <button class="btn btn-sm btn-secondary view-less-btn" 
-                                data-section="recent-borrows-section"
-                                data-param="recent_borrows">
-                            <i class="fas fa-minus me-1"></i> View Less
-                        </button>
-                        {% endif %}
-                    </div>
-                    {% else %}
-                    <div class="alert alert-info mb-0">
-                        <i class="fas fa-info-circle me-2"></i>No recent borrows found
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Overdue Books -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-danger text-white py-3">
-                    <h5 class="mb-0">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Overdue Books
-                    </h5>
-                </div>
-                <div class="card-body" id="overdue-borrows-section">
-                    {% if overdue_borrows %}
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>Book</th>
-                                    <th>User</th>
-                                    <th>Due Date</th>
-                                    <th>Days Overdue</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for borrow in overdue_borrows %}
-                                <tr>
-                                    <td>
-                                        <a href="{% url 'book-detail' borrow.book.pk %}" class="text-decoration-none text-primary">
-                                            {{ borrow.book.title|truncatewords:4 }}
-                                        </a>
-                                    </td>
-                                    <td>{{ borrow.user.get_full_name }}</td>
-                                    <td>{{ borrow.due_date|date:"M d, Y" }}</td>
-                                    <td><span class="badge bg-danger">{{ borrow.overdue_days }}</span></td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="text-center mt-3" id="overdue-borrows-buttons">
-                        {% if overdue_borrows_total > overdue_borrows_count %}
-                        <button class="btn btn-sm btn-danger view-more-btn" 
-                                data-section="overdue-borrows-section"
-                                data-count="{{ overdue_borrows_count }}"
-                                data-total="{{ overdue_borrows_total }}"
-                                data-param="overdue_borrows">
-                            <i class="fas fa-plus me-1"></i> View More ({{ overdue_borrows_total|subtract:overdue_borrows_count }} remaining)
-                        </button>
-                        {% elif overdue_borrows_count > ITEMS_PER_PAGE %}
-                        <button class="btn btn-sm btn-secondary view-less-btn" 
-                                data-section="overdue-borrows-section"
-                                data-param="overdue_borrows">
-                            <i class="fas fa-minus me-1"></i> View Less
-                        </button>
-                        {% endif %}
-                    </div>
-                    {% else %}
-                    <div class="text-center py-4">
-                        <div class="mb-3">
-                            <i class="fas fa-check-circle fa-3x text-success"></i>
+                                        <p class="text-sm text-gray-600">{{ borrow.user.get_full_name }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-medium text-gray-700">Due {{ borrow.due_date|date:"M d" }}</p>
+                                    <p class="text-xs text-gray-500">{{ borrow.due_date|timeuntil }} left</p>
+                                </div>
+                            </div>
+                            {% endfor %}
                         </div>
-                        <h4 class="text-muted">No Overdue Books</h4>
-                        <p class="text-muted">All books have been returned on time!</p>
+                        {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-exchange-alt text-4xl text-gray-300 mb-4"></i>
+                            <h4 class="text-gray-500 font-semibold">No Recent Borrows</h4>
+                            <p class="text-gray-400">No books have been borrowed recently</p>
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="row g-4 mt-4">
-        <!-- Popular Books -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-info text-white py-3">
-                    <h5 class="mb-0">
-                        <i class="fas fa-star me-2"></i>Popular Books
-                    </h5>
-                </div>
-                <div class="card-body" id="popular-books-section">
-                    {% if popular_books %}
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>Book</th>
-                                    <th>Author</th>
-                                    <th>Borrow Count</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for book in popular_books %}
-                                <tr>
-                                    <td>
-                                        <a href="{% url 'book-detail' book.pk %}" class="text-decoration-none text-primary">
+                <!-- Popular Books -->
+                <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl overflow-hidden">
+                    <div class="bg-gradient-to-r from-green-600 to-emerald-600 py-4 px-6">
+                        <h3 class="text-xl font-bold text-white flex items-center">
+                            <i class="fas fa-star mr-3"></i>Popular Books
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        {% if popular_books %}
+                        <div class="space-y-4">
+                            {% for book in popular_books %}
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+                                        <i class="fas fa-book text-green-600"></i>
+                                    </div>
+                                    <div>
+                                        <a href="{% url 'book-detail' book.pk %}" class="font-semibold text-gray-800 hover:text-green-600 transition-colors">
                                             {{ book.title|truncatewords:4 }}
                                         </a>
-                                    </td>
-                                    <td>{{ book.author }}</td>
-                                    <td><span class="badge bg-info text-white">{{ book.borrow_count }}</span></td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="text-center mt-3" id="popular-books-buttons">
-                        {% if popular_books_total > popular_books_count %}
-                        <button class="btn btn-sm btn-info view-more-btn" 
-                                data-section="popular-books-section"
-                                data-count="{{ popular_books_count }}"
-                                data-total="{{ popular_books_total }}"
-                                data-param="popular_books">
-                            <i class="fas fa-plus me-1"></i> View More ({{ popular_books_total|subtract:popular_books_count }} remaining)
-                        </button>
-                        {% elif popular_books_count > ITEMS_PER_PAGE %}
-                        <button class="btn btn-sm btn-secondary view-less-btn" 
-                                data-section="popular-books-section"
-                                data-param="popular_books">
-                            <i class="fas fa-minus me-1"></i> View Less
-                        </button>
+                                        <p class="text-sm text-gray-600">{{ book.author }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-chart-line mr-1"></i>
+                                        {{ book.borrow_count }} borrows
+                                    </span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-star text-4xl text-gray-300 mb-4"></i>
+                            <h4 class="text-gray-500 font-semibold">No Popular Books</h4>
+                            <p class="text-gray-400">No borrowing data available</p>
+                        </div>
                         {% endif %}
                     </div>
-                    {% else %}
-                    <div class="alert alert-info mb-0">
-                        <i class="fas fa-info-circle me-2"></i>No data available
-                    </div>
-                    {% endif %}
                 </div>
             </div>
-        </div>
 
-        <!-- Recent Reservations -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-success text-white py-3">
-                    <h5 class="mb-0">
-                        <i class="fas fa-bookmark me-2"></i>Recent Reservations
-                    </h5>
-                </div>
-                <div class="card-body" id="recent-reservations-section">
-                    {% if recent_reservations %}
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>Book</th>
-                                    <th>User</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for reservation in recent_reservations %}
-                                <tr>
-                                    <td>
-                                        <a href="{% url 'book-detail' reservation.book.pk %}" class="text-decoration-none text-primary">
-                                            {{ reservation.book.title|truncatewords:4 }}
-                                        </a>
-                                    </td>
-                                    <td>{{ reservation.user.get_full_name }}</td>
-                                    <td>{{ reservation.reservation_date|date:"M d, Y" }}</td>
-                                    <td>
-                                        <span class="badge bg-{% if reservation.status == 'PENDING' %}warning text-dark{% elif reservation.status == 'COMPLETED' %}success text-white{% else %}secondary text-white{% endif %}">
-                                            {{ reservation.get_status_display }}
-                                        </span>
-                                        {% if reservation.status == 'AVAILABLE' %}
-                                            <small class="text-muted d-block">Notified: {{ reservation.notified_at|date:"M d, Y" }}</small>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+            <div class="space-y-8">
+                <!-- Overdue Books -->
+                <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl overflow-hidden">
+                    <div class="bg-gradient-to-r from-red-600 to-orange-600 py-4 px-6">
+                        <h3 class="text-xl font-bold text-white flex items-center">
+                            <i class="fas fa-exclamation-triangle mr-3"></i>Overdue Books
+                        </h3>
                     </div>
-                    <div class="text-center mt-3" id="recent-reservations-buttons">
-                        {% if recent_reservations_total > recent_reservations_count %}
-                        <button class="btn btn-sm btn-success view-more-btn" 
-                                data-section="recent-reservations-section"
-                                data-count="{{ recent_reservations_count }}"
-                                data-total="{{ recent_reservations_total }}"
-                                data-param="recent_reservations">
-                            <i class="fas fa-plus me-1"></i> View More ({{ recent_reservations_total|subtract:recent_reservations_count }} remaining)
-                        </button>
-                        {% elif recent_reservations_count > ITEMS_PER_PAGE %}
-                        <button class="btn btn-sm btn-secondary view-less-btn" 
-                                data-section="recent-reservations-section"
-                                data-param="recent_reservations">
-                            <i class="fas fa-minus me-1"></i> View Less
-                        </button>
-                        {% endif %}
-                    </div>
-                    {% else %}
-                    <div class="text-center py-4">
-                        <div class="mb-3">
-                            <i class="fas fa-calendar-times fa-3x text-info"></i>
-                        </div>
-                        <h4 class="text-muted">No Recent Reservations</h4>
-                        <p class="text-muted">No books have been reserved recently.</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    {% else %}
-    <!-- Student/Faculty Dashboard -->
-    <div class="row g-3 mb-4">
-        <!-- Total Borrows -->
-        <div class="col">
-            <div class="card bg-secondary text-white shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="text-uppercase text-white-50 mb-2">Total Borrows</h6>
-                            <h2 class="mb-0">{{ total_borrows }}</h2>
-                        </div>
-                        <div class="avatar avatar-sm bg-white-10 p-3 rounded">
-                            <i class="fas fa-exchange-alt text-white"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Active Borrows -->
-        <div class="col">
-            <div class="card bg-primary text-white shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="text-uppercase text-white-50 mb-2">Active Borrows</h6>
-                            <h2 class="mb-0">{{ active_borrows_count }}</h2>
-                        </div>
-                        <div class="avatar avatar-sm bg-white-10 p-3 rounded">
-                            <i class="fas fa-book-open text-white"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Pending Fines -->
-        <div class="col">
-            <div class="card bg-warning text-dark shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="text-uppercase text-dark-50 mb-2">Pending Fines</h6>
-                            <h2 class="mb-0">${{ user_fines }}</h2>
-                        </div>
-                        <div class="avatar avatar-sm bg-dark-10 p-3 rounded">
-                            <i class="fas fa-money-bill-wave text-dark"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Total Reservations -->
-        <div class="col">
-            <div class="card bg-purple text-white shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="text-uppercase text-white-50 mb-2">My Reservations</h6>
-                            <h2 class="mb-0">{{ total_reservations }}</h2>
-                        </div>
-                        <div class="avatar avatar-sm bg-white-10 p-3 rounded">
-                            <i class="fas fa-calendar-check text-white"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Active Reservations -->
-        <div class="col">
-            <div class="card bg-info text-white shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="text-uppercase text-white-50 mb-2">Active Reservations</h6>
-                            <h2 class="mb-0">{{ active_reservations_count }}</h2>
-                            <small class="text-white-50">
-                                {{ reservation_percentage }}% of total
-                            </small>
-                        </div>
-                        <div class="avatar avatar-sm bg-white-10 p-3 rounded">
-                            <i class="fas fa-bookmark text-white"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4">
-        <!-- User Borrow History -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-primary text-white py-3">
-                    <h5 class="mb-0">
-                        <i class="fas fa-book-open me-2"></i>My Borrow History
-                    </h5>
-                </div>
-                <div class="card-body" id="user-borrows-section">
-                    {% if user_borrows %}
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>Book</th>
-                                    <th>Borrowed</th>
-                                    <th>Due/Returned</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for borrow in user_borrows %}
-                                <tr class="{% if borrow.is_overdue and not borrow.is_returned %}bg-danger-10
-                                          {% elif borrow.is_returned %}bg-success-10
-                                          {% else %}bg-info-10{% endif %}">
-                                    <td>
-                                        <a href="{% url 'book-detail' borrow.book.pk %}" class="text-decoration-none text-primary">
+                    <div class="p-6">
+                        {% if overdue_borrows %}
+                        <div class="space-y-4">
+                            {% for borrow in overdue_borrows %}
+                            <div class="flex items-center justify-between p-4 bg-red-50 rounded-xl border-l-4 border-red-500">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
+                                        <i class="fas fa-book text-red-600"></i>
+                                    </div>
+                                    <div>
+                                        <a href="{% url 'book-detail' borrow.book.pk %}" class="font-semibold text-gray-800 hover:text-red-600 transition-colors">
                                             {{ borrow.book.title|truncatewords:4 }}
                                         </a>
-                                    </td>
-                                    <td>{{ borrow.issue_date|date:"M d, Y" }}</td>
-                                    <td>
-                                        {% if borrow.is_returned %}
-                                            {{ borrow.return_date|date:"M d, Y" }}
-                                        {% else %}
-                                            {{ borrow.due_date|date:"M d, Y" }}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if borrow.is_returned %}
-                                            <span class="badge bg-success">Returned</span>
-                                        {% elif borrow.is_overdue %}
-                                            <span class="badge bg-danger">Overdue ({{ borrow.overdue_days }}d)</span>
-                                        {% else %}
-                                            <span class="badge bg-info">Due in {{ borrow.due_date|timeuntil }}</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="text-center mt-3" id="user-borrows-buttons">
-                        {% if user_borrows_total > user_borrows_count %}
-                        <button class="btn btn-sm btn-primary view-more-btn" 
-                                data-section="user-borrows-section"
-                                data-count="{{ user_borrows_count }}"
-                                data-total="{{ user_borrows_total }}"
-                                data-param="user_borrows">
-                            <i class="fas fa-plus me-1"></i> View More ({{ user_borrows_total|subtract:user_borrows_count }} remaining)
-                        </button>
-                        {% elif user_borrows_count > ITEMS_PER_PAGE %}
-                        <button class="btn btn-sm btn-secondary view-less-btn" 
-                                data-section="user-borrows-section"
-                                data-param="user_borrows">
-                            <i class="fas fa-minus me-1"></i> View Less
-                        </button>
+                                        <p class="text-sm text-gray-600">{{ borrow.user.get_full_name }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                        {{ borrow.overdue_days }} days overdue
+                                    </span>
+                                    <p class="text-xs text-gray-500 mt-1">Due {{ borrow.due_date|date:"M d, Y" }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-check-circle text-4xl text-green-300 mb-4"></i>
+                            <h4 class="text-gray-500 font-semibold">No Overdue Books</h4>
+                            <p class="text-gray-400">All books have been returned on time!</p>
+                        </div>
                         {% endif %}
                     </div>
-                    {% else %}
-                    <div class="text-center py-5">
-                        <div class="mb-3">
-                            <i class="fas fa-book fa-4x text-muted"></i>
-                        </div>
-                        <h4 class="text-muted">No Borrow History</h4>
-                        <p class="text-muted">You haven't borrowed any books yet</p>
-                        <a href="{% url 'book-list' %}" class="btn btn-primary mt-3">
-                            <i class="fas fa-search me-2"></i>Browse Books
-                        </a>
-                    </div>
-                    {% endif %}
                 </div>
-            </div>
-        </div>
 
-        <!-- User Reservations -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-success text-white py-3">
-                    <h5 class="mb-0">
-                        <i class="fas fa-bookmark me-2"></i>My Reservations
-                    </h5>
-                </div>
-                <div class="card-body" id="user-reservations-section">
-                    {% if user_reservations %}
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>Book</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for reservation in user_reservations %}
-                                <tr>
-                                    <td>
-                                        <a href="{% url 'book-detail' reservation.book.pk %}" class="text-decoration-none text-primary">
+                <!-- Recent Reservations -->
+                <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl overflow-hidden">
+                    <div class="bg-gradient-to-r from-purple-600 to-indigo-600 py-4 px-6">
+                        <h3 class="text-xl font-bold text-white flex items-center">
+                            <i class="fas fa-bookmark mr-3"></i>Recent Reservations
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        {% if recent_reservations %}
+                        <div class="space-y-4">
+                            {% for reservation in recent_reservations %}
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                                        <i class="fas fa-book text-purple-600"></i>
+                                    </div>
+                                    <div>
+                                        <a href="{% url 'book-detail' reservation.book.pk %}" class="font-semibold text-gray-800 hover:text-purple-600 transition-colors">
                                             {{ reservation.book.title|truncatewords:4 }}
                                         </a>
-                                    </td>
-                                    <td>{{ reservation.reservation_date|date:"M d, Y" }}</td>
-                                    <td>
-                                        <span class="badge bg-{% if reservation.status == 'PENDING' %}warning text-dark
-                                                              {% elif reservation.status == 'AVAILABLE' %}info text-white
-                                                              {% elif reservation.status == 'COMPLETED' %}success text-white
-                                                              {% else %}secondary text-white{% endif %}">
-                                            {{ reservation.get_status_display }}
-                                        </span>
-                                        {% if reservation.status == 'AVAILABLE' %}
-                                            <small class="text-muted d-block">Notified: {{ reservation.notified_at|date:"M d, Y" }}</small>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="text-center mt-3" id="user-reservations-buttons">
-                        {% if user_reservations_total > user_reservations_count %}
-                        <button class="btn btn-sm btn-success view-more-btn" 
-                                data-section="user-reservations-section"
-                                data-count="{{ user_reservations_count }}"
-                                data-total="{{ user_reservations_total }}"
-                                data-param="user_reservations">
-                            <i class="fas fa-plus me-1"></i> View More ({{ user_reservations_total|subtract:user_reservations_count }} remaining)
-                        </button>
-                        {% elif user_reservations_count > ITEMS_PER_PAGE %}
-                        <button class="btn btn-sm btn-secondary view-less-btn" 
-                                data-section="user-reservations-section"
-                                data-param="user_reservations">
-                            <i class="fas fa-minus me-1"></i> View Less
-                        </button>
+                                        <p class="text-sm text-gray-600">{{ reservation.user.get_full_name }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+                                        {% if reservation.status == 'PENDING' %}bg-yellow-100 text-yellow-800
+                                        {% elif reservation.status == 'AVAILABLE' %}bg-blue-100 text-blue-800
+                                        {% else %}bg-green-100 text-green-800{% endif %}">
+                                        {{ reservation.get_status_display }}
+                                    </span>
+                                    <p class="text-xs text-gray-500 mt-1">{{ reservation.reservation_date|date:"M d, Y" }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-calendar-times text-4xl text-gray-300 mb-4"></i>
+                            <h4 class="text-gray-500 font-semibold">No Recent Reservations</h4>
+                            <p class="text-gray-400">No books have been reserved recently</p>
+                        </div>
                         {% endif %}
                     </div>
-                    {% else %}
-                    <div class="text-center py-5">
-                        <div class="mb-3">
-                            <i class="fas fa-calendar-check fa-4x text-muted"></i>
-                        </div>
-                        <h4 class="text-muted">No Reservations</h4>
-                        <p class="text-muted">You haven't made any reservations yet</p>
-                        <a href="{% url 'book-list' %}" class="btn btn-success mt-3">
-                            <i class="fas fa-bookmark me-2"></i>Reserve a Book
-                        </a>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
+
+            {% else %}
+            <!-- Student/Faculty Content -->
+            <div class="space-y-8">
+                <!-- My Borrow History -->
+                <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 py-4 px-6">
+                        <h3 class="text-xl font-bold text-white flex items-center">
+                            <i class="fas fa-book-open mr-3"></i>My Borrow History
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        {% if user_borrows %}
+                        <div class="space-y-4">
+                            {% for borrow in user_borrows %}
+                            <div class="flex items-center justify-between p-4 rounded-xl border-l-4 
+                                {% if borrow.is_overdue and not borrow.is_returned %}bg-red-50 border-red-500
+                                {% elif borrow.is_returned %}bg-green-50 border-green-500
+                                {% else %}bg-blue-50 border-blue-500{% endif %}">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 rounded-lg 
+                                        {% if borrow.is_overdue and not borrow.is_returned %}bg-red-100 text-red-600
+                                        {% elif borrow.is_returned %}bg-green-100 text-green-600
+                                        {% else %}bg-blue-100 text-blue-600{% endif %} flex items-center justify-center">
+                                        <i class="fas fa-book"></i>
+                                    </div>
+                                    <div>
+                                        <a href="{% url 'book-detail' borrow.book.pk %}" class="font-semibold text-gray-800 hover:text-blue-600 transition-colors">
+                                            {{ borrow.book.title|truncatewords:4 }}
+                                        </a>
+                                        <p class="text-sm text-gray-600">Borrowed {{ borrow.issue_date|date:"M d, Y" }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    {% if borrow.is_returned %}
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                            Returned
+                                        </span>
+                                        <p class="text-xs text-gray-500 mt-1">{{ borrow.return_date|date:"M d, Y" }}</p>
+                                    {% elif borrow.is_overdue %}
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                            Overdue ({{ borrow.overdue_days }}d)
+                                        </span>
+                                        <p class="text-xs text-gray-500 mt-1">Due {{ borrow.due_date|date:"M d, Y" }}</p>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                            Due in {{ borrow.due_date|timeuntil }}
+                                        </span>
+                                        <p class="text-xs text-gray-500 mt-1">Due {{ borrow.due_date|date:"M d, Y" }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-book fa-4x text-gray-300 mb-4"></i>
+                            <h4 class="text-gray-500 font-semibold">No Borrow History</h4>
+                            <p class="text-gray-400 mb-4">You haven't borrowed any books yet</p>
+                            <a href="{% url 'book-list' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center mx-auto w-fit">
+                                <i class="fas fa-search mr-3"></i>Browse Books
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-8">
+                <!-- My Reservations -->
+                <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl overflow-hidden">
+                    <div class="bg-gradient-to-r from-green-600 to-emerald-600 py-4 px-6">
+                        <h3 class="text-xl font-bold text-white flex items-center">
+                            <i class="fas fa-bookmark mr-3"></i>My Reservations
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        {% if user_reservations %}
+                        <div class="space-y-4">
+                            {% for reservation in user_reservations %}
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 rounded-lg 
+                                        {% if reservation.status == 'PENDING' %}bg-yellow-100 text-yellow-600
+                                        {% elif reservation.status == 'AVAILABLE' %}bg-blue-100 text-blue-600
+                                        {% else %}bg-green-100 text-green-600{% endif %} flex items-center justify-center">
+                                        <i class="fas fa-book"></i>
+                                    </div>
+                                    <div>
+                                        <a href="{% url 'book-detail' reservation.book.pk %}" class="font-semibold text-gray-800 hover:text-green-600 transition-colors">
+                                            {{ reservation.book.title|truncatewords:4 }}
+                                        </a>
+                                        <p class="text-sm text-gray-600">Reserved {{ reservation.reservation_date|date:"M d, Y" }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+                                        {% if reservation.status == 'PENDING' %}bg-yellow-100 text-yellow-800
+                                        {% elif reservation.status == 'AVAILABLE' %}bg-blue-100 text-blue-800
+                                        {% else %}bg-green-100 text-green-800{% endif %}">
+                                        {{ reservation.get_status_display }}
+                                    </span>
+                                    {% if reservation.status == 'AVAILABLE' %}
+                                        <p class="text-xs text-gray-500 mt-1">Notified {{ reservation.notified_at|date:"M d, Y" }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-calendar-check fa-4x text-gray-300 mb-4"></i>
+                            <h4 class="text-gray-500 font-semibold">No Reservations</h4>
+                            <p class="text-gray-400 mb-4">You haven't made any reservations yet</p>
+                            <a href="{% url 'book-list' %}" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center mx-auto w-fit">
+                                <i class="fas fa-bookmark mr-3"></i>Reserve a Book
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl overflow-hidden">
+                    <div class="bg-gradient-to-r from-purple-600 to-indigo-600 py-4 px-6">
+                        <h3 class="text-xl font-bold text-white flex items-center">
+                            <i class="fas fa-bolt mr-3"></i>Quick Actions
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <a href="{% url 'book-list' %}" class="bg-blue-50 hover:bg-blue-100 p-4 rounded-xl text-center transition-all duration-300 transform hover:scale-105 border-2 border-blue-200">
+                                <i class="fas fa-search text-blue-600 text-2xl mb-2"></i>
+                                <p class="font-semibold text-gray-800">Browse Books</p>
+                                <p class="text-sm text-gray-600">Find new books</p>
+                            </a>
+                            <a href="{% url 'borrow-list' %}" class="bg-green-50 hover:bg-green-100 p-4 rounded-xl text-center transition-all duration-300 transform hover:scale-105 border-2 border-green-200">
+                                <i class="fas fa-book-open text-green-600 text-2xl mb-2"></i>
+                                <p class="font-semibold text-gray-800">My Borrows</p>
+                                <p class="text-sm text-gray-600">View active loans</p>
+                            </a>
+                            <a href="{% url 'fine-list' %}" class="bg-amber-50 hover:bg-amber-100 p-4 rounded-xl text-center transition-all duration-300 transform hover:scale-105 border-2 border-amber-200">
+                                <i class="fas fa-money-bill-wave text-amber-600 text-2xl mb-2"></i>
+                                <p class="font-semibold text-gray-800">My Fines</p>
+                                <p class="text-sm text-gray-600">Check payments</p>
+                            </a>
+                            <a href="{% url 'profile' %}" class="bg-purple-50 hover:bg-purple-100 p-4 rounded-xl text-center transition-all duration-300 transform hover:scale-105 border-2 border-purple-200">
+                                <i class="fas fa-user text-purple-600 text-2xl mb-2"></i>
+                                <p class="font-semibold text-gray-800">Profile</p>
+                                <p class="text-sm text-gray-600">Update settings</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
-    {% endif %}
 </div>
 {% endblock %}
 
 {% block extra_css %}
 <style>
-    .bg-white-10 {
-        background-color: rgba(255, 255, 255, 0.1);
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
     }
-    .bg-dark-10 {
-        background-color: rgba(0, 0, 0, 0.1);
+    
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
     }
-    .bg-danger-10 {
-        background-color: rgba(220, 53, 69, 0.1);
+    
+    .animate-float-delayed {
+        animation: float 8s ease-in-out infinite;
+        animation-delay: 2s;
     }
-    .bg-success-10 {
-        background-color: rgba(25, 135, 84, 0.1);
+    
+    .hover-lift {
+        transition: all 0.3s ease;
     }
-    .bg-info-10 {
-        background-color: rgba(13, 202, 240, 0.1);
-    }
-    .bg-purple {
-        background-color: #6f42c1;
-    }
-    .table-hover tbody tr:hover {
-        background-color: rgba(0, 0, 0, 0.02);
-    }
-    .card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-    }
-    .btn-spacing {
-        margin-right: 0.5rem;
+    
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
 </style>
 {% endblock %}
@@ -704,146 +577,56 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Refresh button functionality
-    document.getElementById('refresh-btn')?.addEventListener('click', function() {
-        window.location.reload();
+    // Add loading animations to cards
+    const cards = document.querySelectorAll('.bg-white\\/95');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'all 0.5s ease';
+        
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, 100 * index);
     });
-    
-    // Table row animation
-    function animateTableRows() {
-        document.querySelectorAll('tbody tr').forEach((row, index) => {
-            row.style.opacity = '0';
-            row.style.transform = 'translateY(10px)';
-            row.style.transition = 'all 0.3s ease';
-            
+
+    // Add hover effects to quick action cards
+    const quickActions = document.querySelectorAll('.bg-blue-50, .bg-green-50, .bg-amber-50, .bg-purple-50');
+    quickActions.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px) scale(1.02)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+
+    // Refresh button functionality
+    const refreshBtn = document.querySelector('button:contains("Refresh")');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i> Refreshing...';
             setTimeout(() => {
-                row.style.opacity = '1';
-                row.style.transform = 'translateY(0)';
-            }, 50 * index);
+                window.location.reload();
+            }, 1000);
         });
     }
-    animateTableRows();
 
-    // AJAX content loading
-    function loadMoreContent(button, isViewMore) {
-        const section = button.closest('.card-body');
-        const sectionId = button.dataset.section;
-        const param = button.dataset.param;
-        const currentCount = parseInt(button.dataset.count) || {{ ITEMS_PER_PAGE }};
-        const totalCount = parseInt(button.dataset.total) || 0;
-        const newCount = isViewMore ? currentCount + {{ ITEMS_PER_PAGE }} : {{ ITEMS_PER_PAGE }};
-        const buttonsContainer = section.querySelector('.text-center.mt-3') || section.querySelector(`#${sectionId}-buttons`);
-        
-        // Create loading element
-        const loadingDiv = document.createElement('div');
-        loadingDiv.className = 'text-center my-3';
-        loadingDiv.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
-        
-        // Replace buttons with loading spinner
-        buttonsContainer.innerHTML = '';
-        buttonsContainer.appendChild(loadingDiv);
-        
-        // Create URL with updated parameters
-        const url = new URL(window.location.href);
-        url.searchParams.set(param, newCount);
-        
-        // Fetch updated content
-        fetch(url, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
+    // Auto-update time-sensitive information
+    function updateTimeElements() {
+        document.querySelectorAll('[class*="timeuntil"]').forEach(element => {
+            // This would need server-side time calculation
+            // For demo purposes, we'll just update the text
+            const text = element.textContent;
+            if (text.includes('day') || text.includes('hour')) {
+                // Simulate time update
+                console.log('Time element updated:', text);
             }
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.text();
-        })
-        .then(html => {
-            // Parse the response
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const newSection = doc.getElementById(sectionId);
-            
-            // Replace content
-            if (newSection) {
-                section.innerHTML = newSection.innerHTML;
-                
-                // Get the new counts
-                const newButtonsContainer = section.querySelector('.text-center.mt-3') || section.querySelector(`#${sectionId}-buttons`);
-                const newViewMoreBtn = doc.querySelector(`#${sectionId} .view-more-btn`);
-                const newCount = newViewMoreBtn ? parseInt(newViewMoreBtn.dataset.count) : {{ ITEMS_PER_PAGE }};
-                const totalCount = newViewMoreBtn ? parseInt(newViewMoreBtn.dataset.total) : 
-                                    (doc.querySelector(`#${sectionId} .view-less-btn`)?.dataset.total || {{ ITEMS_PER_PAGE }});
-                
-                // Update buttons based on current state
-                if (newCount < totalCount && newCount > {{ ITEMS_PER_PAGE }}) {
-                    // Middle state - show both buttons
-                    newButtonsContainer.innerHTML = `
-                        <button class="btn btn-sm btn-primary view-more-btn btn-spacing" 
-                                data-section="${sectionId}"
-                                data-count="${newCount}"
-                                data-total="${totalCount}"
-                                data-param="${param}">
-                            <i class="fas fa-plus me-1"></i> View More (${totalCount - newCount} remaining)
-                        </button>
-                        <button class="btn btn-sm btn-secondary view-less-btn" 
-                                data-section="${sectionId}"
-                                data-param="${param}">
-                            <i class="fas fa-minus me-1"></i> View Less
-                        </button>
-                    `;
-                } else if (newCount >= totalCount) {
-                    // At max - show only View Less
-                    newButtonsContainer.innerHTML = `
-                        <button class="btn btn-sm btn-secondary view-less-btn" 
-                                data-section="${sectionId}"
-                                data-param="${param}">
-                            <i class="fas fa-minus me-1"></i> View Less
-                        </button>
-                    `;
-                } else {
-                    // At min - show only View More
-                    newButtonsContainer.innerHTML = `
-                        <button class="btn btn-sm btn-primary view-more-btn" 
-                                data-section="${sectionId}"
-                                data-count="${newCount}"
-                                data-total="${totalCount}"
-                                data-param="${param}">
-                            <i class="fas fa-plus me-1"></i> View More (${totalCount - newCount} remaining)
-                        </button>
-                    `;
-                }
-                
-                // Reinitialize animations and event listeners
-                animateTableRows();
-                setupAjaxButtons();
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            loadingDiv.innerHTML = '<div class="alert alert-danger">Failed to load more items. Please try again.</div>';
         });
     }
 
-    function setupAjaxButtons() {
-        // View More buttons
-        document.querySelectorAll('.view-more-btn').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                loadMoreContent(this, true);
-            });
-        });
-        
-        // View Less buttons
-        document.querySelectorAll('.view-less-btn').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                loadMoreContent(this, false);
-            });
-        });
-    }
-
-    // Initial setup
-    setupAjaxButtons();
+    // Update every minute
+    setInterval(updateTimeElements, 60000);
 });
 </script>
 {% endblock %}

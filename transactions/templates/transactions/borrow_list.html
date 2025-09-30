@@ -3,290 +3,395 @@
 {% block title %}Borrowed Books - UniLib{% endblock %}
 
 {% block content %}
-<div class="container py-4 animate__animated animate__fadeIn">
-    <!-- Header with Centered Search -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
-        <!-- Title Section -->
-        <div class="order-1 order-md-1 text-center text-md-start mb-3 mb-md-0">
-            <h2 class="mb-0">
-                <i class="fas fa-exchange-alt me-2 text-primary"></i>Borrowed Books
-            </h2>
-            <p class="text-muted mb-0">Current book circulation records</p>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Floating Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 text-blue-200 opacity-40 animate-float">
+            <i class="fas fa-exchange-alt text-6xl"></i>
         </div>
-        
-        <!-- Centered Search Box -->
-        <div class="order-3 order-md-2 flex-grow-1 mx-md-4" style="max-width: 600px;">
-            <form method="get" action="{% url 'borrow-list' %}" class="search-form">
-                <div class="input-group shadow-sm" style="height: 38px;">
-                    <input type="text" 
-                           class="form-control border-end-0 rounded-start ps-3" 
-                           name="search" 
-                           placeholder="Search by title, author or borrower name, ID or email..." 
-                           value="{{ request.GET.search }}"
-                           style="font-size: 0.9rem;">
-                    <button class="btn btn-primary rounded-end px-3" type="submit">
-                        <i class="fas fa-search me-1"></i> Search
-                    </button>
-                    {% if request.GET.search %}
-                    <a href="{% url 'borrow-list' %}" class="btn btn-outline-secondary rounded ms-2 px-3">
-                        <i class="fas fa-times me-1"></i> Clear
-                    </a>
-                    {% endif %}
-                </div>
-            </form>
+        <div class="absolute top-40 right-20 text-indigo-200 opacity-30 animate-float-delayed">
+            <i class="fas fa-book-open text-4xl"></i>
         </div>
-        
-        <!-- Browse Books Button -->
-        <div class="order-2 order-md-3 flex-shrink-0">
-            <a href="{% url 'book-list' %}" class="btn btn-primary px-3" style="height: 38px; line-height: 24px;">
-                <i class="fas fa-book me-1"></i> Browse Books
-            </a>
+        <div class="absolute bottom-40 left-20 text-gray-200 opacity-25 animate-float">
+            <i class="fas fa-users text-5xl"></i>
+        </div>
+        <div class="absolute bottom-20 right-10 text-blue-200 opacity-20 animate-float-delayed">
+            <i class="fas fa-calendar-check text-6xl"></i>
         </div>
     </div>
 
-    </div>
-    </div>
-    
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="ps-4">Book</th>
-                            <th>Borrower</th>
-                            <th>Issued On</th>
-                            <th>Due Date</th>
-                            <th>Status</th>
-                            <th class="pe-4 text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for borrow in borrows %}
-                        <tr class="{% if borrow.is_overdue %}bg-danger-10{% elif borrow.is_returned %}bg-success-10{% endif %}">
-                            <td class="ps-4">
-                                <div class="d-flex align-items-center">
-                                    {% if borrow.book.cover_image %}
-                                    <img src="{{ borrow.book.cover_image.url }}" 
-                                         class="rounded me-3" 
-                                         alt="{{ borrow.book.title }}"
-                                         style="width: 40px; height: 60px; object-fit: cover;">
-                                    {% else %}
-                                    <div class="rounded bg-light d-flex align-items-center justify-content-center me-3" 
-                                         style="width: 40px; height: 60px;">
-                                        <i class="fas fa-book text-muted"></i>
-                                    </div>
-                                    {% endif %}
-                                    <div>
-                                        <a href="{% url 'book-detail' borrow.book.pk %}" 
-                                           class="text-primary fw-bold text-decoration-none">
-                                            {{ borrow.book.title|truncatechars:30 }}
-                                        </a>
-                                        <p class="small text-muted mb-0">{{ borrow.book.author }}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar avatar-sm me-2">
-                                        <i class="fas fa-user text-primary"></i>
-                                    </div>
-                                    {{ borrow.user.get_full_name }}
-                                </div>
-                            </td>
-                            <td>{{ borrow.issue_date|date:"M d, Y" }}</td>
-                            <td class="{% if borrow.is_overdue %}text-danger fw-bold{% endif %}">
-                                {{ borrow.due_date|date:"M d, Y" }}
-                                {% if borrow.is_overdue %}
-                                <div class="small text-danger">({{ borrow.overdue_days }} days overdue)</div>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if borrow.is_returned %}
-                                <span class="badge bg-success bg-opacity-10 text-success">
-                                    <i class="fas fa-check-circle me-1"></i> Returned
-                                </span>
-                                {% elif borrow.is_overdue %}
-                                <span class="badge bg-danger bg-opacity-10 text-danger">
-                                    <i class="fas fa-exclamation-circle me-1"></i> Overdue
-                                </span>
-                                {% else %}
-                                <span class="badge bg-primary bg-opacity-10 text-primary">
-                                    <i class="fas fa-book me-1"></i> Borrowed
-                                </span>
-                                {% endif %}
-                            </td>
-                            <td class="pe-4 text-end">
-                                {% if not borrow.is_returned %}
-                                <div class="btn-group btn-group-sm">
-                                    <a href="{% url 'return-book' borrow.pk %}" 
-                                       class="btn btn-success"
-                                       data-bs-toggle="tooltip" 
-                                       title="Return Book">
-                                        <i class="fas fa-book"></i>
-                                    </a>
-                                    <!-- Removed renew-book button since the URL doesn't exist -->
-                                </div>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center py-5">
-                                <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
-                                <h5 class="text-muted">No borrowed books found</h5>
-                                <p class="text-muted">All books are currently available</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    <div class="max-w-7xl mx-auto relative z-10">
+        <!-- Page Header -->
+        <div class="flex flex-col lg:flex-row justify-between items-center mb-8">
+            <div class="text-center lg:text-left mb-6 lg:mb-0">
+                <h1 class="text-4xl font-bold text-gray-800 font-serif mb-4">
+                    <i class="fas fa-exchange-alt mr-3 text-indigo-600"></i>
+                    Borrowed Books
+                </h1>
+                <p class="text-gray-600 text-lg">Current book circulation records</p>
+            </div>
+            <div class="flex space-x-4">
+                <a href="{% url 'book-list' %}" 
+                   class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center">
+                    <i class="fas fa-book mr-3"></i> Browse Books
+                </a>
             </div>
         </div>
+
+        <!-- Search and Filters Card -->
+        <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl p-6 mb-8">
+            <div class="flex flex-col lg:flex-row items-center gap-4">
+                <!-- Search Form -->
+                <div class="flex-grow w-full">
+                    <form method="get" action="{% url 'borrow-list' %}" class="relative">
+                        <div class="relative">
+                            <input type="text" 
+                                   name="search" 
+                                   class="w-full pl-12 pr-4 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300" 
+                                   placeholder="Search by title, author, borrower name, ID or email..." 
+                                   value="{{ request.GET.search }}">
+                            <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            {% if request.GET.search %}
+                            <a href="{% url 'borrow-list' %}" 
+                               class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                                <i class="fas fa-times"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Filter Buttons -->
+                <div class="flex space-x-2 flex-shrink-0">
+                    <a href="{% url 'borrow-list' %}" 
+                       class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center">
+                        <i class="fas fa-list mr-2"></i> All
+                    </a>
+                    <a href="?status=active" 
+                       class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center">
+                        <i class="fas fa-book-open mr-2"></i> Active
+                    </a>
+                    <a href="?status=overdue" 
+                       class="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center">
+                        <i class="fas fa-exclamation-triangle mr-2"></i> Overdue
+                    </a>
+                    <a href="?status=returned" 
+                       class="bg-green-100 hover:bg-green-200 text-green-700 px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center">
+                        <i class="fas fa-check-circle mr-2"></i> Returned
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <!-- Total Borrows -->
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Borrows</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ total_borrows_count }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">All time records</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                        <i class="fas fa-exchange-alt text-blue-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Borrows -->
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Active Borrows</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ active_borrows_count }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">Currently borrowed</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+                        <i class="fas fa-book-open text-green-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overdue -->
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Overdue</p>
+                        <h3 class="text-2xl font-bold text-red-600 mt-2">{{ overdue_borrows_count }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">Not returned on time</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-red-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Returned -->
+            <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Returned</p>
+                        <h3 class="text-2xl font-bold text-purple-600 mt-2">{{ returned_borrows_count }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">Successfully returned</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+                        <i class="fas fa-check-circle text-purple-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Borrowed Books Table Card -->
+        <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+            <!-- Card Header -->
+            <div class="bg-gradient-to-r from-indigo-600 to-blue-600 py-6 px-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
+                            <i class="fas fa-list text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">Borrowing Records</h2>
+                            <p class="text-indigo-100">
+                                {% if request.GET.status %}
+                                    {{ request.GET.status|title }} borrows
+                                {% else %}
+                                    All book circulations
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-indigo-100">
+                        Showing {{ borrows|length }} of {{ total_borrows_count }} records
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Content -->
+            <div class="p-6">
+                {% if borrows %}
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b-2 border-gray-200">
+                                <th class="pb-4 text-left font-semibold text-gray-700">Book</th>
+                                <th class="pb-4 text-left font-semibold text-gray-700">Borrower</th>
+                                <th class="pb-4 text-left font-semibold text-gray-700">Issued On</th>
+                                <th class="pb-4 text-left font-semibold text-gray-700">Due Date</th>
+                                <th class="pb-4 text-left font-semibold text-gray-700">Status</th>
+                                <th class="pb-4 text-right font-semibold text-gray-700">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            {% for borrow in borrows %}
+                            <tr class="hover:bg-gray-50 transition-colors duration-200 {% if borrow.is_overdue and not borrow.is_returned %}bg-red-50{% elif borrow.is_returned %}bg-green-50{% endif %}">
+                                <!-- Book Column -->
+                                <td class="py-4">
+                                    <div class="flex items-center space-x-4">
+                                        {% if borrow.book.cover_image %}
+                                        <img src="{{ borrow.book.cover_image.url }}" 
+                                             class="w-12 h-16 object-cover rounded-xl shadow-sm border"
+                                             alt="{{ borrow.book.title }}">
+                                        {% else %}
+                                        <div class="w-12 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center border">
+                                            <i class="fas fa-book text-blue-400"></i>
+                                        </div>
+                                        {% endif %}
+                                        <div class="min-w-0 flex-1">
+                                            <a href="{% url 'book-detail' borrow.book.pk %}" 
+                                               class="font-semibold text-gray-800 hover:text-indigo-600 transition-colors line-clamp-2">
+                                                {{ borrow.book.title }}
+                                            </a>
+                                            <p class="text-sm text-gray-600 mt-1">{{ borrow.book.author }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Borrower Column -->
+                                <td class="py-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                                            <i class="fas fa-user text-indigo-600 text-sm"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-gray-800">{{ borrow.user.get_full_name }}</p>
+                                            <p class="text-sm text-gray-600">{{ borrow.user.university_id }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Issue Date Column -->
+                                <td class="py-4">
+                                    <p class="text-gray-700">{{ borrow.issue_date|date:"M d, Y" }}</p>
+                                    <p class="text-sm text-gray-500">{{ borrow.issue_date|timesince }} ago</p>
+                                </td>
+
+                                <!-- Due Date Column -->
+                                <td class="py-4">
+                                    <p class="{% if borrow.is_overdue and not borrow.is_returned %}text-red-600 font-semibold{% else %}text-gray-700{% endif %}">
+                                        {{ borrow.due_date|date:"M d, Y" }}
+                                    </p>
+                                    {% if borrow.is_overdue and not borrow.is_returned %}
+                                    <p class="text-sm text-red-500 flex items-center">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        {{ borrow.overdue_days }} days overdue
+                                    </p>
+                                    {% elif not borrow.is_returned %}
+                                    <p class="text-sm text-gray-500">
+                                        Due in {{ borrow.due_date|timeuntil }}
+                                    </p>
+                                    {% else %}
+                                    <p class="text-sm text-green-500">
+                                        Returned on {{ borrow.return_date|date:"M d, Y" }}
+                                    </p>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Status Column -->
+                                <td class="py-4">
+                                    {% if borrow.is_returned %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-check-circle mr-2"></i> Returned
+                                    </span>
+                                    {% elif borrow.is_overdue %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                        <i class="fas fa-exclamation-triangle mr-2"></i> Overdue
+                                    </span>
+                                    {% else %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                        <i class="fas fa-book mr-2"></i> Active
+                                    </span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Actions Column -->
+                                <td class="py-4 text-right">
+                                    {% if not borrow.is_returned %}
+                                    <div class="flex justify-end space-x-2">
+                                        <a href="{% url 'return-book' borrow.pk %}" 
+                                           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center"
+                                           data-bs-toggle="tooltip" 
+                                           title="Return Book">
+                                            <i class="fas fa-book mr-2"></i> Return
+                                        </a>
+                                    </div>
+                                    {% else %}
+                                    <span class="text-gray-400 text-sm">Completed</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                {% else %}
+                <div class="text-center py-12">
+                    <div class="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-book-open text-gray-400 text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-600 mb-3">
+                        {% if request.GET.status %}
+                            No {{ request.GET.status }} borrows found
+                        {% else %}
+                            No Borrowed Books
+                        {% endif %}
+                    </h3>
+                    <p class="text-gray-500 text-lg mb-6">
+                        {% if request.GET.status %}
+                            There are no {{ request.GET.status }} borrow records matching your criteria.
+                        {% else %}
+                            All books are currently available in the library
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'book-list' %}" 
+                       class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center mx-auto w-fit">
+                        <i class="fas fa-search mr-3"></i> Browse Available Books
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="flex justify-center mt-5 mb-6">
+                <nav class="flex items-center space-x-2">
+                    {% if page_obj.has_previous %}
+                    <a href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}&view={{ current_view }}" 
+                    class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}&view={{ current_view }}" 
+                    class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <span class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-indigo-600 rounded-xl shadow-sm">
+                                {{ num }}
+                            </span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}&view={{ current_view }}" 
+                            class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">
+                                {{ num }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}&view={{ current_view }}" 
+                    class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}&view={{ current_view }}" 
+                    class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+            {% endif %}
+        </div>
     </div>
-    
-    {% if is_paginated %}
-    <nav aria-label="Page navigation" class="mt-4">
-        <ul class="pagination justify-content-center">
-            {% if page_obj.has_previous %}
-            <li class="page-item">
-                <a class="page-link" href="?page=1" aria-label="First">
-                    <i class="fas fa-angle-double-left"></i>
-                </a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
-                    <i class="fas fa-angle-left"></i>
-                </a>
-            </li>
-            {% endif %}
-            
-            {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-            <li class="page-item active">
-                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-            </li>
-            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-            </li>
-            {% endif %}
-            {% endfor %}
-            
-            {% if page_obj.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
-                    <i class="fas fa-angle-right"></i>
-                </a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
-                    <i class="fas fa-angle-double-right"></i>
-                </a>
-            </li>
-            {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
 </div>
+{% endblock %}
 
+{% block extra_css %}
 <style>
-
-    /* Centered Search Styling */
-    .search-form .form-control {
-        height: 100%;
-        border: 1px solid #dee2e6;
-        transition: all 0.2s ease;
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
     }
     
-    .search-form .form-control:focus {
-        border-color: #86b7fe;
-        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
-        outline: none;
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
     }
     
-    .search-form .btn {
-        height: 100%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        font-size: 0.9rem;
+    .animate-float-delayed {
+        animation: float 8s ease-in-out infinite;
+        animation-delay: 2s;
     }
     
-    .search-form .btn-primary {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
+    .hover-lift {
+        transition: all 0.3s ease;
     }
     
-    .search-form .btn-primary:hover {
-        background-color: #0b5ed7;
-        border-color: #0a58ca;
-    }
-    
-    .search-form .input-group {
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    
-    /* Responsive Adjustments */
-    @media (max-width: 767.98px) {
-        .d-flex.flex-column.flex-md-row > * {
-            width: 100%;
-        }
-        
-        .search-form .input-group {
-            margin-top: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .order-1 { order: 1 !important; }
-        .order-2 { order: 2 !important; }
-        .order-3 { order: 3 !important; }
-    }
-    
-    /* Existing styles */
-    .bg-danger-10 {
-        background-color: rgba(220, 53, 69, 0.05) !important;
-    }
-    .bg-success-10 {
-        background-color: rgba(25, 135, 84, 0.05) !important;
-    }
-    .avatar {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: rgba(67, 97, 238, 0.1);
-    }
-    .table-hover tbody tr:hover {
-        background-color: rgba(67, 97, 238, 0.03) !important;
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
 
-
-    .bg-danger-10 {
-        background-color: rgba(220, 53, 69, 0.05) !important;
-    }
-    .bg-success-10 {
-        background-color: rgba(25, 135, 84, 0.05) !important;
-    }
-    .avatar {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: rgba(67, 97, 238, 0.1);
-    }
-    .avatar-sm {
-        width: 24px;
-        height: 24px;
-    }
-    .table-hover tbody tr:hover {
-        background-color: rgba(67, 97, 238, 0.03) !important;
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 </style>
 {% endblock %}
@@ -294,10 +399,37 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Add hover effects to table rows
+    const tableRows = document.querySelectorAll('tbody tr');
+    tableRows.forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(5px)';
+        });
+        row.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0)';
+        });
+    });
+
     // Initialize tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Add loading animation to action buttons
+    const actionButtons = document.querySelectorAll('a[href*="return-book"]');
+    actionButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+            this.disabled = true;
+            
+            // Reset after 3 seconds if still on page (fallback)
+            setTimeout(() => {
+                this.innerHTML = originalText;
+                this.disabled = false;
+            }, 3000);
+        });
     });
 });
 </script>

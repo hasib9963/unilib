@@ -3,73 +3,246 @@
 {% block title %}Notifications - UniLib{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">
-            <i class="fas fa-bell me-2 text-primary"></i>Notifications
-        </h2>
-        <a href="{% url 'mark-all-as-read' %}" class="btn btn-sm btn-outline-primary">
-            <i class="fas fa-check-circle me-1"></i> Mark All Read
-        </a>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Floating Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 text-blue-200 opacity-40 animate-float">
+            <i class="fas fa-bell text-6xl"></i>
+        </div>
+        <div class="absolute top-40 right-20 text-indigo-200 opacity-30 animate-float-delayed">
+            <i class="fas fa-envelope text-4xl"></i>
+        </div>
+        <div class="absolute bottom-40 left-20 text-gray-200 opacity-25 animate-float">
+            <i class="fas fa-comment-alt text-5xl"></i>
+        </div>
+        <div class="absolute bottom-20 right-10 text-blue-200 opacity-20 animate-float-delayed">
+            <i class="fas fa-info-circle text-6xl"></i>
+        </div>
     </div>
-    
-    <div class="card border-0 shadow-sm">
-        {% if notifications %}
-        <div class="list-group list-group-flush" id="notificationList">
-            {% for notification in notifications %}
-            <div class="list-group-item border-0 py-3 {% if not notification.is_read %}unread-notification{% endif %}">
-                <div class="d-flex align-items-start">
-                    <div class="flex-shrink-0 pt-1">
-                        <span class="badge bg-{% if not notification.is_read %}primary{% else %}secondary{% endif %} rounded-circle p-2">
-                            <i class="fas fa-{% if notification.notification_type == 'DUE' %}clock{% elif notification.notification_type == 'RES' %}bookmark{% else %}bell{% endif %} fa-fw"></i>
-                        </span>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <h6 class="mb-0 {% if not notification.is_read %}fw-bold{% endif %}">
-                                {{ notification.get_notification_type_display }}
-                            </h6>
-                            <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+
+    <div class="max-w-4xl mx-auto relative z-10">
+        <!-- Page Header -->
+        <div class="flex flex-col lg:flex-row justify-between items-center mb-8">
+            <div class="text-center lg:text-left mb-6 lg:mb-0">
+                <h1 class="text-4xl font-bold text-gray-800 font-serif mb-4">
+                    <i class="fas fa-bell mr-3 text-indigo-600"></i>
+                    Notifications
+                </h1>
+                <p class="text-gray-600 text-lg">Stay updated with your library activities</p>
+            </div>
+            <div class="flex space-x-4">
+                <a href="{% url 'mark-all-as-read' %}" 
+                   class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center">
+                    <i class="fas fa-check-circle mr-3"></i> Mark All Read
+                </a>
+                <button class="bg-white hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center border border-gray-200">
+                    <i class="fas fa-cog mr-3 text-gray-600"></i> Settings
+                </button>
+            </div>
+        </div>
+
+        <!-- Notifications Card -->
+        <div class="bg-white/95 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+            <!-- Card Header -->
+            <div class="bg-gradient-to-r from-indigo-600 to-blue-600 py-6 px-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
+                            <i class="fas fa-bell text-white text-xl"></i>
                         </div>
-                        <p class="mb-2">{{ notification.message }}</p>
-                        {% if not notification.is_read %}
-                        <a href="{% url 'mark-as-read' notification.pk %}" class="btn btn-xs btn-outline-primary btn-sm">
-                            <i class="fas fa-check me-1"></i> Mark as read
-                        </a>
-                        {% endif %}
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">Activity Feed</h2>
+                            <p class="text-indigo-100">
+                                {% if notifications %}
+                                    {{ notifications|length }} notification{{ notifications|length|pluralize }} on this page
+                                {% else %}
+                                    No new notifications
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-indigo-100 text-sm">Filter:</span>
+                        <select class="bg-white/20 border-0 text-white rounded-lg px-3 py-1 focus:ring-2 focus:ring-white">
+                            <option class="text-gray-800">All</option>
+                            <option class="text-gray-800">Unread</option>
+                            <option class="text-gray-800">Due Dates</option>
+                            <option class="text-gray-800">Reservations</option>
+                        </select>
                     </div>
                 </div>
             </div>
-            {% endfor %}
+
+            <!-- Notifications Content -->
+            <div class="p-6">
+                {% if notifications %}
+                <div class="space-y-4" id="notificationList">
+                    {% for notification in notifications %}
+                    <div class="bg-gradient-to-r {% if not notification.is_read %}from-blue-50 to-indigo-50 border-l-4 border-indigo-500{% else %}from-gray-50 to-gray-100{% endif %} rounded-2xl p-6 transition-all duration-300 hover:shadow-lg">
+                        <div class="flex items-start space-x-4">
+                            <!-- Notification Icon -->
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 rounded-xl {% if not notification.is_read %}bg-indigo-100 text-indigo-600{% else %}bg-gray-200 text-gray-600{% endif %} flex items-center justify-center">
+                                    <i class="fas fa-{% if notification.notification_type == 'DUE' %}clock
+                                                   {% elif notification.notification_type == 'RES' %}bookmark
+                                                   {% elif notification.notification_type == 'FINE' %}money-bill-wave
+                                                   {% else %}bell{% endif %} text-lg"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Notification Content -->
+                            <div class="flex-grow">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800 {% if not notification.is_read %}text-indigo-700{% endif %}">
+                                            {{ notification.get_notification_type_display }}
+                                        </h4>
+                                        <p class="text-gray-600 mt-1">{{ notification.message }}</p>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <span class="text-sm text-gray-500">{{ notification.created_at|timesince }} ago</span>
+                                        {% if not notification.is_read %}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                            <i class="fas fa-circle mr-1 text-xs"></i> New
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Action Buttons -->
+                                <div class="flex items-center space-x-3 mt-4">
+                                    {% if not notification.is_read %}
+                                    <a href="{% url 'mark-as-read' notification.pk %}" 
+                                       class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-all duration-300 transform hover:scale-105">
+                                        <i class="fas fa-check mr-2"></i> Mark as Read
+                                    </a>
+                                    {% endif %}
+                                    
+                                    <!-- Contextual Actions -->
+                                    {% if notification.notification_type == 'Borrowed Book' %}
+                                    <a href="{% url 'borrow-list' %}" 
+                                       class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-all duration-300 transform hover:scale-105">
+                                        <i class="fas fa-book-open mr-2"></i> View Borrows
+                                    </a>
+                                    {% elif notification.notification_type == 'Returned Book' %}
+                                    <a href="{% url 'borrow-list' %}" 
+                                       class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-all duration-300 transform hover:scale-105">
+                                        <i class="fas fa-book-open mr-2"></i> View Returns
+                                    </a>
+                                    {% elif notification.notification_type == 'DUE' %}
+                                    <a href="{% url 'borrow-list' %}" 
+                                       class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-all duration-300 transform hover:scale-105">
+                                        <i class="fas fa-book-open mr-2"></i> View Dues
+                                    </a>
+                                    {% elif notification.notification_type == 'RES' %}
+                                    <a href="{% url 'reservation-list' %}"
+                                       class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-all duration-300 transform hover:scale-105">
+                                        <i class="fas fa-bookmark mr-2"></i> Manage Reservations
+                                    </a>
+                                    {% elif notification.notification_type == 'FINE' %}
+                                    <a href="{% url 'fine-list' %}" 
+                                       class="inline-flex items-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-all duration-300 transform hover:scale-105">
+                                        <i class="fas fa-money-bill-wave mr-2"></i> View Fines
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Load More Section -->
+                {% if has_next %}
+                <div class="text-center mt-8 pt-6 border-t border-gray-200">
+                    <button id="loadMoreBtn" 
+                            class="bg-white hover:bg-gray-50 text-gray-700 px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center mx-auto border border-gray-200"
+                            data-page="2">
+                        <i class="fas fa-history mr-3 text-gray-600"></i> 
+                        Load Previous Notifications
+                    </button>
+                </div>
+                {% endif %}
+                
+                {% else %}
+                <!-- Empty State -->
+                <div class="text-center py-12">
+                    <div class="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-bell-slash text-gray-400 text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-600 mb-3">All Caught Up!</h3>
+                    <p class="text-gray-500 text-lg mb-6">You don't have any notifications at the moment.</p>
+                    <div class="flex justify-center space-x-4">
+                        <a href="{% url 'book-list' %}" 
+                           class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center">
+                            <i class="fas fa-search mr-3"></i> Browse Books
+                        </a>
+                        <a href="{% url 'dashboard' %}" 
+                           class="bg-white hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center border border-gray-200">
+                            <i class="fas fa-tachometer-alt mr-3 text-gray-600"></i> Go to Dashboard
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
         </div>
-        
-        {% if has_next %}
-        <div class="card-footer bg-transparent border-0 text-center py-3">
-            <button id="loadMoreBtn" class="btn btn-outline-primary" data-page="2">
-                <i class="fas fa-history me-2"></i> View Previous Notifications
-            </button>
+
+        <!-- Notification Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-blue-200">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center mr-4">
+                        <i class="fas fa-envelope text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800">Total Notifications</h4>
+                        <p class="text-2xl font-bold text-blue-600">{{ total_count }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-green-200">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center mr-4">
+                        <i class="fas fa-check-circle text-green-600"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800">Read</h4>
+                        <p class="text-2xl font-bold text-green-600">{{ read_count }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-amber-200">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center mr-4">
+                        <i class="fas fa-clock text-amber-600"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800">Unread</h4>
+                        <p class="text-2xl font-bold text-amber-600">{{ unread_count }}</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        {% endif %}
-        
-        {% else %}
-        <div class="card-body text-center py-5">
-            <i class="fas fa-bell-slash text-muted fa-3x mb-3"></i>
-            <h5 class="text-muted">No notifications</h5>
-            <p class="text-muted">You're all caught up!</p>
-        </div>
-        {% endif %}
     </div>
 </div>
+{% endblock %}
 
+{% block extra_css %}
 <style>
-    .unread-notification {
-        background-color: #f8f9fa;
-        border-left: 3px solid var(--bs-primary) !important;
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
     }
     
-    .btn-xs {
-        padding: 0.15rem 0.4rem;
-        font-size: 0.75rem;
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .animate-float-delayed {
+        animation: float 8s ease-in-out infinite;
+        animation-delay: 2s;
     }
 </style>
 {% endblock %}
@@ -85,29 +258,113 @@ document.addEventListener('DOMContentLoaded', function() {
             const url = new URL(window.location.href);
             url.searchParams.set('page', nextPage);
             
-            fetch(url)
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const newItems = doc.querySelectorAll('#notificationList > .list-group-item');
-                    const newLoadMoreBtn = doc.querySelector('#loadMoreBtn');
+            // Show loading state
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i> Loading...';
+            this.disabled = true;
+            
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newItems = doc.querySelectorAll('#notificationList > div');
+                const newLoadMoreBtn = doc.querySelector('#loadMoreBtn');
+                
+                // Append new notifications with animation
+                const notificationList = document.getElementById('notificationList');
+                newItems.forEach((item, index) => {
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateY(20px)';
+                    notificationList.appendChild(item);
                     
-                    // Append new notifications
-                    const notificationList = document.getElementById('notificationList');
-                    newItems.forEach(item => notificationList.appendChild(item));
-                    
-                    // Update or remove load more button
-                    if (newLoadMoreBtn) {
-                        this.setAttribute('data-page', parseInt(nextPage) + 1);
-                    } else {
-                        this.parentElement.remove();
-                    }
-                })
-                .catch(error => console.error('Error:', error));
+                    // Animate in
+                    setTimeout(() => {
+                        item.style.transition = 'all 0.5s ease';
+                        item.style.opacity = '1';
+                        item.style.transform = 'translateY(0)';
+                    }, 50 * index);
+                });
+                
+                // Update or remove load more button
+                if (newLoadMoreBtn) {
+                    this.setAttribute('data-page', parseInt(nextPage) + 1);
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                } else {
+                    this.parentElement.remove();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                this.innerHTML = originalText;
+                this.disabled = false;
+                
+                // Show error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'bg-red-50 border-l-4 border-red-500 p-4 rounded-lg mt-4';
+                errorDiv.innerHTML = `
+                    <div class="flex">
+                        <i class="fas fa-exclamation-circle text-red-500 mt-1 mr-3"></i>
+                        <div>
+                            <p class="text-red-700">Failed to load more notifications. Please try again.</p>
+                        </div>
+                    </div>
+                `;
+                this.parentElement.appendChild(errorDiv);
+            });
         });
     }
-});
 
+    // Add hover effects to notification items
+    const notificationItems = document.querySelectorAll('#notificationList > div');
+    notificationItems.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(5px)';
+        });
+        item.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0)';
+        });
+    });
+
+    // Mark as read with animation
+    document.querySelectorAll('a[href*="mark-as-read"]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const notificationItem = this.closest('.bg-gradient-to-r');
+            
+            // Show loading state
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Marking...';
+            
+            fetch(this.href)
+                .then(response => {
+                    if (response.ok) {
+                        // Animate the notification becoming read
+                        notificationItem.classList.remove('from-blue-50', 'to-indigo-50', 'border-l-4', 'border-indigo-500');
+                        notificationItem.classList.add('from-gray-50', 'to-gray-100');
+                        
+                        // Remove the "Mark as Read" button
+                        this.remove();
+                        
+                        // Update unread count in stats
+                        const unreadCountElement = document.querySelector('.text-2xl.font-bold.text-amber-600');
+                        if (unreadCountElement) {
+                            const currentCount = parseInt(unreadCountElement.textContent);
+                            unreadCountElement.textContent = Math.max(0, currentCount - 1);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    this.innerHTML = originalText;
+                });
+        });
+    });
+});
 </script>
 {% endblock %}
