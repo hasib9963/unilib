@@ -1,29 +1,354 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Registration{% endblock %}
+{% block title %}Registration - UniLib{% endblock %}
+
+{% block extra_css %}
+<style>
+    .registration-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .registration-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1828&q=80');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.1;
+    }
+    
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+    }
+    
+    .floating-icon {
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .floating-icon-delayed {
+        animation: float 8s ease-in-out infinite;
+        animation-delay: 2s;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
+    }
+    
+    .form-section {
+        border-left: 3px solid #4f46e5;
+        padding-left: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+    
+    .input-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6b7280;
+        transition: all 0.3s ease;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 1rem 1rem 1rem 3rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .form-input:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    .form-input:focus + .input-icon {
+        color: #4f46e5;
+        transform: translateY(-50%) scale(1.1);
+    }
+    
+    .password-toggle {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .password-toggle:hover {
+        color: #4f46e5;
+        transform: translateY(-50%) scale(1.1);
+    }
+    
+    .file-upload-area {
+        border: 3px dashed #d1d5db;
+        border-radius: 12px;
+        padding: 2.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        background: #f8fafc;
+        cursor: pointer;
+    }
+    
+    .file-upload-area:hover {
+        border-color: #4f46e5;
+        background: #eef2ff;
+        transform: translateY(-2px);
+    }
+    
+    .file-upload-area.dragover {
+        border-color: #4f46e5;
+        background: #e0e7ff;
+        transform: scale(1.02);
+    }
+    
+    .requirement-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    
+    .requirement-item {
+        display: flex;
+        align-items: center;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+    }
+    
+    .requirement-item.valid {
+        color: #10b981;
+    }
+    
+    .requirement-item.invalid {
+        color: #6b7280;
+    }
+    
+    .requirement-icon {
+        margin-right: 0.5rem;
+        font-size: 0.75rem;
+        transition: all 0.3s ease;
+    }
+    
+    .progress-bar {
+        height: 4px;
+        background: #e5e7eb;
+        border-radius: 2px;
+        overflow: hidden;
+        margin: 1rem 0;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4f46e5, #8b5cf6);
+        transition: width 0.5s ease;
+        width: 0%;
+    }
+    
+    .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    
+    .step-indicator::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #e5e7eb;
+        transform: translateY(-50%);
+        z-index: 1;
+    }
+    
+    .step {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: #6b7280;
+        position: relative;
+        z-index: 2;
+        transition: all 0.3s ease;
+    }
+    
+    .step.active {
+        background: #4f46e5;
+        border-color: #4f46e5;
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    .step.completed {
+        background: #10b981;
+        border-color: #10b981;
+        color: white;
+    }
+    
+    .animate-slide-in {
+        animation: slideIn 0.6s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .password-strength {
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .strength-weak { color: #ef4444; }
+    .strength-fair { color: #f59e0b; }
+    .strength-good { color: #10b981; }
+    .strength-strong { color: #059669; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-lg border-0 rounded-lg">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="text-center font-weight-light my-2">
-                        <i class="fas fa-user-plus me-2"></i> Create Your Library Account
-                    </h3>
+<div class="registration-container flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <!-- Floating Background Elements -->
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="floating-icon absolute top-20 left-10 text-white opacity-20">
+            <i class="fas fa-user-graduate text-6xl"></i>
+        </div>
+        <div class="floating-icon-delayed absolute top-40 right-20 text-white opacity-30">
+            <i class="fas fa-book text-4xl"></i>
+        </div>
+        <div class="floating-icon absolute bottom-40 left-20 text-white opacity-25">
+            <i class="fas fa-university text-5xl"></i>
+        </div>
+        <div class="floating-icon-delayed absolute bottom-20 right-10 text-white opacity-20">
+            <i class="fas fa-id-card text-6xl"></i>
+        </div>
+    </div>
+
+    <div class="max-w-6xl w-full mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8 animate-slide-in">
+            <div class="flex items-center justify-center space-x-3 mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-lg">
+                    <i class="fas fa-book-open text-indigo-600 text-xl"></i>
                 </div>
-                <div class="card-body">
-                    <form method="post" enctype="multipart/form-data" novalidate>
+                <h1 class="text-4xl font-bold text-white font-serif">UniLib</h1>
+            </div>
+            <h2 class="text-3xl font-bold text-white mb-4">Join Our Academic Community</h2>
+            <p class="text-xl text-indigo-100 max-w-2xl mx-auto">
+                Create your account to access thousands of academic resources and research materials
+            </p>
+        </div>
+
+        <!-- Registration Card -->
+        <div class="glass-card rounded-3xl overflow-hidden animate-slide-in" style="animation-delay: 0.2s">
+            <div class="grid grid-cols-1 lg:grid-cols-3">
+                <!-- Left Side - Visual -->
+                <div class="bg-gradient-to-br from-indigo-600 to-purple-700 p-8 lg:p-12 text-white hidden lg:block">
+                    <div class="flex flex-col justify-between h-full">
+                        <div>
+                            <h3 class="text-2xl font-bold mb-6 font-serif">Why Join UniLib?</h3>
+                            <div class="space-y-6">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-book text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-lg">50K+ Resources</h4>
+                                        <p class="text-indigo-100">Access our vast collection of books and research materials</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-clock text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-lg">24/7 Access</h4>
+                                        <p class="text-indigo-100">Digital resources available anytime, anywhere</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-users text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-lg">Academic Community</h4>
+                                        <p class="text-indigo-100">Connect with students and researchers</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8 p-4 bg-white/10 rounded-xl backdrop-blur-sm">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center">
+                                    <i class="fas fa-quote-left text-indigo-600"></i>
+                                </div>
+                                <p class="text-sm italic">"UniLib transformed my research experience with its extensive digital collection and easy access."</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side - Form -->
+                <div class="p-8 lg:p-12 lg:col-span-2">
+                    <!-- Step Indicator -->
+                    <div class="step-indicator">
+                        <div class="step active">1</div>
+                        <div class="step">2</div>
+                        <div class="step">3</div>
+                        <div class="step">4</div>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data" novalidate id="registration-form">
                         {% csrf_token %}
                         
                         {% if form.non_field_errors %}
-                        <div class="alert alert-danger mb-4">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-exclamation-circle me-2"></i>
+                        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                            <div class="flex items-start">
+                                <i class="fas fa-exclamation-triangle text-red-500 mt-1 mr-3 flex-shrink-0"></i>
                                 <div>
-                                    <strong>Please correct these errors:</strong>
-                                    <ul class="mb-0 ps-3">
+                                    <h3 class="font-semibold text-red-800">Registration Issues</h3>
+                                    <ul class="mt-2 text-sm text-red-700">
                                         {% for error in form.non_field_errors %}
                                             <li>{{ error }}</li>
                                         {% endfor %}
@@ -33,200 +358,258 @@
                         </div>
                         {% endif %}
 
-                        <!-- Personal Information Section -->
-                        <div class="mb-4">
-                            <h5 class="mb-3 text-primary"><i class="fas fa-user-circle me-2"></i> Personal Information</h5>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        {{ form.first_name }}
-                                        <label for="{{ form.first_name.id_for_label }}"><i class="fas fa-user me-1"></i> First Name</label>
-                                        {% if form.first_name.errors %}
-                                            <div class="invalid-feedback d-block">
-                                                <i class="fas fa-exclamation-circle me-1"></i>{{ form.first_name.errors.0 }}
-                                            </div>
-                                        {% endif %}
-                                    </div>
+                        <!-- Personal Information -->
+                        <div class="form-section">
+                            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                                <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-user text-indigo-600"></i>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating">
-                                        {{ form.last_name }}
-                                        <label for="{{ form.last_name.id_for_label }}"><i class="fas fa-user me-1"></i> Last Name</label>
-                                        {% if form.last_name.errors %}
-                                            <div class="invalid-feedback d-block">
-                                                <i class="fas fa-exclamation-circle me-1"></i>{{ form.last_name.errors.0 }}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- University Information Section -->
-                        <div class="mb-4">
-                            <h5 class="mb-3 text-primary"><i class="fas fa-university me-2"></i> University Information</h5>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        {{ form.university_id }}
-                                        <label for="{{ form.university_id.id_for_label }}"><i class="fas fa-id-card me-1"></i> University ID</label>
-                                        {% if form.university_id.errors %}
-                                            <div class="invalid-feedback d-block">
-                                                <i class="fas fa-exclamation-circle me-1"></i>{{ form.university_id.errors.0 }}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating">
-                                        {{ form.role }}
-                                        <label for="{{ form.role.id_for_label }}"><i class="fas fa-user-tag me-1"></i> Role</label>
-                                        {% if form.role.errors %}
-                                            <div class="invalid-feedback d-block">
-                                                <i class="fas fa-exclamation-circle me-1"></i>{{ form.role.errors.0 }}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Contact Information Section -->
-                        <div class="mb-4">
-                            <h5 class="mb-3 text-primary"><i class="fas fa-address-card me-2"></i> Contact Information</h5>
-                            <div class="form-floating mb-3">
-                                {{ form.email }}
-                                <label for="{{ form.email.id_for_label }}"><i class="fas fa-envelope me-1"></i> Email Address</label>
-                                {% if form.email.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.email.errors.0 }}
-                                    </div>
-                                {% endif %}
-                            </div>
+                                Personal Information
+                            </h3>
                             
-                            <div class="form-floating mb-3">
-                                {{ form.phone }}
-                                <label for="{{ form.phone.id_for_label }}"><i class="fas fa-phone me-1"></i> Phone Number</label>
-                                {% if form.phone.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.phone.errors.0 }}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="input-group">
+                                    {{ form.first_name }}
+                                    <div class="input-icon">
+                                        <i class="fas fa-user"></i>
                                     </div>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="form-floating">
-                                {{ form.address }}
-                                <label for="{{ form.address.id_for_label }}"><i class="fas fa-map-marker-alt me-1"></i> Address</label>
-                                {% if form.address.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.address.errors.0 }}
+                                    {% if form.first_name.errors %}
+                                        <div class="mt-1 text-sm text-red-600 flex items-center">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>{{ form.first_name.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="input-group">
+                                    {{ form.last_name }}
+                                    <div class="input-icon">
+                                        <i class="fas fa-user"></i>
                                     </div>
-                                {% endif %}
+                                    {% if form.last_name.errors %}
+                                        <div class="mt-1 text-sm text-red-600 flex items-center">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>{{ form.last_name.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Account Information Section -->
-                        <div class="mb-4">
-                            <h5 class="mb-3 text-primary"><i class="fas fa-key me-2"></i> Account Information</h5>
-                            <div class="form-floating mb-3">
+                        <!-- University Information -->
+                        <div class="form-section">
+                            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                                <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-university text-indigo-600"></i>
+                                </div>
+                                University Information
+                            </h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="input-group">
+                                    {{ form.university_id }}
+                                    <div class="input-icon">
+                                        <i class="fas fa-id-card"></i>
+                                    </div>
+                                    {% if form.university_id.errors %}
+                                        <div class="mt-1 text-sm text-red-600 flex items-center">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>{{ form.university_id.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="input-group">
+                                    {{ form.role }}
+                                    <div class="input-icon">
+                                        <i class="fas fa-user-tag"></i>
+                                    </div>
+                                    {% if form.role.errors %}
+                                        <div class="mt-1 text-sm text-red-600 flex items-center">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>{{ form.role.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="form-section">
+                            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                                <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-address-card text-indigo-600"></i>
+                                </div>
+                                Contact Information
+                            </h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="input-group">
+                                    {{ form.email }}
+                                    <div class="input-icon">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    {% if form.email.errors %}
+                                        <div class="mt-1 text-sm text-red-600 flex items-center">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>{{ form.email.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="input-group">
+                                    {{ form.phone }}
+                                    <div class="input-icon">
+                                        <i class="fas fa-phone"></i>
+                                    </div>
+                                    {% if form.phone.errors %}
+                                        <div class="mt-1 text-sm text-red-600 flex items-center">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>{{ form.phone.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="input-group md:col-span-2">
+                                    <input type="text" 
+                                        name="{{ form.address.name }}" 
+                                        id="{{ form.address.id_for_label }}"
+                                        class="form-input"
+                                        placeholder="Enter your address">
+                                    <div class="input-icon">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </div>
+                                    {% if form.address.errors %}
+                                        <div class="mt-1 text-sm text-red-600 flex items-center">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>{{ form.address.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Account Security -->
+                        <div class="form-section">
+                            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                                <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-shield-alt text-indigo-600"></i>
+                                </div>
+                                Account Security
+                            </h3>
+                            
+                            <div class="input-group mb-4">
                                 {{ form.username }}
-                                <label for="{{ form.username.id_for_label }}"><i class="fas fa-user me-1"></i> Username</label>
+                                <div class="input-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
                                 {% if form.username.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.username.errors.0 }}
+                                    <div class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.username.errors.0 }}
                                     </div>
                                 {% endif %}
-                                <small class="text-muted"><i class="fas fa-info-circle me-1"></i>Choose a unique username</small>
                             </div>
                             
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3 position-relative password-toggle-container">
-                                        {{ form.password1 }}
-                                        <label for="{{ form.password1.id_for_label }}" class="fw-normal"><i class="fas fa-lock me-1"></i> Password</label>
-                                        <span class="validity-icon">
-                                            <i class="fas fa-check-circle d-none" id="password1-valid"></i>
-                                            <i class="fas fa-info-circle d-none" id="password1-info"></i>
-                                        </span>
-                                        <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y pe-3 toggle-password" aria-label="Toggle password visibility" aria-pressed="false">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        {% if form.password1.errors %}
-                                            <div class="invalid-feedback d-block">
-                                                <i class="fas fa-exclamation-circle me-1"></i>{{ form.password1.errors.0 }}
-                                            </div>
-                                        {% endif %}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                                <div class="input-group">
+                                    {{ form.password1 }}
+                                    <div class="input-icon">
+                                        <i class="fas fa-lock"></i>
                                     </div>
+                                    <button type="button" class="password-toggle">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    {% if form.password1.errors %}
+                                        <div class="mt-1 text-sm text-red-600 flex items-center">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>{{ form.password1.errors.0 }}
+                                        </div>
+                                    {% endif %}
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating position-relative password-toggle-container">
-                                        {{ form.password2 }}
-                                        <label for="{{ form.password2.id_for_label }}" class="fw-normal"><i class="fas fa-lock me-1"></i> Confirm Password</label>
-                                        <span class="validity-icon">
-                                            <i class="fas fa-check-circle d-none" id="password2-valid"></i>
-                                            <i class="fas fa-info-circle d-none" id="password2-info"></i>
-                                        </span>
-                                        <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y pe-3 toggle-password" aria-label="Toggle password visibility" aria-pressed="false">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        {% if form.password2.errors %}
-                                            <div class="invalid-feedback d-block">
-                                                <i class="fas fa-exclamation-circle me-1"></i>{{ form.password2.errors.0 }}
-                                            </div>
-                                        {% endif %}
+                                
+                                <div class="input-group">
+                                    {{ form.password2 }}
+                                    <div class="input-icon">
+                                        <i class="fas fa-lock"></i>
                                     </div>
+                                    <button type="button" class="password-toggle">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    {% if form.password2.errors %}
+                                        <div class="mt-1 text-sm text-red-600 flex items-center">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>{{ form.password2.errors.0 }}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                             
-                            <div class="password-requirements mt-3 p-3 bg-light rounded">
-                                <small class="text-muted d-block mb-2"><i class="fas fa-info-circle me-1"></i>Password requirements:</small>
-                                <ul class="list-unstyled mb-0">
-                                    <li class="req-item" data-requirement="length">
-                                        <i class="fas fa-circle me-2"></i> At least 8 characters
-                                    </li>
-                                    <li class="req-item" data-requirement="uppercase">
-                                        <i class="fas fa-circle me-2"></i> One uppercase letter
-                                    </li>
-                                    <li class="req-item" data-requirement="number">
-                                        <i class="fas fa-circle me-2"></i> One number
-                                    </li>
-                                    <li class="req-item" data-requirement="special">
-                                        <i class="fas fa-circle me-2"></i> One special character
-                                    </li>
-                                </ul>
+                            <!-- Password Strength -->
+                            <div class="mb-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm font-medium text-gray-700">Password Strength</span>
+                                    <span class="password-strength strength-weak" id="password-strength-text">Weak</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="password-strength-bar"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Password Requirements -->
+                            <div class="requirement-list">
+                                <div class="requirement-item invalid" data-requirement="length">
+                                    <i class="requirement-icon fas fa-circle"></i>
+                                    <span>8+ characters</span>
+                                </div>
+                                <div class="requirement-item invalid" data-requirement="uppercase">
+                                    <i class="requirement-icon fas fa-circle"></i>
+                                    <span>Uppercase letter</span>
+                                </div>
+                                <div class="requirement-item invalid" data-requirement="number">
+                                    <i class="requirement-icon fas fa-circle"></i>
+                                    <span>Number</span>
+                                </div>
+                                <div class="requirement-item invalid" data-requirement="special">
+                                    <i class="requirement-icon fas fa-circle"></i>
+                                    <span>Special character</span>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Profile Picture -->
-                        <div class="mb-4">
-                            <h5 class="mb-3 text-primary"><i class="fas fa-camera me-2"></i> Profile Picture</h5>
-                            <div class="form-group">
-                                <label for="{{ form.profile_picture.id_for_label }}" class="form-label"><i class="fas fa-upload me-1"></i>Upload Photo (Optional)</label>
-                                <div class="custom-file">
-                                    <input type="file" 
-                                        class="custom-file-input" 
-                                        id="{{ form.profile_picture.id_for_label }}" 
-                                        name="{{ form.profile_picture.name }}"
-                                        accept="image/*">
-                                    <label class="custom-file-label" for="{{ form.profile_picture.id_for_label }}"><i class="fas fa-file-image me-1"></i>Choose file</label>
+                        <div class="form-section">
+                            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                                <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-camera text-indigo-600"></i>
                                 </div>
-                                {% if form.profile_picture.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.profile_picture.errors.0 }}
-                                    </div>
-                                {% endif %}
-                                <small class="text-muted"><i class="fas fa-info-circle me-1"></i>JPG, PNG format, max 2MB</small>
+                                Profile Picture
+                            </h3>
+                            
+                            <div class="file-upload-area p-4" id="file-upload-area">
+                                <input type="file" 
+                                    id="{{ form.profile_picture.id_for_label }}" 
+                                    name="{{ form.profile_picture.name }}"
+                                    accept="image/*" 
+                                    class="hidden">
+                                <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
+                                <p class="text-gray-700 font-semibold text-sm">Upload Profile Photo</p>
+                                <p class="text-xs text-gray-500 mt-1">Drag & drop or click to browse</p>
+                                <div id="file-name" class="mt-2 text-sm text-indigo-600 font-medium hidden"></div>
                             </div>
+                            {% if form.profile_picture.errors %}
+                                <div class="mt-2 text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>{{ form.profile_picture.errors.0 }}
+                                </div>
+                            {% endif %}
                         </div>
 
-                        <!-- Form Actions -->
-                        <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
-                            <a href="{% url 'login' %}" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left me-1"></i> Back to Login
-                            </a>
-                            <button type="submit" class="btn btn-primary" id="submit-button">
-                                <i class="fas fa-save me-1"></i> Create Account
+                        <!-- Submit Button -->
+                        <div class="mt-8">
+                            <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center" id="submit-button">
+                                <i class="fas fa-user-plus mr-3"></i>
+                                Create My Account
                             </button>
+                        </div>
+
+                        <!-- Login Link -->
+                        <div class="text-center mt-6">
+                            <p class="text-gray-600">
+                                Already have an account?
+                                <a href="{% url 'login' %}" class="text-indigo-600 hover:text-indigo-700 font-semibold transition-colors">
+                                    Sign in here
+                                </a>
+                            </p>
                         </div>
                     </form>
                 </div>
@@ -236,210 +619,58 @@
 </div>
 {% endblock %}
 
-{% block extra_css %}
-<style>
-    /* Form floating label adjustments */
-    .form-floating {
-        position: relative;
-    }
-
-    .form-floating > .form-control {
-        padding-right: 4.5rem; /* Increased to accommodate both icons */
-        height: calc(3.5rem + 2px);
-        line-height: 1.25;
-    }
-
-    .form-floating > label {
-        padding: 1rem 0.75rem;
-        font-weight: 400;
-        transform-origin: 0 0;
-        transition: all 0.2s ease;
-    }
-
-    /* Password field container */
-    .password-toggle-container {
-        position: relative;
-    }
-
-    /* Eye toggle button */
-    .toggle-password {
-        position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #6c757d;
-        background: none;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-        z-index: 3;
-        width: 20px;
-        height: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .toggle-password:hover {
-        color: #4361ee;
-        text-decoration: none;
-    }
-
-    .toggle-password i {
-        font-size: 1.1rem;
-    }
-
-    /* Validation icon container - only one shows at a time */
-    .validity-icon {
-        position: absolute;
-        right: 42px; /* 30px from eye icon (12+30=42) */
-        top: 50%;
-        transform: translateY(-50%);
-        z-index: 2;
-        width: 20px;
-        height: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .validity-icon i {
-        font-size: 1rem;
-    }
-
-    .fa-check-circle {
-        color: #28a745;
-    }
-
-    .fa-info-circle {
-        color: #ffc107;
-    }
-
-    /* Password requirements styling */
-    .password-requirements {
-        background-color: rgba(248, 249, 250, 0.8);
-        border-left: 3px solid #4361ee;
-        margin-top: 0.5rem;
-    }
-
-    .req-item {
-        margin-bottom: 0.25rem;
-        color: #6c757d;
-        display: flex;
-        align-items: center;
-    }
-
-    .req-item.valid {
-        color: #28a745;
-    }
-
-    .req-item i {
-        font-size: 0.6rem;
-        margin-right: 0.5rem;
-        width: 12px;
-    }
-
-    .req-item.valid i {
-        color: #28a745;
-    }
-
-    /* Section headers */
-    h5 {
-        font-weight: 600;
-        color: #4361ee;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid rgba(67, 97, 238, 0.1);
-        margin-bottom: 1rem;
-    }
-
-    /* Custom file input styles */
-    .custom-file {
-        position: relative;
-        display: block;
-        width: 100%;
-        height: calc(3.5rem + 2px);
-        margin-bottom: 1rem;
-    }
-
-    .custom-file-input {
-        position: relative;
-        z-index: 2;
-        width: 100%;
-        height: calc(3.5rem + 2px);
-        margin: 0;
-        opacity: 0;
-    }
-
-    .custom-file-label {
-        position: absolute;
-        top: 0;
-        right: 0;
-        left: 0;
-        z-index: 1;
-        height: calc(3.5rem + 2px);
-        padding: 1rem 0.75rem;
-        line-height: 1.5;
-        color: #495057;
-        background-color: #fff;
-        border: 1px solid #ced4da;
-        border-radius: 0.5rem;
-        transition: all 0.3s;
-    }
-
-    .custom-file-label::after {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 3;
-        display: block;
-        height: calc(3.5rem + 2px);
-        padding: 1rem 0.75rem;
-        line-height: 1.5;
-        color: #495057;
-        content: "Browse";
-        background-color: #e9ecef;
-        border-left: 1px solid #ced4da;
-        border-radius: 0 0.5rem 0.5rem 0;
-        transition: all 0.3s;
-    }
-
-    .custom-file-label.file-selected {
-        border-color: #4361ee;
-        box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
-    }
-
-    /* Loading spinner */
-    .fa-spinner {
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    /* Icon spacing in labels */
-    .form-floating label i,
-    .form-label i,
-    .custom-file-label i {
-        width: 16px;
-        text-align: center;
-        margin-right: 5px;
-    }
-</style>
-{% endblock %}
-
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Password fields
-    const password1 = document.getElementById('id_password1');
-    const password2 = document.getElementById('id_password2');
-    const reqItems = document.querySelectorAll('.req-item');
+    // Add Tailwind classes to form fields and set placeholders
+    const textInputs = document.querySelectorAll('input:not([type="file"]):not([type="checkbox"]):not([type="radio"])');
+    const selects = document.querySelectorAll('select');
     
-    // 1. Password visibility toggle
-    const toggleButtons = document.querySelectorAll('.toggle-password');
+    // Apply styles to all text inputs and set placeholders
+    textInputs.forEach(input => {
+        input.classList.add('form-input');
+        
+        // Set appropriate placeholder based on field name
+        const fieldName = input.name;
+        if (fieldName.includes('first_name')) {
+            input.placeholder = 'Enter your first name';
+        } else if (fieldName.includes('last_name')) {
+            input.placeholder = 'Enter your last name';
+        } else if (fieldName.includes('university_id')) {
+            input.placeholder = 'Enter your university ID';
+        } else if (fieldName.includes('email')) {
+            input.placeholder = 'Enter your email address';
+        } else if (fieldName.includes('phone')) {
+            input.placeholder = 'Enter your phone number';
+        } else if (fieldName.includes('address')) {
+            input.placeholder = 'Enter your address';
+        } else if (fieldName.includes('username')) {
+            input.placeholder = 'Choose a username';
+        } else if (fieldName.includes('password1')) {
+            input.placeholder = 'Create a password';
+        } else if (fieldName.includes('password2')) {
+            input.placeholder = 'Confirm your password';
+        }
+    });
+    
+    // Apply styles to select and set default option
+    selects.forEach(select => {
+        select.classList.add('form-input');
+        select.style.appearance = 'none';
+        
+        // Add a default option if not already present
+        if (!select.querySelector('option[value=""]')) {
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Select your role';
+            defaultOption.disabled = true;
+            defaultOption.selected = true;
+            select.insertBefore(defaultOption, select.firstChild);
+        }
+    });
+    
+    // Password visibility toggle
+    const toggleButtons = document.querySelectorAll('.password-toggle');
     
     toggleButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -450,28 +681,19 @@ document.addEventListener('DOMContentLoaded', function() {
             input.setAttribute('type', type);
             icon.classList.toggle('fa-eye');
             icon.classList.toggle('fa-eye-slash');
-            this.setAttribute('aria-pressed', type === 'text');
-            this.style.color = type === 'text' ? '#4361ee' : '#6c757d';
+            this.classList.toggle('text-indigo-500', type === 'text');
         });
     });
-
-    // 2. Password validation
-    if (password1) {
-        password1.addEventListener('input', function() {
-            validatePassword(this.value);
-            checkPasswordMatch();
-            updateValidityIcons();
-        });
-    }
     
-    if (password2) {
-        password2.addEventListener('input', function() {
-            checkPasswordMatch();
-            updateValidityIcons();
-        });
-    }
+    // Password strength calculation
+    const password1 = document.getElementById('id_password1');
+    const password2 = document.getElementById('id_password2');
+    const reqItems = document.querySelectorAll('.requirement-item');
+    const strengthBar = document.getElementById('password-strength-bar');
+    const strengthText = document.getElementById('password-strength-text');
     
-    function validatePassword(password) {
+    function calculatePasswordStrength(password) {
+        let strength = 0;
         const requirements = {
             length: password.length >= 8,
             uppercase: /[A-Z]/.test(password),
@@ -479,123 +701,155 @@ document.addEventListener('DOMContentLoaded', function() {
             special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
         };
         
-        let allValid = true;
+        // Update requirement indicators
         reqItems.forEach(item => {
             const requirement = item.getAttribute('data-requirement');
             if (requirements[requirement]) {
+                item.classList.remove('invalid');
                 item.classList.add('valid');
-                item.querySelector('i').className = 'fas fa-check-circle me-2 text-success';
+                item.querySelector('i').className = 'requirement-icon fas fa-check-circle text-green-500';
+                strength += 25;
             } else {
                 item.classList.remove('valid');
-                item.querySelector('i').className = 'fas fa-circle me-2 text-muted';
-                allValid = false;
+                item.classList.add('invalid');
+                item.querySelector('i').className = 'requirement-icon fas fa-circle text-gray-300';
             }
         });
         
-        return allValid;
+        // Update strength bar and text
+        strengthBar.style.width = strength + '%';
+        
+        if (strength === 0) {
+            strengthText.textContent = 'Weak';
+            strengthText.className = 'password-strength strength-weak';
+            strengthBar.style.background = '#ef4444';
+        } else if (strength <= 50) {
+            strengthText.textContent = 'Fair';
+            strengthText.className = 'password-strength strength-fair';
+            strengthBar.style.background = '#f59e0b';
+        } else if (strength <= 75) {
+            strengthText.textContent = 'Good';
+            strengthText.className = 'password-strength strength-good';
+            strengthBar.style.background = '#10b981';
+        } else {
+            strengthText.textContent = 'Strong';
+            strengthText.className = 'password-strength strength-strong';
+            strengthBar.style.background = '#059669';
+        }
+        
+        return requirements;
     }
     
     function checkPasswordMatch() {
         if (password1 && password2) {
             const passwordsMatch = password1.value && password2.value && password1.value === password2.value;
-            password2.classList.toggle('is-valid', passwordsMatch);
-            password2.classList.toggle('is-invalid', !passwordsMatch && password2.value.length > 0);
-        }
-    }
-    
-    function updateValidityIcons() {
-        // Password1 validation
-        if (password1) {
-            const validIcon1 = document.getElementById('password1-valid');
-            const infoIcon1 = document.getElementById('password1-info');
-            
-            if (password1.value.length > 0) {
-                const isValid = validatePassword(password1.value);
-                if (isValid) {
-                    validIcon1.classList.remove('d-none');
-                    infoIcon1.classList.add('d-none');
-                    password1.classList.add('is-valid');
-                    password1.classList.remove('is-invalid');
-                } else {
-                    validIcon1.classList.add('d-none');
-                    infoIcon1.classList.remove('d-none');
-                    password1.classList.remove('is-valid');
-                    password1.classList.add('is-invalid');
-                }
-            } else {
-                validIcon1.classList.add('d-none');
-                infoIcon1.classList.add('d-none');
-                password1.classList.remove('is-valid', 'is-invalid');
-            }
-        }
-        
-        // Password2 validation
-        if (password2) {
-            const validIcon2 = document.getElementById('password2-valid');
-            const infoIcon2 = document.getElementById('password2-info');
             
             if (password2.value.length > 0) {
-                const passwordsMatch = password1.value && password2.value && password1.value === password2.value;
                 if (passwordsMatch) {
-                    validIcon2.classList.remove('d-none');
-                    infoIcon2.classList.add('d-none');
-                    password2.classList.add('is-valid');
-                    password2.classList.remove('is-invalid');
+                    password2.classList.remove('border-red-500');
+                    password2.classList.add('border-green-500');
                 } else {
-                    validIcon2.classList.add('d-none');
-                    infoIcon2.classList.remove('d-none');
-                    password2.classList.remove('is-valid');
-                    password2.classList.add('is-invalid');
+                    password2.classList.remove('border-green-500');
+                    password2.classList.add('border-red-500');
                 }
             } else {
-                validIcon2.classList.add('d-none');
-                infoIcon2.classList.add('d-none');
-                password2.classList.remove('is-valid', 'is-invalid');
+                password2.classList.remove('border-red-500', 'border-green-500');
             }
         }
     }
-
-    // 3. File upload display
-    const fileInput = document.querySelector('.custom-file-input');
-    if (fileInput) {
-        fileInput.addEventListener('change', function() {
-            const label = this.nextElementSibling;
-            label.textContent = this.files[0] ? this.files[0].name : "Choose file";
-            label.classList.toggle('file-selected', !!this.files[0]);
+    
+    if (password1) {
+        password1.addEventListener('input', function() {
+            calculatePasswordStrength(this.value);
+            checkPasswordMatch();
         });
     }
-
-    // 4. Add Bootstrap classes to form fields
-    document.querySelectorAll('input:not(.custom-file-input), textarea').forEach(input => {
-        input.classList.add('form-control');
-        if (input.nextElementSibling?.classList.contains('invalid-feedback')) {
-            input.classList.add('is-invalid');
+    
+    if (password2) {
+        password2.addEventListener('input', function() {
+            checkPasswordMatch();
+        });
+    }
+    
+    // File upload handling
+    const fileInput = document.getElementById('{{ form.profile_picture.id_for_label }}');
+    const fileUploadArea = document.getElementById('file-upload-area');
+    const fileName = document.getElementById('file-name');
+    
+    if (fileInput && fileUploadArea) {
+        fileUploadArea.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                fileName.textContent = this.files[0].name;
+                fileName.classList.remove('hidden');
+                fileUploadArea.classList.add('border-indigo-500', 'bg-indigo-50');
+                fileUploadArea.innerHTML = `
+                    <i class="fas fa-check-circle text-4xl text-green-500 mb-4"></i>
+                    <p class="text-gray-700 font-semibold">File Selected</p>
+                    <div id="file-name" class="mt-3 text-sm text-indigo-600 font-medium">${this.files[0].name}</div>
+                    <p class="text-xs text-gray-400 mt-2">Click to change file</p>
+                `;
+            }
+        });
+        
+        // Drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            fileUploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
         }
-    });
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            fileUploadArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            fileUploadArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            fileUploadArea.classList.add('dragover');
+        }
+        
+        function unhighlight() {
+            fileUploadArea.classList.remove('dragover');
+        }
+        
+        fileUploadArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            fileInput.files = files;
+            
+            if (files.length > 0) {
+                fileInput.dispatchEvent(new Event('change'));
+            }
+        }
+    }
     
-    document.querySelectorAll('select').forEach(select => {
-        select.classList.add('form-select');
-    });
-    
-    document.querySelectorAll('textarea').forEach(textarea => {
-        textarea.style.minHeight = '100px';
-    });
-
-    // 5. Auto-focus first field
-    const firstField = document.querySelector('input:not([type="hidden"]):not([type="file"])');
-    if (firstField) firstField.focus();
-
-    // 6. Form submission handling
-    const form = document.querySelector('form');
+    // Form submission handling
+    const form = document.getElementById('registration-form');
     if (form) {
         form.addEventListener('submit', function() {
-            const submitButton = this.querySelector('#submit-button');
+            const submitButton = document.getElementById('submit-button');
             if (submitButton) {
-                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Creating...';
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i> Creating Account...';
                 submitButton.disabled = true;
+                submitButton.classList.remove('hover:scale-105');
             }
         });
     }
+    
+    // Auto-focus first field
+    const firstField = document.querySelector('input:not([type="hidden"]):not([type="file"])');
+    if (firstField) firstField.focus();
 });
 </script>
 {% endblock %}

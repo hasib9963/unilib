@@ -1,5 +1,3 @@
-{% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,281 +6,338 @@
     <title>UniLib - {% block title %}University Library Management System{% endblock %}</title>
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;700&display=swap" rel="stylesheet">
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;700&display=swap" rel="stylesheet">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Animate.css -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --dark: #1e293b;
+            --light: #f8fafc;
+        }
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .hover-lift {
+            transition: all 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
 
     {% block extra_css %}{% endblock %}
 </head>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="min-h-screen flex flex-col bg-gray-50">
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-gradient-primary">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
-                <i class="fas fa-book-open me-2"></i>
-                <span class="brand-text">UniLib</span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'book-list' %}">
-                            <i class="fas fa-book me-1"></i> Books
-                        </a>
-                    </li>
-                    {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'borrow-list' %}">
-                            <i class="fas fa-exchange-alt me-1"></i>Borrows
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'dashboard' %}">
-                            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
-                        </a>
-                    </li>
-                    {% if user.is_admin or user.is_librarian %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-tools me-1"></i> Management
-                        </a>
-                        <ul class="dropdown-menu shadow">
-                            <li><a class="dropdown-item" href="{% url 'book-create' %}">Add Book</a></li>
-                            <li><a class="dropdown-item" href="{% url 'category-list' %}">Category</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'user-list' %}">User Management</a></li>
-                        </ul>
-                    </li>
-                    {% endif %}
-                    {% endif %}
-                </ul>
-
-                <ul class="navbar-nav">
-                {% if user.is_authenticated %}
-                
-                <!-- Profile Dropdown -->
-                <li class="nav-item dropdown me-2">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                        <div class="avatar avatar-sm me-2">
-                            <img src="{{ user.get_profile_picture }}" class="rounded-circle" alt="Profile">
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'home' %}" class="flex items-center space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center">
+                            <i class="fas fa-book-open text-white text-sm"></i>
                         </div>
-                        <span class="d-none d-lg-inline">{{ user.get_full_name|default:user.username }}</span>
+                        <span class="font-bold text-xl text-gray-800">UniLib</span>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow">
-                        <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i> Profile</a></li>
-                        <li><a class="dropdown-item" href="{% url 'fine-list' %}"><i class="fas fa-money-bill-wave me-2"></i> Fines</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <form method="post" action="{% url 'logout' %}">
-                                {% csrf_token %}
-                                <button type="submit" class="dropdown-item">
-                                    <i class="fas fa-sign-out-alt me-2"></i> Logout
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
-                </li>
-
-                <!-- Notifications Icon (Right of Profile) -->
-                <li class="nav-item d-flex align-items-center">
-                    <a class="nav-link position-relative" href="{% url 'notification-list' %}">
-                        <i class="fas fa-bell fa-lg"></i>
+                    
+                    <div class="hidden md:ml-6 md:flex md:space-x-4">
+                        <a href="{% url 'book-list' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-100 transition-colors">
+                            <i class="fas fa-book mr-1"></i> Books
+                        </a>
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'borrow-list' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-100 transition-colors">
+                            <i class="fas fa-exchange-alt mr-1"></i> Borrows
+                        </a>
+                        <a href="{% url 'dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-100 transition-colors">
+                            <i class="fas fa-tachometer-alt mr-1"></i> Dashboard
+                        </a>
+                        {% if user.is_admin or user.is_librarian %}
+                        <div class="relative group">
+                            <button class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-100 transition-colors flex items-center">
+                                <i class="fas fa-tools mr-1"></i> Management
+                                <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                            </button>
+                            <div class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-10">
+                                <a href="{% url 'book-create' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Add Book</a>
+                                <a href="{% url 'category-list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Category</a>
+                                <div class="border-t my-1"></div>
+                                <a href="{% url 'user-list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">User Management</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                    <!-- Notifications -->
+                    <a href="{% url 'notification-list' %}" class="relative p-2 text-gray-600 hover:text-indigo-600 transition-colors">
+                        <i class="fas fa-bell text-lg"></i>
                         {% if unread_notification_count %}
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                                 {{ unread_notification_count }}
-                                <span class="visually-hidden">unread notifications</span>
                             </span>
                         {% endif %}
                     </a>
-                </li>
-
-                {% else %}
-                <!-- Guest links -->
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'login' %}">
-                        <i class="fas fa-sign-in-alt me-1"></i> Sign In
+                    
+                    <!-- Profile Dropdown -->
+                    <div class="relative group">
+                        <button class="flex items-center space-x-2 text-sm focus:outline-none">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center overflow-hidden">
+                                <img src="{{ user.get_profile_picture }}" class="w-full h-full object-cover" alt="Profile">
+                            </div>
+                            <span class="hidden md:block text-gray-700">{{ user.get_full_name|default:user.username }}</span>
+                            <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                        </button>
+                        
+                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-10">
+                            <a href="{% url 'profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-user mr-2"></i> Profile
+                            </a>
+                            <a href="{% url 'fine-list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-money-bill-wave mr-2"></i> Fines
+                            </a>
+                            <div class="border-t my-1"></div>
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <!-- Guest links -->
+                    <a href="{% url 'login' %}" class="text-gray-700 hover:text-indigo-600 font-medium transition-colors">
+                        <i class="fas fa-sign-in-alt mr-1"></i> Sign In
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a class="btn btn-outline-light ms-2" href="{% url 'register' %}">
-                        <i class="fas fa-user-plus me-1"></i> Register
+                    <a href="{% url 'register' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                        <i class="fas fa-user-plus mr-1"></i> Register
                     </a>
-                </li>
-                {% endif %}
-            </ul>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </nav>
 
+    <!-- Mobile menu -->
+    <div class="md:hidden bg-white border-t">
+        <div class="px-2 pt-2 pb-3 space-y-1">
+            <a href="{% url 'book-list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-100">
+                <i class="fas fa-book mr-2"></i> Books
+            </a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'borrow-list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-100">
+                <i class="fas fa-exchange-alt mr-2"></i> Borrows
+            </a>
+            <a href="{% url 'dashboard' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-100">
+                <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+            </a>
+            {% if user.is_admin or user.is_librarian %}
+            <div class="px-3 py-2">
+                <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Management</p>
+                <a href="{% url 'book-create' %}" class="block pl-4 pr-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-100">Add Book</a>
+                <a href="{% url 'category-list' %}" class="block pl-4 pr-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-100">Category</a>
+                <a href="{% url 'user-list' %}" class="block pl-4 pr-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-100">User Management</a>
+            </div>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
     <!-- Main Content -->
-    <main class="flex-grow-1">
+    <main class="flex-grow">
         {% if messages %}
-        <div class="container mt-3">
-            <div class="row">
-                <div class="col-12">
-                    {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
-                        <div class="d-flex align-items-center">
-                            <i class="fas 
-                                {% if message.tags == 'success' %}fa-check-circle
-                                {% elif message.tags == 'error' %}fa-times-circle
-                                {% else %}fa-info-circle{% endif %} 
-                                me-2"></i>
-                            <div>{{ message }}</div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            {% for message in messages %}
+            <div class="rounded-md p-4 mb-4 {% if message.tags == 'success' %}bg-green-50 border border-green-200{% elif message.tags == 'error' %}bg-red-50 border border-red-200{% else %}bg-blue-50 border border-blue-200{% endif %}">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas {% if message.tags == 'success' %}fa-check-circle text-green-400{% elif message.tags == 'error' %}fa-times-circle text-red-400{% else %}fa-info-circle text-blue-400{% endif %}"></i>
                     </div>
-                    {% endfor %}
+                    <div class="ml-3">
+                        <p class="text-sm font-medium {% if message.tags == 'success' %}text-green-800{% elif message.tags == 'error' %}text-red-800{% else %}text-blue-800{% endif %}">
+                            {{ message }}
+                        </p>
+                    </div>
+                    <div class="ml-auto pl-3">
+                        <div class="-mx-1.5 -my-1.5">
+                            <button type="button" class="inline-flex rounded-md p-1.5 {% if message.tags == 'success' %}text-green-500 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-50 focus:ring-green-600{% elif message.tags == 'error' %}text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600{% else %}text-blue-500 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-50 focus:ring-blue-600{% endif %}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
         {% endif %}
         
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Complete University Library Footer with Optimized Spacing -->
-    <footer class="library-footer bg-dark-blue text-white pt-5 pb-4">
-        <div class="container">
-            <div class="row gx-3">  <!-- Added gx-3 for consistent column gutters -->
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <!-- Quick Links -->
-                <div class="col-lg-3 col-md-6 mb-4 px-2">  <!-- Reduced px-3 to px-2 -->
-                    <h5 class="text-uppercase text-white mb-3 pb-2 section-header">  <!-- Reduced mb-4 to mb-3 -->
-                        <i class="fas fa-external-link-alt me-2"></i>Quick Links
-                    </h5>
-                    <ul class="list-unstyled footer-links">
-                        <li class="mb-1">  <!-- Reduced mb-2 to mb-1 -->
-                            <a href="{% url 'book-list' %}" class="text-light hover-accent">
-                                <i class="fas fa-book me-2"></i>
-                                Book Catalog
-                            </a>
-                        </li>
-                        <li class="mb-1">
-                            <a href="https://www.ru.ac.bd/ier/" class="text-light hover-accent" target='blank'>
-                                <i class="fas fa-search me-2"></i>
-                                Research Databases
-                            </a>
-                        </li>
-                        <li class="mb-1">
-                            <a href="https://www.ru.ac.bd/publications/" class="text-light hover-accent" target='blank'>
-                                <i class="fas fa-user-graduate me-2"></i>
-                                Student Resources
-                            </a>
-                        </li>
-                        <li class="mb-1">
-                            <a href="https://www.ru.ac.bd/faculties/" class="text-light hover-accent" target='blank'>
-                                <i class="fas fa-chalkboard-teacher me-2"></i>
-                                Faculty Services
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <i class="fas fa-external-link-alt mr-2"></i> Quick Links
+                    </h3>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="{% url 'book-list' %}" class="text-gray-300 hover:text-white transition-colors flex items-center">
+                                <i class="fas fa-book mr-2 text-sm"></i> Book Catalog
                             </a>
                         </li>
                         <li>
-                            <a href="https://www.facebook.com/sadrul.sabbir" class="text-light hover-accent" target='blank'>
-                                <i class="fas fa-question-circle me-2"></i>
-                                Ask a Librarian
+                            <a href="https://www.ru.ac.bd/ier/" class="text-gray-300 hover:text-white transition-colors flex items-center" target="_blank">
+                                <i class="fas fa-search mr-2 text-sm"></i> Research Databases
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.ru.ac.bd/publications/" class="text-gray-300 hover:text-white transition-colors flex items-center" target="_blank">
+                                <i class="fas fa-user-graduate mr-2 text-sm"></i> Student Resources
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.ru.ac.bd/faculties/" class="text-gray-300 hover:text-white transition-colors flex items-center" target="_blank">
+                                <i class="fas fa-chalkboard-teacher mr-2 text-sm"></i> Faculty Services
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.facebook.com/sadrul.sabbir" class="text-gray-300 hover:text-white transition-colors flex items-center" target="_blank">
+                                <i class="fas fa-question-circle mr-2 text-sm"></i> Ask a Librarian
                             </a>
                         </li>
                     </ul>
                 </div>
-
+                
                 <!-- Opening Hours -->
-                <div class="col-lg-3 col-md-6 mb-4 px-2">
-                    <h5 class="text-uppercase text-white mb-3 pb-2 section-header">
-                        <i class="far fa-clock me-2"></i>Opening Hours
-                    </h5>
-                    <ul class="list-unstyled text-light footer-hours">
-                        <li class="d-flex justify-content-between mb-1 py-1 hour-item">  <!-- Reduced mb-2 to mb-1 -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <i class="far fa-clock mr-2"></i> Opening Hours
+                    </h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li class="flex justify-between">
                             <span>Monday - Thursday</span>
                             <span>10:00 AM - 03:00 PM</span>
                         </li>
-                        <li class="d-flex justify-content-between mb-1 py-1 hour-item">
+                        <li class="flex justify-between">
                             <span>Friday</span>
                             <span>Only On Online</span>
                         </li>
-                        <li class="d-flex justify-content-between mb-1 py-1 hour-item">
+                        <li class="flex justify-between">
                             <span>Saturday</span>
                             <span>09:00 AM - 2:00 PM</span>
                         </li>
-                        <li class="d-flex justify-content-between py-1 hour-item">
+                        <li class="flex justify-between">
                             <span>Sunday</span>
                             <span>10:00 PM - 03:00 PM</span>
                         </li>
                     </ul>
-                    <div class="online-resources-notice mt-2">  <!-- Added mt-2 -->
-                        <i class="fas fa-laptop-house me-2"></i>
+                    <div class="mt-4 p-2 bg-gray-800 rounded text-sm flex items-center">
+                        <i class="fas fa-laptop-house mr-2 text-indigo-400"></i>
                         24/7 online resources available
                     </div>
                 </div>
-
+                
                 <!-- Contact Us -->
-                <div class="col-lg-3 col-md-6 mb-4 px-4">
-                    <h5 class="text-uppercase text-white mb-3 pb-2 section-header">
-                        <i class="fas fa-envelope me-2"></i>Contact Us
-                    </h5>
-                    <address class="footer-contact">
-                        <div class="mb-1 contact-item">  <!-- Reduced mb-2 to mb-1 -->
-                            <i class="fas fa-map-marker-alt me-2"></i>
-                            RECR Library<br>
-                            <span class="ms-3 d-inline-block">G. L. Roy Road, Campus</span>  <!-- Changed contact-indent to ms-3 -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <i class="fas fa-envelope mr-2"></i> Contact Us
+                    </h3>
+                    <address class="not-italic text-gray-300 space-y-2">
+                        <div class="flex items-start">
+                            <i class="fas fa-map-marker-alt mr-2 mt-1 text-sm"></i>
+                            <div>
+                                RECR Library<br>
+                                <span class="ml-4">G. L. Roy Road, Campus</span>
+                            </div>
                         </div>
-                        <div class="mb-1 contact-item">
-                            <i class="fas fa-phone me-2"></i>
+                        <div class="flex items-center">
+                            <i class="fas fa-phone mr-2 text-sm"></i>
                             +88 01622474060
                         </div>
-                        <div class="mb-1 contact-item">
-                            <i class="fas fa-envelope me-2"></i>
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope mr-2 text-sm"></i>
                             library@recr.edu
                         </div>
-                        <div class="contact-item">
-                            <i class="fas fa-headset me-2"></i>
+                        <div class="flex items-center">
+                            <i class="fas fa-headset mr-2 text-sm"></i>
                             Support: help@library.recr.edu
                         </div>
                     </address>
                 </div>
-
+                
                 <!-- Newsletter & Social -->
-                <div class="col-lg-3 col-md-6 px-2">
-                    <h5 class="text-uppercase text-white mb-3 pb-2 section-header">
-                        <i class="fas fa-newspaper me-2"></i>Newsletter
-                    </h5>
-                    <p class="text-light mb-2 footer-text">  <!-- Reduced mb-3 to mb-2 -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <i class="fas fa-newspaper mr-2"></i> Newsletter
+                    </h3>
+                    <p class="text-gray-300 mb-4">
                         Subscribe for updates on new resources and events.
                     </p>
-                    <form class="mb-3 newsletter-form">  <!-- Reduced mb-4 to mb-3 -->
-                        <div class="input-group">
-                            <input type="email" class="form-control bg-library-dark border-light-10 text-light" placeholder="Your email">
-                            <button class="btn btn-accent" type="submit">
+                    <form class="mb-6">
+                        <div class="flex">
+                            <input type="email" class="flex-grow px-3 py-2 bg-gray-800 border border-gray-700 rounded-l text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Your email">
+                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-r text-white transition-colors">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
                     </form>
                     
-                    <h5 class="text-uppercase text-white mt-3 mb-2 pb-2 section-header">  <!-- Reduced mt-4 to mt-3 and mb-3 to mb-2 -->
-                        <i class="fas fa-share-alt me-2"></i>Connect
-                    </h5>
-                    <div class="social-icons">
-                        <a href="#" class="social-icon me-2">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <i class="fas fa-share-alt mr-2"></i> Connect
+                    </h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-indigo-600 transition-colors">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="#" class="social-icon me-2">
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-indigo-600 transition-colors">
                             <i class="fab fa-twitter"></i>
                         </a>
-                        <a href="#" class="social-icon me-2">
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-indigo-600 transition-colors">
                             <i class="fab fa-instagram"></i>
                         </a>
-                        <a href="#" class="social-icon">
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-indigo-600 transition-colors">
                             <i class="fab fa-linkedin-in"></i>
                         </a>
                     </div>
@@ -290,140 +345,54 @@
             </div>
             
             <!-- Copyright -->
-            <div class="border-top border-light-10 pt-3 mt-3">  <!-- Reduced pt-4 to pt-3 and mt-4 to mt-3 -->
-                <div class="row align-items-center">
-                    <div class="col-md-6 mb-2 mb-md-0">  <!-- Reduced mb-3 to mb-2 -->
-                        <p class="text-light mb-0 copyright-text">
-                            <i class="fas fa-university me-2"></i>
-                            © {% now "Y" %} University Library. All rights reserved.
-                        </p>
-                    </div>
-                    <div class="col-md-6 text-md-end">
-                        <ul class="list-inline mb-0 legal-links">
-                            <li class="list-inline-item">
-                                <a href="#" class="text-light hover-accent">
-                                    Privacy Policy
-                                </a>
-                            </li>
-                            <li class="list-inline-item mx-1">·</li>  <!-- Reduced mx-2 to mx-1 -->
-                            <li class="list-inline-item">
-                                <a href="#" class="text-light hover-accent">
-                                    Terms of Use
-                                </a>
-                            </li>
-                            <li class="list-inline-item mx-1">·</li>
-                            <li class="list-inline-item">
-                                <a href="#" class="text-light hover-accent">
-                                    Accessibility
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 mb-4 md:mb-0 flex items-center">
+                    <i class="fas fa-university mr-2"></i>
+                    © {% now "Y" %} University Library. All rights reserved.
+                </p>
+                <div class="flex space-x-4 text-sm text-gray-400">
+                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <span>·</span>
+                    <a href="#" class="hover:text-white transition-colors">Terms of Use</a>
+                    <span>·</span>
+                    <a href="#" class="hover:text-white transition-colors">Accessibility</a>
                 </div>
             </div>
         </div>
     </footer>
 
-    <style>
-        /* Footer Base Styles */
-        .library-footer {
-            background-color: #1c2b4a;
-            background-image: linear-gradient(135deg, #1c2b4a 0%, #0f1a30 100%);
-            font-family: 'Poppins', sans-serif;
-        }
-        
-        /* Section Headers */
-        .section-header {
-            font-size: 0.9rem;
-            font-weight: 500;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            letter-spacing: 0.5px;
-        }
-        
-        /* Content Styles */
-        .footer-links,
-        .footer-hours,
-        .footer-contact,
-        .footer-text {
-            font-size: 0.85rem;
-        }
-        
-        /* Spacing and Layout */
-        .hour-item,
-        .contact-item {
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        
-        /* Interactive Elements */
-        .hover-accent {
-            transition: all 0.3s ease;
-        }
-        
-        .hover-accent:hover {
-            color: #4a6da7 !important;
-            text-decoration: none;
-        }
-        
-        .social-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;  /* Reduced from 36px */
-            height: 32px;
-            background-color: rgba(255,255,255,0.08);
-            color: white;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-        
-        .social-icon:hover {
-            background-color: #4a6da7;
-            transform: translateY(-2px);
-        }
-        
-        .btn-accent {
-            background-color: #4a6da7;
-            border-color: #4a6da7;
-            color: white;
-        }
-        
-        /* Special Components */
-        .online-resources-notice {
-            font-size: 0.75rem;  /* Reduced from 0.8rem */
-            background-color: rgba(255,255,255,0.05);
-            border-left: 3px solid #4a6da7;
-            padding: 0.4rem;  /* Reduced from 0.5rem */
-        }
-        
-        .bg-library-dark {
-            background-color: rgba(0,0,0,0.2);
-        }
-        
-        .border-light-10 {
-            border-color: rgba(255,255,255,0.1) !important;
-        }
-        
-        /* Copyright Section */
-        .copyright-text {
-            font-size: 0.75rem;  /* Reduced from 0.8rem */
-        }
-        
-        .legal-links {
-            font-size: 0.75rem;  /* Reduced from 0.8rem */
-        }
-    </style>
-    <!-- Back to Top Button (Global) -->
-    <a id="back-to-top" href="#" class="btn btn-primary btn-lg back-to-top">
+    <!-- Back to Top Button -->
+    <a id="back-to-top" href="#" class="fixed bottom-6 right-6 bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-colors opacity-0 invisible">
         <i class="fas fa-arrow-up"></i>
     </a>
 
+    <script>
+        // Back to top button
+        const backToTopButton = document.getElementById('back-to-top');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.remove('opacity-0', 'invisible');
+                backToTopButton.classList.add('opacity-100', 'visible');
+            } else {
+                backToTopButton.classList.remove('opacity-100', 'visible');
+                backToTopButton.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        backToTopButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        
+        // Close alert messages
+        document.querySelectorAll('[class*="bg-"] button').forEach(button => {
+            button.addEventListener('click', function() {
+                this.closest('.rounded-md').style.display = 'none';
+            });
+        });
+    </script>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Custom JS -->
-    <script src="{% static 'js/script.js' %}"></script>
-    
     {% block extra_js %}{% endblock %}
 </body>
 </html>
