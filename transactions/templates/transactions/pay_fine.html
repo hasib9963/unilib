@@ -172,14 +172,15 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <form method="post">
+                <form method="post" id="payment-form">
                     {% csrf_token %}
                     <div class="flex flex-col sm:flex-row gap-4">
                         {% if not fine.is_paid %}
                         <button type="submit" 
-                                class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center">
+                                class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center"
+                                id="submit-button">
                             <i class="fas fa-check-circle mr-3 text-lg"></i>
-                            Confirm Payment
+                            <span id="button-text">Confirm Payment</span>
                         </button>
                         {% endif %}
                         <a href="{% url 'fine-list' %}" 
@@ -258,25 +259,42 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
+
+    /* Loading spinner */
+    .fa-spinner {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Add loading animation to submit button
-    const submitButton = document.querySelector('button[type="submit"]');
-    if (submitButton) {
-        submitButton.addEventListener('click', function(e) {
-            const originalText = this.innerHTML;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i> Processing Payment...';
-            this.disabled = true;
+    // Form submission handling for loading spinner
+    const form = document.getElementById('payment-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitButton = document.getElementById('submit-button');
+            const buttonText = document.getElementById('button-text');
             
-            // Reset after 5 seconds if still on page (fallback)
-            setTimeout(() => {
-                this.innerHTML = originalText;
-                this.disabled = false;
-            }, 5000);
+            if (submitButton && buttonText) {
+                // Change button content to spinner and disable
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i> Processing Payment...';
+                submitButton.disabled = true;
+                
+                // Optional: Add a fallback to reset the button after 5 seconds
+                setTimeout(() => {
+                    if (submitButton.disabled) {
+                        submitButton.innerHTML = '<i class="fas fa-check-circle mr-3 text-lg"></i><span id="button-text">Confirm Payment</span>';
+                        submitButton.disabled = false;
+                    }
+                }, 5000);
+            }
         });
     }
 

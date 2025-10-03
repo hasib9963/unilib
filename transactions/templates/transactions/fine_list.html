@@ -29,7 +29,7 @@
                     Fines Management
                 </h1>
                 <p class="text-gray-600 text-lg">
-                    {% if request.user.is_admin or request.user.is_librarian %}
+                    {% if is_staff_user %}
                         All fines in the system
                     {% else %}
                         Your outstanding and paid fines
@@ -71,7 +71,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600">Pending Fines</p>
-                        <h3 class="text-2xl font-bold text-red-600 mt-2">{{ total_pending_fines }}</h3>
+                        <h3 class="text-2xl font-bold text-red-600 mt-2">${{ total_pending_fines }}</h3>
                         <p class="text-xs text-gray-500 mt-1">Awaiting payment</p>
                     </div>
                     <div class="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
@@ -85,7 +85,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600">Paid Fines</p>
-                        <h3 class="text-2xl font-bold text-green-600 mt-2">{{ total_paid_fines }}</h3>
+                        <h3 class="text-2xl font-bold text-green-600 mt-2">${{ total_paid_fines }}</h3>
                         <p class="text-xs text-gray-500 mt-1">Successfully paid</p>
                     </div>
                     <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
@@ -107,7 +107,7 @@
                         <div>
                             <h2 class="text-2xl font-bold text-white">Fine Records</h2>
                             <p class="text-indigo-100">
-                                {% if request.user.is_admin or request.user.is_librarian %}
+                                {% if is_staff_user %}
                                     All fines in the system
                                 {% else %}
                                     Your fine history
@@ -128,7 +128,7 @@
                     <table class="w-full">
                         <thead>
                             <tr class="border-b-2 border-gray-200">
-                                {% if request.user.is_admin or request.user.is_librarian %}
+                                {% if is_staff_user %}
                                 <th class="pb-4 text-left font-semibold text-gray-700">Borrower</th>
                                 {% endif %}
                                 <th class="pb-4 text-left font-semibold text-gray-700">Book</th>
@@ -137,7 +137,7 @@
                                 <th class="pb-4 text-left font-semibold text-gray-700">Amount</th>
                                 <th class="pb-4 text-left font-semibold text-gray-700">Status</th>
                                 <th class="pb-4 text-left font-semibold text-gray-700">Created</th>
-                                {% if request.user.is_admin or request.user.is_librarian %}
+                                {% if is_staff_user %}
                                 <th class="pb-4 text-right font-semibold text-gray-700">Actions</th>
                                 {% endif %}
                             </tr>
@@ -146,7 +146,7 @@
                             {% for fine in fines %}
                             <tr class="hover:bg-gray-50 transition-colors duration-200 {% if fine.is_paid %}bg-green-50{% else %}bg-yellow-50{% endif %}">
                                 <!-- Borrower Column -->
-                                {% if request.user.is_admin or request.user.is_librarian %}
+                                {% if is_staff_user %}
                                 <td class="py-4">
                                     <div class="flex items-center space-x-3">
                                         <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
@@ -227,7 +227,7 @@
                                 </td>
 
                                 <!-- Actions Column -->
-                                {% if request.user.is_admin or request.user.is_librarian %}
+                                {% if is_staff_user %}
                                 <td class="py-4 text-right">
                                     {% if not fine.is_paid %}
                                     <a href="{% url 'pay-fine' fine.pk %}" 

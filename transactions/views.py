@@ -95,31 +95,6 @@ class BorrowCreateView(LoginRequiredMixin, CreateView):
 
 from django.db.models import Q
 
-# class BorrowListView(LoginRequiredMixin, ListView):
-#     model = Borrow
-#     template_name = 'transactions/borrow_list.html'
-#     context_object_name = 'borrows'
-#     paginate_by = 10
-
-#     def get_queryset(self):
-#         user = self.request.user
-#         queryset = Borrow.objects.all().order_by('-issue_date')
-#         search_query = self.request.GET.get('search', '').strip()
-        
-#         if search_query:
-#             queryset = queryset.filter(
-#                 Q(book__title__icontains=search_query) |
-#                 Q(book__author__icontains=search_query) |
-#                 Q(user__first_name__icontains=search_query) |
-#                 Q(user__last_name__icontains=search_query) |
-#                 Q(user__email__icontains=search_query) |
-#                 Q(user__university_id__icontains=search_query)
-#             )
-        
-#         if user.role in [User.Role.ADMIN, User.Role.LIBRARIAN]:
-#             return queryset
-#         return queryset.filter(user=user)
-
 class BorrowListView(LoginRequiredMixin, ListView):
     model = Borrow
     template_name = 'transactions/borrow_list.html'
@@ -296,8 +271,6 @@ class ReturnBookView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('borrow-list')
-    
-
 class FineListView(LoginRequiredMixin, ListView):
     model = Fine
     template_name = 'transactions/fine_list.html'
@@ -312,8 +285,12 @@ class FineListView(LoginRequiredMixin, ListView):
         for borrow in overdue_borrows:
             borrow.check_and_create_fine()
         
-        if self.request.user.is_admin or self.request.user.is_librarian:
+        if hasattr(self.request.user, 'role'):
+            if self.request.user.role in [User.Role.ADMIN, User.Role.LIBRARIAN]:
+                return Fine.objects.all().order_by('-created_at')
+        elif self.request.user.is_staff:  # Fallback to Django's is_staff
             return Fine.objects.all().order_by('-created_at')
+        
         return Fine.objects.filter(user=self.request.user).order_by('-created_at')
     
     def get_context_data(self, **kwargs):
@@ -331,8 +308,65 @@ class FineListView(LoginRequiredMixin, ListView):
         context['total_pending_fines'] = total_pending_fines
         context['total_paid_fines'] = total_paid_fines
         
+        # Add proper user role info to context for template
+        if hasattr(self.request.user, 'role'):
+            context['is_staff_user'] = self.request.user.role in [User.Role.ADMIN, User.Role.LIBRARIAN]
+        else:
+            context['is_staff_user'] = self.request.user.is_staff
+        
         return context
+
+# class PayFineView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+#     model = Fine
+#     form_class = FinePaymentForm
+#     template_name = 'transactions/pay_fine.html'
     
+#     def test_func(self):
+#         # Only admin/librarian can mark fines as paid
+#         return self.request.user.is_admin or self.request.user.is_librarian
+    
+#     def form_valid(self, form):
+#         fine = form.save(commit=False)
+#         fine.pay_fine()
+        
+#         # Send email notification
+#         self.send_payment_email(fine)
+        
+#         # Set appropriate success message
+#         if self.request.user == fine.user:
+#             messages.success(self.request, 'Your fine has been paid successfully!')
+#         else:
+#             messages.success(self.request, f"Fine for {fine.user.get_full_name()} has been paid successfully!")
+        
+#         return super().form_valid(form)
+    
+#     def send_payment_email(self, fine):
+#         """Send email notification for fine payment"""
+#         user = fine.user
+#         book = fine.borrow.book
+#         book_url = self.request.build_absolute_uri(reverse('book-detail', kwargs={'pk': book.pk}))
+        
+#         subject = f"Fine Payment Confirmation - {book.title}"
+#         html_content = render_to_string('emails/fine_payment_confirmation.html', {
+#             'user': user,
+#             'book': book,
+#             'fine': fine,
+#             'url': book_url,
+#             'library_name': 'UniLib',
+#             'payment_date': timezone.now().date(),
+#         })
+        
+#         try:
+#             email = EmailMultiAlternatives(subject, '', to=[user.email])
+#             email.attach_alternative(html_content, "text/html")
+#             email.send()
+#         except Exception as e:
+#             # Log the error but don't break the payment process
+#             print(f"Failed to send payment confirmation email: {e}")
+    
+#     def get_success_url(self):
+#         return reverse_lazy('fine-list')
+
 class PayFineView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Fine
     form_class = FinePaymentForm
@@ -346,6 +380,9 @@ class PayFineView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         fine = form.save(commit=False)
         fine.pay_fine()
         
+        # Send email notification
+        self.send_payment_email(fine)
+        
         # Set appropriate success message
         if self.request.user == fine.user:
             messages.success(self.request, 'Your fine has been paid successfully!')
@@ -354,9 +391,34 @@ class PayFineView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         
         return super().form_valid(form)
     
+    def send_payment_email(self, fine):
+        """Send email notification for fine payment"""
+        user = fine.user
+        book = fine.borrow.book
+        book_url = self.request.build_absolute_uri(reverse('book-detail', kwargs={'pk': book.pk}))
+        book_list_url = self.request.build_absolute_uri(reverse('book-list'))
+        
+        subject = f"Fine Payment Confirmation - {book.title}"
+        html_content = render_to_string('emails/fine_payment_confirmation.html', {
+            'user': user,
+            'book': book,
+            'fine': fine,
+            'url': book_url,
+            'book_list_url': book_list_url,  # Add this line
+            'library_name': 'UniLib',
+            'payment_date': timezone.now().date(),
+        })
+        
+        try:
+            email = EmailMultiAlternatives(subject, '', to=[user.email])
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+        except Exception as e:
+            # Log the error but don't break the payment process
+            print(f"Failed to send payment confirmation email: {e}")
+    
     def get_success_url(self):
         return reverse_lazy('fine-list')
-
 
 class ReservationCreateView(LoginRequiredMixin, CreateView):
     model = Reservation
