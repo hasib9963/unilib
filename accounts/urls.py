@@ -53,4 +53,5 @@ urlpatterns = [
     path('users/<int:pk>/', user_detail, name='user-detail'),
     path('users/<int:pk>/update/', user_update, name='user-update'),
     path('users/<int:pk>/delete/', user_delete, name='user-delete'),
+    
 ]

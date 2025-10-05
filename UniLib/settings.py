@@ -156,11 +156,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
 EMAIL_PORT = 587
 EMAIL_HOST_USER = env('EMAIL')
 EMAIL_HOST_PASSWORD = env('EMAIL_PASSWORD')
 
-
+DEFAULT_FROM_EMAIL = f"UniLib <{EMAIL_HOST_USER}>"
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+SITE_DOMAIN='unilib-ci2k.onrender.com'
 # Sites framework
 SITE_ID = 1
 SITE_NAME = "UniLib"  # Custom setting we'll use
