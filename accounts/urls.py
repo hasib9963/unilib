@@ -1,4 +1,6 @@
 from django.urls import path
+
+from UniLib.settings import DOMAIN
 from .views import register, profile, UserCreateView, user_list, user_detail, user_update, user_delete, ConfirmEmailView
 from django.contrib.auth.views import  LoginView, LogoutView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.contrib.auth import views as auth_views
@@ -30,7 +32,7 @@ urlpatterns = [
           template_name='password/password_reset.html',
           html_email_template_name='password/password_reset_email.html',  # Note the 'html_' prefix
           subject_template_name='password/password_reset_subject.txt',
-          extra_email_context=None,
+          extra_email_context={'domain': DOMAIN},
           ),
           name='password_reset'),
 

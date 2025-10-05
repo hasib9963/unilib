@@ -14,41 +14,27 @@ class Borrow(models.Model):
     due_date = models.DateField()
     return_date = models.DateField(null=True, blank=True)
     is_returned = models.BooleanField(default=False)
+    overdue_notification_sent = models.BooleanField(default=False)
     
     def __str__(self):
         return f"{self.user} borrowed {self.book}"
 
     def save(self, *args, **kwargs):
-        if not self.pk:  # New borrow
+        is_new = not self.pk
+        
+        # Handle book copy count for new borrows
+        if is_new:
             self.book.available_copies -= 1
             self.book.save()
         
         super().save(*args, **kwargs)
-        
-        # Check for overdue and create fine if needed (after saving)
-        if not self.is_returned and self.due_date < timezone.now().date():
-            self.check_and_create_fine()
 
-        else:
-            # Check if this is an update and book was returned
-            old_instance = Borrow.objects.get(pk=self.pk) if self.pk else None
-            if old_instance and not old_instance.is_returned and self.is_returned:
-                # Book is being returned, but don't delete fine - just handle in return logic
-                pass
-        
-        super().save(*args, **kwargs)
-        
-        # Check for overdue and create fine if needed (after saving)
-        if not self.is_returned and self.due_date < timezone.now().date():
-            self.check_and_create_fine()
-    
     def return_book(self):
         if not self.is_returned:
             self.is_returned = True
             self.return_date = timezone.now().date()
             self.book.available_copies += 1
             self.book.save()
-            # Don't delete fine when book is returned - keep for record
             self.save()
     
     @property
@@ -66,8 +52,10 @@ class Borrow(models.Model):
         """Check if there's an unpaid fine associated with this borrow"""
         return hasattr(self, 'fine') and not self.fine.is_paid
 
-    def check_and_create_fine(self):
+    def check_and_create_fine(self, request=None):
         """Check if book is overdue and create fine if needed"""
+        print(f"Checking fine for borrow: {self}, overdue: {self.is_overdue}, has_fine: {hasattr(self, 'fine')}")
+        
         if self.is_overdue and not hasattr(self, 'fine'):
             # Calculate fine amount - $50 fixed fine for overdue
             fine_amount = 50
@@ -83,54 +71,114 @@ class Borrow(models.Model):
             )
             
             if created:
+                print(f"Fine created for {self}")
                 # Send notifications for newly created fine
-                self.send_overdue_notifications(fine)
+                self.send_overdue_notifications(fine, request)
+                return True
+        return False
 
-    def send_overdue_notifications(self, fine):
+    def send_overdue_notifications(self, fine, request=None):
         """Send email and in-app notifications for overdue book and fine"""
+        from django.contrib.sites.shortcuts import get_current_site
+        
         book = self.book
         borrower = self.user
-        book_url = reverse('book-detail', kwargs={'pk': book.pk})
-        absolute_book_url = f"http://{settings.DOMAIN}{book_url}"  # Adjust based on your domain
         
-        # Notification message
-        overdue_message = f"Your book '{book.title}' is overdue by {self.overdue_days} days. A fine of ${fine.amount} has been applied."
-        fine_message = f"A fine of ${fine.amount} has been applied for overdue book '{book.title}'"
+        print(f"Sending overdue notifications for: {book.title} to {borrower.email}")
         
-        # In-app notifications for both student/faculty AND staff
-        notify(borrower, overdue_message, type='FINE', url=book_url)
-        
-        # Notify all staff (admin/librarian) about the overdue
-        staff_users = User.objects.filter(role__in=[User.Role.ADMIN, User.Role.LIBRARIAN])
-        for staff in staff_users:
-            if staff != borrower:  # Don't notify staff if they are the borrower
-                staff_message = f"Book '{book.title}' borrowed by {borrower.get_full_name()} is overdue by {self.overdue_days} days. Fine applied: ${fine.amount}"
-                notify(staff, staff_message, type='FINE', url=book_url)
-        
-        # Email notification only for students/faculty
-        if borrower.role in [User.Role.STUDENT, User.Role.FACULTY]:
-            self.send_overdue_email(borrower, book, fine, absolute_book_url)
+        try:
+            book_url = reverse('book-detail', kwargs={'pk': book.pk})
+            
+            # Get domain properly
+            if request:
+                current_site = get_current_site(request)
+                domain = current_site.domain
+            else:
+                # Fallback to settings
+                domain = getattr(settings, 'DOMAIN', '127.0.0.1:8000')
+            
+            absolute_book_url = f"http://{domain}{book_url}"
+            
+            # Notification message
+            overdue_message = f"Your book '{book.title}' is overdue by {self.overdue_days} days. A fine of ${fine.amount} has been applied."
+            
+            # In-app notifications for both student/faculty AND staff
+            notify(borrower, overdue_message, type='FINE', url=book_url)
+            print(f"In-app notification sent to {borrower.email}")
+            
+            # Notify all staff (admin/librarian) about the overdue
+            staff_users = User.objects.filter(role__in=[User.Role.ADMIN, User.Role.LIBRARIAN])
+            for staff in staff_users:
+                if staff != borrower:
+                    staff_message = f"Book '{book.title}' borrowed by {borrower.get_full_name()} is overdue by {self.overdue_days} days. Fine applied: ${fine.amount}"
+                    notify(staff, staff_message, type='FINE', url=book_url)
+            
+            # Email notification only for students/faculty
+            if borrower.role in [User.Role.STUDENT, User.Role.FACULTY]:
+                self.send_overdue_email(borrower, book, fine, absolute_book_url)
+                
+        except Exception as e:
+            print(f"Error sending notifications: {e}")
 
     def send_overdue_email(self, user, book, fine, book_url):
         """Send email notification for overdue book"""
         from django.core.mail import EmailMultiAlternatives
         from django.template.loader import render_to_string
         
-        subject = f"Overdue Book: '{book.title}'"
+        subject = f"UniLib - Overdue Book: '{book.title}'"
         
-        html_content = render_to_string('emails/overdue_book.html', {
-            'user': user,
-            'book': book,
-            'borrow': self,
-            'fine': fine,
-            'due_date': self.due_date,
-            'overdue_days': self.overdue_days,
-            'book_url': book_url,
-        })
+        # Simple text content
+        text_content = f"""
+        Dear {user.get_full_name()},
+
+        Overdue Book Notice
+
+        Book Title: {book.title}
+        Author: {book.author}
+        Due Date: {self.due_date}
+        Days Overdue: {self.overdue_days}
+        Fine Amount: ${fine.amount}
+
+        Please return this book to the library as soon as possible to avoid additional charges.
+
+        You can view the book details here: {book_url}
+
+        Thank you,
+        UniLib Team
+        """
         
-        email = EmailMultiAlternatives(subject, '', to=[user.email])
-        email.attach_alternative(html_content, "text/html")
-        email.send()
+        try:
+            # Try to render HTML template
+            html_content = render_to_string('emails/overdue_book.html', {
+                'user': user,
+                'book': book,
+                'borrow': self,
+                'fine': fine,
+                'due_date': self.due_date,
+                'overdue_days': self.overdue_days,
+                'book_url': book_url,
+            })
+        except Exception as e:
+            print(f"Error rendering email template: {e}")
+            html_content = None
+        
+        try:
+            email = EmailMultiAlternatives(
+                subject, 
+                text_content, 
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[user.email]
+            )
+            
+            if html_content:
+                email.attach_alternative(html_content, "text/html")
+            
+            email.send()
+            print(f"✓ Email sent successfully to {user.email}")
+            
+        except Exception as e:
+            print(f"✗ Failed to send email to {user.email}: {e}")
+            
 class Fine(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='fines')
     borrow = models.OneToOneField(Borrow, on_delete=models.CASCADE, related_name='fine')

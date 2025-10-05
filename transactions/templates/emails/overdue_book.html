@@ -1,41 +1,103 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: #dc3545; color: white; padding: 20px; text-align: center; }
-        .content { padding: 20px; background: #f8f9fa; }
-        .fine-alert { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; margin: 15px 0; }
-        .btn { display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+        }
+        .alert-box {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .book-info {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .fine-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #dc3545;
+            text-align: center;
+            margin: 15px 0;
+        }
+        .button {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            color: #6c757d;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📚 Book Overdue Notice</h1>
+    <div class="header">
+        <h1>📚 UniLib</h1>
+        <h2>Overdue Book Notice</h2>
+    </div>
+    
+    <div class="content">
+        <p>Dear <strong>{{ user.get_full_name }}</strong>,</p>
+        
+        <div class="alert-box">
+            <h3>⚠️ Important Notice</h3>
+            <p>You have an overdue book that needs to be returned immediately.</p>
         </div>
-        <div class="content">
-            <h2>Hello {{ user.get_full_name }},</h2>
-            
-            <p>This is to inform you that the following book is overdue:</p>
-            
-            <div class="fine-alert">
-                <h3>📖 {{ book.title }}</h3>
-                <p><strong>Due Date:</strong> {{ due_date|date:"F d, Y" }}</p>
-                <p><strong>Overdue by:</strong> {{ overdue_days }} day(s)</p>
-                <p><strong>Fine Amount:</strong> ${{ fine_amount }}</p>
-            </div>
-            
-            <p>Please return the book as soon as possible to avoid additional charges.</p>
-            
-            <p>You can view the book details here:</p>
-            <a href="{{ url }}" class="btn">View Book Details</a>
-            
-            <p style="margin-top: 20px;">
-                Best regards,<br>
-                UniLib Team
-            </p>
+        
+        <div class="book-info">
+            <h3>Book Details</h3>
+            <p><strong>Title:</strong> {{ book.title }}</p>
+            <p><strong>Author:</strong> {{ book.author }}</p>
+            <p><strong>ISBN:</strong> {{ book.isbn }}</p>
+            <p><strong>Due Date:</strong> {{ due_date }}</p>
+            <p><strong>Days Overdue:</strong> {{ overdue_days }} day(s)</p>
+        </div>
+        
+        <div class="fine-amount">
+            Fine Amount: ${{ fine.amount }}
+        </div>
+        
+        <p>Please return this book to the library as soon as possible to avoid additional charges.</p>
+        
+        <p>
+            <a href="{{ book_url }}" class="button">View Book Details</a>
+        </p>
+        
+        <div class="footer">
+            <p>If you have already returned this book, please contact the library.</p>
+            <p>Best regards,<br><strong>UniLib Team</strong></p>
         </div>
     </div>
 </body>
