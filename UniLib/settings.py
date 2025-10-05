@@ -17,7 +17,7 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG', default=True) # Set to False in production
 
 ALLOWED_HOSTS = ['*']
-
+CSRF_TRUSTED_ORIGINS = ['https://unilib-ci2k.onrender.com','https://*.127.0.0.1']
 
 # Application definition
 
@@ -160,12 +160,6 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = env('EMAIL')
 EMAIL_HOST_PASSWORD = env('EMAIL_PASSWORD')
 
-EMAIL_TIMEOUT = 30
-EMAIL_USE_SSL = False
-
-# Email settings
-DEFAULT_FROM_EMAIL = 'UniLib <noreply@unilib.com>'
-SERVER_EMAIL = 'server@unilib.com'  # For error messages
 
 # Sites framework
 SITE_ID = 1
