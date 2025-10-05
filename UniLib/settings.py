@@ -167,8 +167,8 @@ EMAIL_HOST_PASSWORD = env('EMAIL_PASSWORD')
 
 
 # Email settings
-DEFAULT_FROM_EMAIL = 'UniLib <noreply@unilib.com>'
-SERVER_EMAIL = 'server@unilib.com'  # For error messages
+DEFAULT_FROM_EMAIL = env('EMAIL')
+SERVER_EMAIL = env('EMAIL')  # For error messages
 
 # Sites framework
 SITE_ID = 1
