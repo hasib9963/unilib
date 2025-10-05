@@ -1,5 +1,4 @@
 from django.urls import path
-
 from .views import register, profile, UserCreateView, user_list, user_detail, user_update, user_delete, ConfirmEmailView
 from django.contrib.auth.views import  LoginView, LogoutView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.contrib.auth import views as auth_views
@@ -53,5 +52,4 @@ urlpatterns = [
     path('users/<int:pk>/', user_detail, name='user-detail'),
     path('users/<int:pk>/update/', user_update, name='user-update'),
     path('users/<int:pk>/delete/', user_delete, name='user-delete'),
-    
 ]

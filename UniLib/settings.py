@@ -3,6 +3,7 @@ import environ
 env = environ.Env()
 environ.Env.read_env()
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -89,22 +90,13 @@ WSGI_APPLICATION = 'UniLib.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-import dj_database_url
-import os
-if 'RENDER' in os.environ:
-    DATABASES = {
-        'default': dj_database_url.config(
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 
 # Password validation
@@ -148,25 +140,15 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-import os
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# settings.py
-
 DEFAULT_PROFILE_IMAGE = 'images/default_profile.png'
-
-# Email settings (for development)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
@@ -174,14 +156,9 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = env('EMAIL')
 EMAIL_HOST_PASSWORD = env('EMAIL_PASSWORD')
 
-
-# Email settings
-DEFAULT_FROM_EMAIL = env('EMAIL')
-SERVER_EMAIL = env('EMAIL')  # For error messages
-
-# Sites framework
+DEFAULT_FROM_EMAIL = f"UniLib <{env('EMAIL')}>"
+SERVER_EMAIL = f"UniLib <{env('EMAIL')}>"  # For error messages
 SITE_ID = 1
-SITE_NAME = "UniLib"  # Custom setting we'll use
 
 # Password reset timeout in seconds (24 hours)
 PASSWORD_RESET_TIMEOUT = 86400
