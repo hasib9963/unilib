@@ -166,7 +166,7 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 SITE_DOMAIN='unilib-ci2k.onrender.com'
 # Sites framework
 SITE_ID = 1
-SITE_NAME = "UniLib"  # Custom setting we'll use
+SITE_NAME = "UniLib"  
 
 # Password reset timeout in seconds (24 hours)
 PASSWORD_RESET_TIMEOUT = 86400
