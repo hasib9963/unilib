@@ -2,7 +2,6 @@ from pathlib import Path
 import environ
 env = environ.Env()
 environ.Env.read_env()
-from django.contrib.sites.models import Site
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -172,8 +171,6 @@ DEFAULT_FROM_EMAIL = 'UniLib <noreply@unilib.com>'
 SERVER_EMAIL = 'server@unilib.com'  # For error messages
 
 # Sites framework
-DOMAIN = f"http://{Site.objects.get_current().domain}"
-
 SITE_ID = 1
 SITE_NAME = "UniLib"  # Custom setting we'll use
 
@@ -184,6 +181,3 @@ AUTHENTICATION_BACKENDS = [
     'accounts.backends.EmailOrUsernameModelBackend',
     'django.contrib.auth.backends.ModelBackend',  # Keep this as fallback
 ]
-
-# DOMAIN = '127.0.0.1:8000'  # For development
-DOMAIN = 'http://unilib-ci2k.onrender.com'  # For production
