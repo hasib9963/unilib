@@ -275,6 +275,7 @@ class FineListView(LoginRequiredMixin, ListView):
     model = Fine
     template_name = 'transactions/fine_list.html'
     context_object_name = 'fines'
+    paginate_by = 10  # Add this line
     
     def get_queryset(self):
         # Check for overdue books that need fines when someone visits the fine list
@@ -324,7 +325,6 @@ class FineListView(LoginRequiredMixin, ListView):
             context['is_staff_user'] = self.request.user.is_staff
         
         return context
-    
 
 class PayFineView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Fine
