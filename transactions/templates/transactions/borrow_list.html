@@ -270,16 +270,27 @@
                                 <!-- Actions Column -->
                                 <td class="py-4 text-right">
                                     {% if not borrow.is_returned %}
-                                    <div class="flex justify-end space-x-2">
-                                        <a href="{% url 'return-book' borrow.pk %}" 
-                                           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center"
-                                           data-bs-toggle="tooltip" 
-                                           title="Return Book">
-                                            <i class="fas fa-book mr-2"></i> Return
-                                        </a>
-                                    </div>
+                                        <div class="flex justify-end space-x-2">
+                                            {% if request.user.role in "ADMIN LIBRARIAN" or request.user.is_staff %}
+                                                <!-- Admin/Librarian can return books -->
+                                                <a href="{% url 'return-book' borrow.pk %}" 
+                                                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center"
+                                                data-bs-toggle="tooltip" 
+                                                title="Return Book">
+                                                    <i class="fas fa-book mr-2"></i> Return
+                                                </a>
+                                            {% else %}
+                                                <!-- Students/Faculty see disabled button -->
+                                                <button 
+                                                class="bg-gray-400 text-white px-4 py-2 rounded-lg font-medium flex items-center cursor-not-allowed"
+                                                data-bs-toggle="tooltip" 
+                                                title="Only librarians/admin can perform this action">
+                                                    <i class="fas fa-book mr-2"></i> Return
+                                                </button>
+                                            {% endif %}
+                                        </div>
                                     {% else %}
-                                    <span class="text-gray-400 text-sm">Completed</span>
+                                        <span class="text-gray-400 text-sm">Completed</span>
                                     {% endif %}
                                 </td>
                             </tr>
