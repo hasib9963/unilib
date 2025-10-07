@@ -35,7 +35,7 @@
                 </p>
             </div>
             <div class="flex space-x-4">
-                <button class="bg-white hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center border border-gray-200">
+                <button id="refresh-btn" class="bg-white hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center border border-gray-200">
                     <i class="fas fa-sync-alt mr-3 text-indigo-600"></i> Refresh
                 </button>
                 <a href="{% url 'dashboard' %}?export=pdf{% if request.GET.recent_borrows %}&recent_borrows={{ request.GET.recent_borrows }}{% endif %}{% if request.GET.overdue_borrows %}&overdue_borrows={{ request.GET.overdue_borrows }}{% endif %}{% if request.GET.popular_books %}&popular_books={{ request.GET.popular_books }}{% endif %}{% if request.GET.recent_reservations %}&recent_reservations={{ request.GET.recent_reservations }}{% endif %}{% if request.GET.user_borrows %}&user_borrows={{ request.GET.user_borrows }}{% endif %}{% if request.GET.user_reservations %}&user_reservations={{ request.GET.user_reservations }}{% endif %}" 
@@ -602,10 +602,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Refresh button functionality
-    const refreshBtn = document.querySelector('button:contains("Refresh")');
+    const refreshBtn = document.getElementById('refresh-btn');
     if (refreshBtn) {
         refreshBtn.addEventListener('click', function() {
+            const originalText = this.innerHTML;
             this.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i> Refreshing...';
+            this.disabled = true;
+            
             setTimeout(() => {
                 window.location.reload();
             }, 1000);
